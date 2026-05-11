@@ -1,0 +1,123 @@
+/* Estrutura principal parecendo um App */
+.mainContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: #fcfcfc;
+  font-family: sans-serif;
+}
+
+.appCard {
+  width: 100%;
+  max-width: 400px; /* No PC fica um card centralizado, no celular ocupa tudo */
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Cabeçalho */
+.header {
+  text-align: center;
+}
+
+.logoBox {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.titulo {
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.subtitulo {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Badges de Status */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.aberto {
+  background-color: #e6f4ea;
+  color: #137333;
+}
+
+.fechado {
+  background-color: #fce8e6;
+  color: #c5221f;
+}
+
+.bolaPulsante {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Área de Ação (Botões para dedos grandes) */
+.actionArea {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.btnPrimary, .btnSecondary {
+  width: 100%;
+  padding: 18px; /* Altura excelente para toque no celular */
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease, filter 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Efeito tátil para o celular (quando o dedo aperta) */
+.btnPrimary:active, .btnSecondary:active {
+  transform: scale(0.97); 
+}
+
+.btnPrimary {
+  background-color: #e65100;
+  color: white;
+  box-shadow: 0 4px 12px rgba(230, 81, 0, 0.2);
+}
+
+.btnSecondary {
+  background-color: transparent;
+  color: #e65100;
+  border: 2px solid #e65100;
+}
+
+.boxFechado {
+  background-color: #f1f3f4;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  color: #3c4043;
+}
+
+.boxFechado p {
+  margin: 4px 0;
+  font-size: 0.95rem;
+}
