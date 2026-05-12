@@ -28,6 +28,7 @@ export default function Pedido() {
     console.log("status loja : ", statusLoja);
     console.log("loading loja : ", loadingLoja);
     
+    
 
     useEffect(() => {
         if (!loadingLoja && statusLoja === false) {

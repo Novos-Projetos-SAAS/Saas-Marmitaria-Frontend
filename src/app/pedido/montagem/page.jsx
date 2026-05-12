@@ -18,10 +18,6 @@ export default function Montagem() {
 
     const { marmitaAtual, alternarAlimento, adicionarAoCarrinho } = usePedido();
 
-    
-
-    console.log(marmitaAtual);
-
     const [quantidade, setQuantidade] = useState(1);
     const [isFinalizando, setIsFinalizando] = useState(false)
 

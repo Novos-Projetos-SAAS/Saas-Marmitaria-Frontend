@@ -1,0 +1,150 @@
+.container, .containerVazio {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    background-color: #FAFAFA;
+    min-height: 100vh;
+    font-family: sans-serif;
+}
+
+.containerVazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.header {
+    margin-bottom: 32px;
+}
+
+.btnLink {
+    background: none;
+    border: none;
+    color: #EA580C;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    margin-bottom: 16px;
+    padding: 0;
+}
+
+.header h1 {
+    font-size: 1.75rem;
+    color: #18181B;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.secaoTitulo {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #71717A;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #E4E4E7;
+    padding-bottom: 8px;
+}
+
+.resumo {
+    background-color: #FFFFFF;
+    border: 1px solid #E4E4E7;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 32px;
+}
+
+.itemCarrinho {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px dashed #F4F4F5;
+}
+
+.itemInfo {
+    display: flex;
+    gap: 12px;
+}
+
+.itemQuantidade {
+    font-weight: 800;
+    color: #EA580C;
+}
+
+.itemInfo h3 {
+    font-size: 1rem;
+    margin: 0 0 4px 0;
+}
+
+.itemDetalhes {
+    font-size: 0.85rem;
+    color: #71717A;
+    margin: 0;
+}
+
+.itemPreco {
+    font-weight: 600;
+    color: #18181B;
+}
+
+.totalBox {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 2px solid #18181B;
+    font-size: 1.1rem;
+}
+
+/* Formulário Profissional */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inputGroup label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #18181B;
+}
+
+.inputGroup input, .inputGroup textarea, .inputGroup select {
+    padding: 12px;
+    border: 1px solid #D4D4D8;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #FFFFFF;
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: #EA580C;
+}
+
+.btnFinalizar {
+    background-color: #EA580C;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 20px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
+}
+
+.btnFinalizar:disabled {
+    background-color: #A1A1AA;
+    cursor: not-allowed;
+}

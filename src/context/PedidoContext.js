@@ -11,6 +11,7 @@ export function PedidoProvider({ children }) {
         tamanho: null,
         itens: []
     });
+    const [sucessoPedido, setSucessoPedido] = useState(false);
 
     const iniciarNovaMarmita = useCallback((tamanho) => {
         setMarmitaAtual({
@@ -118,7 +119,9 @@ export function PedidoProvider({ children }) {
             alternarAlimento,
             adicionarAoCarrinho,
             limparCarrinho,
-            totalGeral
+            totalGeral,
+            sucessoPedido,
+            setSucessoPedido
         }}>
             {children}
         </PedidoContext.Provider>
