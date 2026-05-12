@@ -1,4 +1,4 @@
-.container {
+/* .container {
   max-width: 600px;
   margin: 0 auto;
   padding: 24px 16px;
@@ -83,4 +83,193 @@
 .iconeSeta {
   color: #ccc;
   font-size: 1.2rem;
+} */
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  padding-bottom: 120px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  background-color: #FAFAFA;
+}
+
+.containerCentral {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #EA580C; /* Destaque na cor de carregamento */
+  font-weight: 600;
+  background-color: #FAFAFA;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+/* Botão voltar recupera o destaque de ação clicável */
+.btnVoltar {
+  background: none;
+  border: none;
+  color: #EA580C; /* Laranja sofisticado para guiar a navegação */
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0;
+  margin-bottom: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.btnVoltar:active {
+  opacity: 0.7;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  color: #18181B;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: #71717A;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.listaTamanhos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardTamanho {
+  background-color: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 8px; /* Mantém a forma técnica/reta */
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  transition: all 0.15s ease;
+}
+
+/* Feedback tátil agora usa o tom de destaque na borda e no fundo */
+.cardTamanho:active {
+  transform: scale(0.99);
+  border-color: #EA580C; 
+  background-color: #FFF7ED; /* Fundo levemente alaranjado */
+}
+
+.infoTamanho h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+  color: #18181B;
+  font-weight: 700;
+}
+
+/* O Preço agora é uma "tag" visual, impossível do cliente não notar */
+.preco {
+  color: #EA580C;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background-color: #FFF7ED;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  border: 1px solid #FFEDD5;
+}
+
+.iconeSeta {
+  color: #A1A1AA;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* A seta acende com a cor da marca quando clicada */
+.cardTamanho:active .iconeSeta {
+  transform: translateX(4px);
+  color: #EA580C;
+}
+/* BARRA FLUTUANTE DO CARRINHO */
+.barraCarrinho {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E4E4E7;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+  z-index: 100;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btnCarrinho {
+  width: 100%;
+  max-width: 400px;
+  background-color: #EA580C;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.1s ease;
+}
+
+.btnCarrinho:active {
+  transform: scale(0.98);
+}
+
+.infoCarrinho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qtdBadge {
+  background-color: #FFFFFF;
+  color: #EA580C;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.totalCarrinho {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

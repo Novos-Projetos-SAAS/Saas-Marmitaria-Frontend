@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from "react";
 
 import { buscarStatusLoja, alterarStatusLoja } from "@/services/lojaService.js"
@@ -5,7 +7,7 @@ import toast from "react-hot-toast";
 
 export function useLoja() {
     const [statusLoja, setStatusLoja] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [atualizando, setAtualizando] = useState(false)
 
     const carregarStatus = async () => {

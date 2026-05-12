@@ -19,32 +19,68 @@ export function PedidoProvider({ children }) {
         });
     }, []);
 
+    // const alternarAlimento = useCallback((alimento, limiteDaCategoria) => {
+    //     setMarmitaAtual((prev) => {
+    //         const jaSelecionado = prev.itens.find(i => i.id === alimento.id);
+
+    //         if (jaSelecionado) {
+    //             return {
+    //                 ...prev,
+    //                 itens: prev.itens.filter(i => i.id !== alimento.id)
+    //             };
+    //         }
+
+    //         const itensDaMesmaCategoria = prev.itens.filter(
+    //             i => i.categoria_id === alimento.categoria_id
+    //         ).length;
+
+    //         if (itensDaMesmaCategoria >= limiteDaCategoria) {
+    //             toast.error(`Limite atingido! Esta categoria permite apenas ${limiteDaCategoria} opções.`);
+    //             return prev;
+    //         }
+
+    //         return {
+    //             ...prev,
+    //             itens: [...prev.itens, alimento]
+    //         };
+    //     });
+    // }, []);
+
     const alternarAlimento = useCallback((alimento, limiteDaCategoria) => {
-        setMarmitaAtual((prev) => {
-            const jaSelecionado = prev.itens.find(i => i.id === alimento.id);
 
-            if (jaSelecionado) {
-                return {
-                    ...prev,
-                    itens: prev.itens.filter(i => i.id !== alimento.id)
-                };
-            }
+        const jaSelecionado = marmitaAtual.itens.find(
+            i => i.id === alimento.id
+        );
 
-            const itensDaMesmaCategoria = prev.itens.filter(
-                i => i.categoria_id === alimento.categoria_id
-            ).length;
+        if (jaSelecionado) {
 
-            if (itensDaMesmaCategoria >= limiteDaCategoria) {
-                toast.error(`Limite atingido! Esta categoria permite apenas ${limiteDaCategoria} opções.`);
-                return prev;
-            }
-
-            return {
+            setMarmitaAtual(prev => ({
                 ...prev,
-                itens: [...prev.itens, alimento]
-            };
-        });
-    }, []);
+                itens: prev.itens.filter(i => i.id !== alimento.id)
+            }));
+
+            return;
+        }
+
+        const itensDaMesmaCategoria = marmitaAtual.itens.filter(
+            i => i.categoria_id === alimento.categoria_id
+        ).length;
+
+        if (itensDaMesmaCategoria >= limiteDaCategoria) {
+
+            toast.error(
+                `Limite atingido! Esta categoria permite apenas ${limiteDaCategoria} opções.`
+            );
+
+            return;
+        }
+
+        setMarmitaAtual(prev => ({
+            ...prev,
+            itens: [...prev.itens, alimento]
+        }));
+
+    }, [marmitaAtual]);
 
     const adicionarAoCarrinho = useCallback((quantidade = 1) => {
         if (!marmitaAtual.tamanho || marmitaAtual.itens.length === 0) {

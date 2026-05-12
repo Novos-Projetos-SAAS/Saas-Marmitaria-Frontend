@@ -1,0 +1,187 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  padding-bottom: 140px; /* Espaço para a barra fixa não cobrir o conteúdo */
+  background-color: #FAFAFA;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+/* Botão voltar com a cor de destaque (Accent Color) */
+.btnVoltar {
+  background: none;
+  border: none;
+  color: #EA580C; 
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0;
+  margin-bottom: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.btnVoltar:active {
+  opacity: 0.7;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  color: #18181B;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: #71717A;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Blocos de Categoria */
+.blocoCategoria {
+  margin-bottom: 32px;
+}
+
+.cabecalhoCategoria {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid #E4E4E7;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.cabecalhoCategoria h2 {
+  font-size: 1.15rem;
+  color: #18181B;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Contador de limite com a Tag Laranja */
+.contadorLimite {
+  font-size: 0.85rem;
+  color: #EA580C; 
+  font-weight: 700;
+  background-color: #FFF7ED;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #FFEDD5;
+}
+
+.gridAlimentos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Cards de Ingredientes (Geométricos e limpos) */
+.cardAlimento {
+  background-color: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 6px;
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+/* Estilo Selecionado - Acende o fundo e a borda com o tom laranja */
+.cardSelecionado {
+  background-color: #FFF7ED;
+  border-color: #EA580C;
+  transform: scale(0.99);
+}
+
+.nomeAlimento {
+  font-size: 1rem;
+  color: #18181B;
+  font-weight: 500;
+}
+
+/* Check mark com peso e cor forte */
+.iconeCheck {
+  color: #EA580C;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+/* BARRA FIXA PREMIUM */
+.barraFixa {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E4E4E7;
+  padding: 20px 16px;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+}
+
+.conteudoBarra {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.controleQtd {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #F4F4F5;
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: 1px solid #E4E4E7;
+}
+
+.controleQtd button {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #EA580C;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controleQtd button:active {
+  opacity: 0.6;
+}
+
+.btnAdicionar {
+  flex: 1;
+  background-color: #18181B; /* Zinco 900 - Traz a seriedade */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 18px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.btnAdicionar:active {
+  background-color: #EA580C; /* Flash laranja ao clicar */
+  transform: scale(0.98);
+}

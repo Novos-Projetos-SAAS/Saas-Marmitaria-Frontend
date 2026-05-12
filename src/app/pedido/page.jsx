@@ -1,11 +1,13 @@
-'use client';
+'use client'
 
 import { useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { usePedido } from '@/context/PedidoContext.js';
+
 import { useCardapio } from '@/hooks/useCardapio.js';
-import { usePedido } from '@/context/PedidoContext';
+import { useLoja } from '@/hooks/useLoja.js';
 
 import styles from './page.module.css';
 
@@ -15,22 +17,41 @@ export default function Pedido() {
 
     const router = useRouter();
 
-    const { tamanhos, loading, carregarCardapio } = useCardapio();
+    const { statusLoja, loading: loadingLoja } = useLoja();
+    const { tamanhos, loading: loadingCardapio } = useCardapio();
 
-    const { iniciarNovaMarmita } = usePedido()
+    const { iniciarNovaMarmita, carrinho, totalGeral } = usePedido();
 
+    const qtdTotalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+
+
+    console.log("status loja : ", statusLoja);
+    console.log("loading loja : ", loadingLoja);
+    
 
     useEffect(() => {
-        carregarCardapio()
-    }, [])
+        if (!loadingLoja && statusLoja === false) {
+            router.replace('/')
+        }
+    }, [statusLoja, loadingLoja, router]);
+
+    // useEffect(() => {
+    //     carregarCardapio()
+    // }, [carregarCardapio])
 
     const selecionarTamanho = (tamanho) => {
         iniciarNovaMarmita(tamanho)
         router.push('/pedido/montagem');
     }
 
-    if (loading) {
-        return <div className={styles.containerCentral}>Carregando cardápio...</div>;
+    // Enquanto verifica o status ou o cardápio, exibe um estado neutro
+    if (loadingLoja || loadingCardapio) {
+        return <div className={styles.containerCentral}>Sincronizando com a cozinha...</div>;
+    }
+
+    // Se o status for falso, retorna null para não "piscar" o conteúdo antes do redirecionamento
+    if (statusLoja !== true) {
+        return null; 
     }
 
     return (
@@ -60,6 +81,23 @@ export default function Pedido() {
                     </div>
                 ))}
             </section>
+            {/* 👇 BARRA FLUTUANTE ADICIONADA AQUI */}
+            {carrinho.length > 0 && (
+                <div className={styles.barraCarrinho}>
+                    <button 
+                        className={styles.btnCarrinho}
+                        onClick={() => router.push('/carrinho')}
+                    >
+                        <div className={styles.infoCarrinho}>
+                            <span className={styles.qtdBadge}>{qtdTotalItens}</span>
+                            <span>Ver carrinho</span>
+                        </div>
+                        <span className={styles.totalCarrinho}>
+                            R$ {totalGeral.toFixed(2).replace('.', ',')}
+                        </span>
+                    </button>
+                </div>
+            )}
         </main>
     );
 }

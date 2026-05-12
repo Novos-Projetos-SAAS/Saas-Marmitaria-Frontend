@@ -4,11 +4,15 @@ import { useRouter } from 'next/navigation';
 
 import { useLoja } from '@/hooks/useLoja';
 
+import { usePedido } from '@/context/PedidoContext.js';
+
 import styles from './page.module.css';
 
 export default function Home() {
 
     const { statusLoja, loading } = useLoja();
+
+    const { carrinho, totalGeral } = usePedido();
 
     const router = useRouter();
 
@@ -23,6 +27,10 @@ export default function Home() {
             </main>
         );
     }
+
+    const quantidadeTotalItens = carrinho.reduce((acc, item) => 
+        acc + item.quantidade, 0
+    )
 
     return (
         <main className={styles.mainContainer}>
@@ -61,6 +69,24 @@ export default function Home() {
                 </section>
 
             </div>
+
+            {/* 👇 BARRA FLUTUANTE DO CARRINHO */}
+            {carrinho.length > 0 && (
+                <div className={styles.barraCarrinho}>
+                    <button
+                        className={styles.btnCarrinho}
+                        onClick={() => router.push('/carrinho')}
+                    >
+                        <div className={styles.infoCarrinho}>
+                            <span className={styles.qtdBadge}>{quantidadeTotalItens}</span>
+                            <span>Ver carrinho</span>
+                        </div>
+                        <span className={styles.totalCarrinho}>
+                            R$ {totalGeral.toFixed(2).replace('.', ',')}
+                        </span>
+                    </button>
+                </div>
+            )}
         </main>
     );
 }
