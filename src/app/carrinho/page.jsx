@@ -102,6 +102,8 @@ export default function Carrinho() {
                 // Depois ativamos a permissão para a tela de sucesso
                 setSucessoPedido(true);
 
+                localStorage.setItem('marmitaria_telefone_cliente', telefoneLimpo);
+
                 // Por fim, navegamos
                 router.push('/pedido/sucesso');
             }

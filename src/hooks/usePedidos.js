@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from "react";
-import { criarPedido } from "@/services/pedidosService.js";
+import { criarPedido , listarPedidoPorTelefoneUsuario} from "@/services/pedidosService.js";
 import { usePedido } from "@/context/PedidoContext.js"; // Para limpar o carrinho depois
 import toast from "react-hot-toast";
 
 export function usePedidos() {
     const [enviando, setEnviando] = useState(false);
+    const [buscando, setBuscando] = useState(false);
     const { limparCarrinho } = usePedido();
 
     const finalizarPedidoNoBanco = async (payload) => {
@@ -27,8 +28,27 @@ export function usePedidos() {
         }
     };
 
+    const buscarPedidoPorTelefoneUsuario = async (telefone) => {
+        setBuscando(true);
+
+        try {
+            const numeroLimpo = telefone.replace(/\D/g, '');
+
+            const pedidoEncontrado = await listarPedidoPorTelefoneUsuario(numeroLimpo);
+            return pedidoEncontrado;
+        } catch (error) {
+            console.error("Erro na busca:", error);
+            // Retorna null para a tela saber que não achou nada e mostrar o erro
+            return null; 
+        } finally {
+            setBuscando(false);
+        }
+    }
+
     return {
         finalizarPedidoNoBanco,
+        buscarPedidoPorTelefoneUsuario,
+        buscando,
         enviando
     };
 }

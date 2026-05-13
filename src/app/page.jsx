@@ -28,7 +28,7 @@ export default function Home() {
         );
     }
 
-    const quantidadeTotalItens = carrinho.reduce((acc, item) => 
+    const quantidadeTotalItens = carrinho.reduce((acc, item) =>
         acc + item.quantidade, 0
     )
 
@@ -63,7 +63,10 @@ export default function Home() {
                         </div>
                     )}
 
-                    <button className={styles.btnSecondary}>
+                    <button
+                        className={styles.btnSecondary}
+                        onClick={() => router.push('/acompanhar')}
+                    >
                         Consultar Pedido 📋
                     </button>
                 </section>
