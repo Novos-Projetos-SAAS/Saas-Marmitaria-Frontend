@@ -60,13 +60,17 @@
 .itemCarrinho {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
+    align-items: start;
+    padding: 16px 0;
+    gap: 16px;
     border-bottom: 1px dashed #F4F4F5;
 }
 
 .itemInfo {
     display: flex;
     gap: 12px;
+    flex: 1;
+    min-width: 0;
 }
 
 .itemQuantidade {
@@ -80,14 +84,27 @@
 }
 
 .itemDetalhes {
-    font-size: 0.85rem;
+    /* font-size: 0.85rem;
     color: #71717A;
-    margin: 0;
+    margin: 0; */
+    font-size: 0.8rem;
+    color: #71717A;
+    margin: 4px 0 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    /* Opcional: se o texto for muito longo e você quiser limitar linhas */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .itemPreco {
     font-weight: 600;
     color: #18181B;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
 
 .totalBox {
@@ -104,6 +121,32 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.inputField {
+    padding: 12px;
+    border: 1px solid #D4D4D8;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #FFFFFF;
+    width: 100%;
+    font-family: inherit;
+}
+
+.inputField:focus {
+    outline: none;
+    border-color: #EA580C;
+}
+
+
+.textarea {
+    resize: vertical;
 }
 
 .inputGroup {

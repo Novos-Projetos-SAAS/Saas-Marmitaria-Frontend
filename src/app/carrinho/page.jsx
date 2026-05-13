@@ -9,6 +9,8 @@ import { usePedido } from "@/context/PedidoContext.js"
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento.js"
 import { usePedidos } from "@/hooks/usePedidos.js"
 
+import { TelefoneInput } from "@/components/InputMask.jsx"
+
 import toast from "react-hot-toast"
 
 import styles from './page.module.css'
@@ -29,9 +31,13 @@ export default function Carrinho() {
     const [form, setForm] = useState({
         nome: '',
         telefone: '',
-        endereco: '',
+        // endereco: '',
+        logradouro: '',
+        numero: '',
+        complemento: '',
         metodo_pagamento_id: '',
-        tipo_pedido: 'Remoto'
+        tipo_pedido: 'Remoto',
+        observacoes: ''
     })
 
     // useEffect(() => {
@@ -60,14 +66,25 @@ export default function Carrinho() {
             return toast.error("Por favor, selecione a forma de pagamento.");
         }
 
+        const telefoneLimpo = form.telefone.replace(/\D/g, '');
+
+        // 2. VALIDAÇÃO: Um celular com DDD no Brasil tem exatamente 11 números.
+        if (telefoneLimpo.length < 11) {
+            return toast.error("Por favor, digite um telefone válido com DDD.");
+        }
+
         try {
+
+            const enderecoFormatado = `${form.logradouro}, ${form.numero} - Centro (${form.complemento || 'Sem complemento'})`;
+
             // MONTANDO O PAYLOAD EXATO PARA O BACKEND
             const payload = {
                 nome_cliente: form.nome,
-                telefone_cliente: form.telefone,
-                endereco_cliente: form.endereco,
+                telefone_cliente: telefoneLimpo,
+                endereco_cliente: enderecoFormatado,
                 metodo_pagamento_id: Number(form.metodo_pagamento_id),
                 tipo_pedido: form.tipo_pedido,
+                observacoes: form.observacoes,
                 marmitas: carrinho.map(item => ({
                     tamanho_id: Number(item.tamanho.id),
                     quantidade: Number(item.quantidade),
@@ -147,12 +164,45 @@ export default function Carrinho() {
 
                 <div className={styles.inputGroup}>
                     <label>Telefone / WhatsApp</label>
-                    <input type="tel" name="telefone" required value={form.telefone} onChange={handleChange} placeholder="(00) 00000-0000" />
+                    <TelefoneInput
+                        value={form.telefone}
+                        onChange={handleChange}
+                        className={styles.inputCustom}
+                        placeholder="(00) 00000-0000"
+                    />
+                </div>
+
+                {/* <div className={styles.inputGroup}>
+                    <label>Endereço Completo</label>
+                    <textarea name="endereco" required value={form.endereco} onChange={handleChange} placeholder="Rua, número, bairro e referência" />
+                </div> */}
+
+                <div className={styles.row}>
+                    <div className={styles.inputGroup} style={{ flex: 3 }}>
+                        <label>Rua / Avenida</label>
+                        <input type="text" name="logradouro" required value={form.logradouro} onChange={handleChange} placeholder="Ex: Rua das Flores" />
+                    </div>
+                    <div className={styles.inputGroup} style={{ flex: 1, minWidth: '80px' }}>
+                        <label>Nº</label>
+                        <input type="text" name="numero" required value={form.numero} onChange={handleChange} placeholder="Ex: 123" />
+                    </div>
                 </div>
 
                 <div className={styles.inputGroup}>
-                    <label>Endereço Completo</label>
-                    <textarea name="endereco" required value={form.endereco} onChange={handleChange} placeholder="Rua, número, bairro e referência" />
+                    <label>Complemento (Opcional)</label>
+                    <input type="text" name="complemento" value={form.complemento} onChange={handleChange} placeholder="Casa, Apto 45, Bloco B..." />
+                </div>
+
+                <div className={styles.inputGroup}>
+                    <label>Observações do Pedido (Opcional)</label>
+                    <textarea
+                        name="observacoes"
+                        value={form.observacoes}
+                        onChange={handleChange}
+                        className={styles.textarea}
+                        placeholder="Ex: Tirar cebola, alergia a amendoim, troco para R$ 50..."
+                        rows="2"
+                    />
                 </div>
 
                 <div className={styles.inputGroup}>

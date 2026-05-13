@@ -17,3 +17,4 @@ npm install react-hot-toast
 npm install sweetalert2
 npm install chalk log-symbols
 npm install js-cookie
+npm install react-imask

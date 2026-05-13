@@ -20,9 +20,11 @@ export default function PedidoSucesso() {
     // Funções de saída que limpam o estado
     const finalizarEIrPara = (rota) => {
         // 1. Primeiro resetamos a permissão de ver a tela de sucesso
-        setSucessoPedido(false);
-        // 2. Depois navegamos para onde o usuário quer ir
         router.push(rota);
+        setTimeout(() => {
+            setSucessoPedido(false);
+        }, 300);
+        // 2. Depois navegamos para onde o usuário quer ir
     };
 
     // 💡 Em vez de um estado 'podeExibir', apenas checamos a variável do contexto
