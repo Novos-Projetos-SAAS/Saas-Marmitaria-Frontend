@@ -13,13 +13,15 @@ import { TelefoneInput } from "@/components/InputMask.jsx"
 
 import toast from "react-hot-toast"
 
+import { Trash2 } from "lucide-react"
+
 import styles from './page.module.css'
 
 export default function Carrinho() {
 
     const router = useRouter();
 
-    const { carrinho, totalGeral, limparCarrinho, setSucessoPedido } = usePedido();
+    const { carrinho, totalGeral, limparCarrinho, setSucessoPedido, removerDoCarrinho } = usePedido();
 
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
 
@@ -134,7 +136,7 @@ export default function Carrinho() {
 
             <section className={styles.resumo}>
                 <h2 className={styles.secaoTitulo}>Sua Escolha</h2>
-                {carrinho.map((item) => (
+                {carrinho.map((item, index) => (
                     <div key={item.id_temp} className={styles.itemCarrinho}>
                         <div className={styles.itemInfo}>
                             <span className={styles.itemQuantidade}>{item.quantidade}x</span>
@@ -145,9 +147,22 @@ export default function Carrinho() {
                                 </p>
                             </div>
                         </div>
-                        <span className={styles.itemPreco}>
-                            R$ {item.subtotal.toFixed(2).replace('.', ',')}
-                        </span>
+
+                        <div className={styles.itemAcoes}>
+                            <span className={styles.itemPreco}>
+                                R$ {item.subtotal.toFixed(2).replace('.', ',')}
+                            </span>
+                            
+                            {/* O botão chamando a função passando a posição (index) do item */}
+                            <button 
+                                type="button" 
+                                onClick={() => removerDoCarrinho(index)}
+                                className={styles.btnRemover}
+                                title="Remover marmita"
+                            >
+                                <Trash2 size={20} />
+                            </button>
+                        </div>
                     </div>
                 ))}
                 <div className={styles.totalBox}>

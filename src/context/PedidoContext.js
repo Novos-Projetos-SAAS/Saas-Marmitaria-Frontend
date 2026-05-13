@@ -103,6 +103,12 @@ export function PedidoProvider({ children }) {
         return true;
     }, [marmitaAtual]);
 
+    const removerDoCarrinho = (indexParaRemover) => {
+        // Filtra o carrinho, mantendo todos os itens EXCETO o que tem o index igual ao clicado
+        const novoCarrinho = carrinho.filter((_, index) => index !== indexParaRemover);
+        setCarrinho(novoCarrinho);
+    }
+
     const limparCarrinho = useCallback(() => {
         setCarrinho([]);
     }, []);
@@ -121,7 +127,8 @@ export function PedidoProvider({ children }) {
             limparCarrinho,
             totalGeral,
             sucessoPedido,
-            setSucessoPedido
+            setSucessoPedido,
+            removerDoCarrinho
         }}>
             {children}
         </PedidoContext.Provider>

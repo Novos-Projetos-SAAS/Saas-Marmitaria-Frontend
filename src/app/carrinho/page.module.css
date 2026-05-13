@@ -4,7 +4,7 @@
     padding: 24px 16px;
     background-color: #FAFAFA;
     min-height: 100vh;
-    font-family: sans-serif;
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .containerVazio {
@@ -13,6 +13,38 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.containerVazio h2 {
+    font-size: 1.6rem;
+    color: #52525b; /* Cinza escuro, mais suave que o preto puro */
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+.btnVoltar {
+    background-color: #ea580c; /* Laranja da sua marca */
+    color: #ffffff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25); /* Sombra suave laranja */
+}
+
+.btnVoltar:hover {
+    background-color: #c2410c; /* Laranja um pouco mais escuro no hover */
+    transform: translateY(-2px); /* Efeito do botão "levantar" */
+    box-shadow: 0 6px 14px rgba(234, 88, 12, 0.35);
+}
+
+.btnVoltar:active {
+    transform: translateY(0); /* Efeito de apertar (afunda) */
+    box-shadow: 0 2px 5px rgba(234, 88, 12, 0.2);
 }
 
 .header {
@@ -105,6 +137,36 @@
     color: #18181B;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+
+/* Container que segura o preço e o botão de lixeira juntos */
+.itemAcoes {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* O botão da lixeira */
+.btnRemover {
+    background: transparent;
+    border: none;
+    color: #dc2626; /* Vermelho padrão de erro/excluir */
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btnRemover:hover {
+    background-color: #fee2e2; /* Fundo vermelhinho claro ao passar o mouse */
+    transform: scale(1.05); /* Dá uma leve crescida */
+}
+
+.btnRemover:active {
+    transform: scale(0.95); /* Efeito de clique */
 }
 
 .totalBox {
