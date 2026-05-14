@@ -1,3 +1,7 @@
+body {
+  overflow-x: hidden;
+}
+
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -121,7 +125,7 @@
 }
 
 /* BARRA FIXA PREMIUM */
-.barraFixa {
+/* .barraFixa {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -140,14 +144,43 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  box-sizing: border-box;
+} */
+
+.barraFixa * {
+  box-sizing: border-box;
+}
+
+.barraFixa {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box; /* CRUCIAL: Faz o padding ficar "dentro" dos 100% */
+  background-color: #FFFFFF;
+  border-top: 1px solid #E4E4E7;
+  padding: 16px; 
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+}
+
+.conteudoBarra {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .controleQtd {
+  flex-shrink: 0; /* Impede que o seletor de quantidade amasse no mobile */
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px; /* Reduzi levemente o gap interno */
   background-color: #F4F4F5;
-  padding: 14px 16px;
+  padding: 12px 14px; /* Reduzi o padding interno */
   border-radius: 6px;
   font-weight: 700;
   border: 1px solid #E4E4E7;
@@ -167,10 +200,10 @@
 .controleQtd button:active {
   opacity: 0.6;
 }
-
+/* 
 .btnAdicionar {
   flex: 1;
-  background-color: #18181B; /* Zinco 900 - Traz a seriedade */
+  background-color: #18181B; 
   color: #FFFFFF;
   border: none;
   border-radius: 6px;
@@ -179,9 +212,44 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.1s ease, background-color 0.2s ease;
+} */
+
+.btnAdicionar {
+  flex: 1;
+  min-width: 0; 
+  /* Garante que o texto longo não quebre o layout */
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  background-color: #18181B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 16px 8px; /* Padding vertical e lateral ajustados */
+  font-size: 0.95rem; 
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .btnAdicionar:active {
   background-color: #EA580C; /* Flash laranja ao clicar */
   transform: scale(0.98);
+}
+
+@media (max-width: 380px) {
+  .conteudoBarra {
+    gap: 8px;
+  }
+  
+  .controleQtd {
+    padding: 14px 10px; /* Menor espaço interno no seletor de quantidade */
+    gap: 10px;
+  }
+
+  .btnAdicionar {
+    font-size: 0.9rem;
+    padding: 18px 8px;
+  }
 }
