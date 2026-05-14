@@ -1,0 +1,135 @@
+/* src/app/login/page.module.css */
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f8f9fa; /* Fundo cinza bem clarinho */
+    padding: 20px;
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); /* Sombra elegante */
+}
+
+/* HEADER DO LOGIN */
+.header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.logoWrap {
+    background-color: #ea580c;
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 6px 15px rgba(234, 88, 12, 0.3);
+    transform: rotate(-5deg); /* Dá um charminho tortinho */
+}
+
+.header h1 {
+    font-size: 1.6rem;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.header p {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+/* FORMULÁRIO E INPUTS */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inputGroup label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    position: absolute;
+    left: 14px;
+    color: #9ca3af;
+}
+
+.inputWrapper input {
+    width: 100%;
+    padding: 14px 14px 14px 44px; /* O padding-left de 44px abre espaço pro ícone */
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    background-color: #f9fafb;
+}
+
+.inputWrapper input:focus {
+    border-color: #ea580c;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+.inputWrapper input:disabled {
+    background-color: #e5e7eb;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+/* BOTÃO DE ACESSO */
+.btnAcessar {
+    background-color: #ea580c;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.btnAcessar:hover:not(:disabled) {
+    background-color: #c2410c;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
+}
+
+.btnAcessar:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btnAcessar:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}

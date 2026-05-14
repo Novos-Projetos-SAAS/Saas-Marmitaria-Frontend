@@ -8,7 +8,8 @@ const api = axios.create({
   timeout: 50000,
   headers: {
     "Content-Type": "application/json",
-  },
+    },
+  withCredentials: true
 });
 
 // --- INTERCEPTOR DE REQUISIÇÃO ---

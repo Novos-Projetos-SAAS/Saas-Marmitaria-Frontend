@@ -24,12 +24,6 @@ export default function Pedido() {
 
     const qtdTotalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
 
-
-    console.log("status loja : ", statusLoja);
-    console.log("loading loja : ", loadingLoja);
-    
-    
-
     useEffect(() => {
         if (!loadingLoja && statusLoja === false) {
             router.replace('/')
