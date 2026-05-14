@@ -36,25 +36,24 @@ export function useLoja() {
             carregarStatus();
         });
     }, [])
-
     const alterarStatus = async () => {
         try {
             setAtualizando(true);
-
             const novoStatus = !statusLoja;
 
+            // Se sua service espera um booleano direto:
             await alterarStatusLoja(novoStatus);
 
+            // Se sua service espera um objeto, use: 
+            // await alterarStatusLoja({ esta_aberta: novoStatus });
+
             setStatusLoja(novoStatus);
-
-            toast.success(novoStatus ? "Loja ABERTA com sucesso!" : "Loja FECHADA!");
+            toast.success(novoStatus ? "Loja ABERTA!" : "Loja FECHADA!");
         } catch (error) {
-
             console.error("Erro ao alterar status:", error);
-            toast.error("Erro ao alterar o status da loja.");
-
+            toast.error("Erro ao comunicar com o servidor.");
         } finally {
-            setAtualizando(false)
+            setAtualizando(false);
         }
     }
 
