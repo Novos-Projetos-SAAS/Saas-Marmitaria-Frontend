@@ -13,17 +13,21 @@ export function useLoja() {
     const carregarStatus = async () => {
         try {
             setLoading(true);
+            const response = await buscarStatusLoja();
 
-            const statusAtual = await buscarStatusLoja();
+            // A mágica está aqui: acessamos response.data (do axios) 
+            // e depois .data.esta_aberta (do seu JSON)
+            const dadosApi = response?.data?.data || response?.data || response;
+            const statusVerdadeiro = dadosApi?.esta_aberta;
 
-            setStatusLoja(statusAtual)
+            // Garante que o estado seja um booleano puro
+            setStatusLoja(!!statusVerdadeiro);
 
         } catch (error) {
             console.error("Falha ao carregar status no Hook:", error);
-            // Substituímos o Swal pelo react-hot-toast que instalamos
-            toast.error("Não foi possível carregar o cardápio de hoje.");
+            toast.error("Não foi possível carregar o status da loja.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
