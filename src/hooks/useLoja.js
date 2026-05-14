@@ -13,15 +13,11 @@ export function useLoja() {
     const carregarStatus = async () => {
         try {
             setLoading(true);
-            const response = await buscarStatusLoja();
+            // Agora 'statusAtual' já é o booleano retornado pela service
+            const statusAtual = await buscarStatusLoja();
 
-            // A mágica está aqui: acessamos response.data (do axios) 
-            // e depois .data.esta_aberta (do seu JSON)
-            const dadosApi = response?.data?.data || response?.data || response;
-            const statusVerdadeiro = dadosApi?.esta_aberta;
-
-            // Garante que o estado seja um booleano puro
-            setStatusLoja(!!statusVerdadeiro);
+            // Define o estado com o booleano puro vindo do banco Neon
+            setStatusLoja(statusAtual);
 
         } catch (error) {
             console.error("Falha ao carregar status no Hook:", error);
@@ -30,7 +26,6 @@ export function useLoja() {
             setLoading(false);
         }
     }
-
     useEffect(() => {
         Promise.resolve().then(() => {
             carregarStatus();
