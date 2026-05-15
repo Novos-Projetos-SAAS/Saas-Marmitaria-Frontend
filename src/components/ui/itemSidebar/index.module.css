@@ -1,0 +1,29 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #c6c6c7; /* Cor zinco/cinza */
+  text-decoration: none;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.item:hover {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.active {
+  background-color: #fff7ed; /* Laranja bem clarinho */
+  color: #ea580c; /* Laranja da marca */
+}
+
+.active:hover {
+  background-color: #ffedd5;
+}

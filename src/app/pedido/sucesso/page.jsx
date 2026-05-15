@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 export default function PedidoSucesso() {
     const router = useRouter();
-    const { sucessoPedido, setSucessoPedido } = usePedido();
+    const { sucessoPedido, setSucessoPedido, setFinalizando } = usePedido();
 
     // Mantemos o useEffect APENAS para o redirecionamento (efeito colateral real)
     useEffect(() => {
@@ -16,6 +16,10 @@ export default function PedidoSucesso() {
             router.replace('/');
         }
     }, [sucessoPedido, router]);
+
+    useEffect(() => {
+        setFinalizando(false);
+    }, [setFinalizando]);
 
     // Funções de saída que limpam o estado
     const finalizarEIrPara = (rota) => {

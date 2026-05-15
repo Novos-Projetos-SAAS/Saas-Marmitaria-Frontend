@@ -1,0 +1,77 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 20px;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid #E4E4E7; /* Zinco 200 */
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  background-color: #FFF7ED; /* Fundo laranja bem claro */
+  border-radius: 50%;
+  margin: 0 auto 20px;
+}
+
+.icon {
+  color: #EA580C; /* Laranja da marca */
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #18181B; /* Zinco 900 */
+  margin-bottom: 12px;
+}
+
+.message {
+  font-size: 0.95rem;
+  color: #71717A; /* Zinco 500 */
+  line-height: 1.5;
+  margin-bottom: 32px; /* Espaço um pouco maior para respirar antes do botão */
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #18181B; /* Zinco 900 */
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background-color: #EA580C; /* Hover fica Laranja */
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+/* Animação suave para não aparecer de forma brusca na tela */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

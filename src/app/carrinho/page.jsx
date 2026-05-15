@@ -9,7 +9,7 @@ import { usePedido } from "@/context/PedidoContext.js"
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento.js"
 import { usePedidos } from "@/hooks/usePedidos.js"
 
-import { TelefoneInput } from "@/components/InputMask.jsx"
+import { TelefoneInput } from "@/components/ui/inputMask/index.jsx"
 
 import toast from "react-hot-toast"
 
@@ -21,7 +21,7 @@ export default function Carrinho() {
 
     const router = useRouter();
 
-    const { carrinho, totalGeral, limparCarrinho, setSucessoPedido, removerDoCarrinho } = usePedido();
+    const { carrinho, totalGeral, limparCarrinho, setSucessoPedido, removerDoCarrinho, finalizando } = usePedido();
 
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
 
@@ -117,6 +117,14 @@ export default function Carrinho() {
     };
 
     if (carrinho.length === 0) {
+        if (finalizando) {
+            return (
+                <main className={styles.containerVazio}>
+                    <div className={styles.loader}>Finalizando seu pedido...</div>
+                </main>
+            );
+        }
+
         return (
             <main className={styles.containerVazio}>
                 <h2>Seu carrinho está vazio 😕</h2>
@@ -152,10 +160,10 @@ export default function Carrinho() {
                             <span className={styles.itemPreco}>
                                 R$ {item.subtotal.toFixed(2).replace('.', ',')}
                             </span>
-                            
+
                             {/* O botão chamando a função passando a posição (index) do item */}
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 onClick={() => removerDoCarrinho(index)}
                                 className={styles.btnRemover}
                                 title="Remover marmita"

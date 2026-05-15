@@ -1,0 +1,219 @@
+/* --- CONTAINER PRINCIPAL --- */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* --- BARRA DE AÇÕES (Topo) --- */
+.actionsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap; 
+}
+
+.filtersGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Espaço entre a busca e o filtro */
+  flex: 1;
+  min-width: 0; /* CRÍTICO: Impede que o container quebre o layout pai */
+  flex-wrap: wrap; /* Permite quebrar linha se a tela ficar estreita */
+}
+
+/* --- INPUT DE PESQUISA --- */
+.searchWrapper {
+  position: relative;
+  /* Cresce (1), encolhe (1), mas tenta manter 200px no mínimo antes de quebrar */
+  flex: 1 1 200px; 
+  max-width: 400px;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #A1A1AA; /* Zinco 400 */
+  pointer-events: none;
+}
+
+.searchInput {
+  box-sizing: border-box; /* CRÍTICO: Mantém o padding dentro dos 100% */
+  width: 100%;
+  padding: 5px 10px 5px 40px; /* Espaço para o ícone */
+  height: 42px;
+  background-color: #FFFFFF;
+  color: #18181B; /* Zinco 900 */
+  border: 1px solid #E4E4E7; /* Zinco 200 */
+  border-radius: 8px;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.searchInput::placeholder {
+  color: #A1A1AA; /* Zinco 400 */
+}
+
+/* Foco em Laranja com sombra suave */
+.searchInput:focus {
+  border-color: #EA580C; 
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1); 
+}
+
+/* --- SELECT DE FILTRO --- */
+.selectWrapper {
+  position: relative;
+  /* Não cresce (0), não encolhe (0), fixa cravado em 170px */
+  flex: 0 0 170px; 
+  width: 170px;
+}
+
+.filterIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #71717A; /* Zinco 500 */
+  pointer-events: none;
+  z-index: 10;
+}
+
+.statusSelect {
+  box-sizing: border-box; /* CRÍTICO: Evita sobreposição */
+  width: 100%;
+  padding: 0 10px 0 35px;
+  height: 42px;
+  background-color: #FFFFFF;
+  color: #18181B; /* Zinco 900 */
+  border: 1px solid #E4E4E7; /* Zinco 200 */
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  /* Setinha SVG adaptada para o tom Zinco 500 (#71717A) */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2371717A%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 10px auto;
+  transition: all 0.2s ease-in-out;
+}
+
+.statusSelect:focus {
+  border-color: #EA580C;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+}
+
+/* --- BOTÃO NOVO USUÁRIO --- */
+.newButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #18181B; /* Zinco 900 */
+  color: #FFFFFF;
+  padding: 0 1.5rem;
+  height: 42px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.newButton:hover {
+  background-color: #EA580C; /* Flash Laranja */
+  transform: translateY(-1px);
+}
+
+.newButton:active {
+  transform: scale(0.98);
+}
+
+/* --- TABELA E AÇÕES --- */
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E4E4E7; /* Zinco 200 */
+}
+
+/* Controle de exibição das ações no Desktop */
+.desktopActions {
+  display: flex; 
+  align-items: center;
+  gap: 12px;
+}
+
+/* Suaviza o hover nos ícones de ação da tabela no desktop */
+.desktopActions a:hover,
+.desktopActions button:hover {
+  opacity: 0.7;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+.mobileActions {
+  display: none; /* Escondido no desktop */
+}
+
+/* Animação suave de entrada da tela */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- RESPONSIVIDADE (MOBILE) --- */
+@media (max-width: 768px) {
+  .actionsBar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  /* No mobile, busca e select ocupam 100% da tela */
+  .searchWrapper,
+  .selectWrapper {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .filtersGroup {
+    flex-direction: column;
+  }
+
+  .newButton {
+    justify-content: center;
+  }
+
+  .tableContainer th,
+  .tableContainer td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Troca os botões Desktop pelo Menu Mobile (3 pontinhos) */
+  .desktopActions { display: none !important; }
+  .mobileActions { display: flex; justify-content: center; }
+
+  /* Oculta colunas: ID(1), Email(3), Cargo(4) para caber bem na tela pequena */
+  .tableContainer table thead th:nth-child(1),
+  .tableContainer table tbody td:nth-child(1),
+  .tableContainer table thead th:nth-child(3),
+  .tableContainer table tbody td:nth-child(3),
+  .tableContainer table thead th:nth-child(4),
+  .tableContainer table tbody td:nth-child(4) {
+    display: none;
+  }
+}

@@ -1,0 +1,68 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap; 
+}
+
+.info {
+  font-size: 0.875rem;
+  color: #71717A; /* Cor neutra suave (Zinco 500) */
+  white-space: nowrap; 
+}
+
+.info strong {
+  color: #18181B; /* Contraste forte nos números (Zinco 900) */
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: 1px solid #E4E4E7; /* Borda sutil (Zinco 200) */
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  color: #52525B; /* Ícones em Zinco 600 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 36px; 
+  min-height: 36px;
+}
+
+/* Efeito Hover com as cores da identidade visual */
+.button:not(:disabled):hover {
+  background-color: #FFF7ED; /* Fundo levemente laranja */
+  border-color: #EA580C; /* Borda laranja forte */
+  color: #EA580C; /* Ícone laranja forte */
+}
+
+/* Estado desativado limpo */
+.button:disabled {
+  background-color: #F4F4F5; /* Fundo cinza bem claro (Zinco 100) */
+  border-color: #E4E4E7;
+  color: #A1A1AA; /* Ícones apagados (Zinco 400) */
+  cursor: not-allowed;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 640px) {
+  .container {
+    justify-content: center; 
+    flex-direction: column; 
+    gap: 0.75rem;
+  }
+  
+  .info {
+    order: -1; /* Joga o texto "Página X de Y" para cima dos botões no mobile */
+    font-size: 0.9rem;
+  }
+}
