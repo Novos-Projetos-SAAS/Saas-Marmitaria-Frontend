@@ -130,7 +130,7 @@ export default function UsuariosClient() {
         {
             header: "Cargo",
             accessor: "cargo",
-            render: (item) => (
+            render: (_, item) => (
                 <span style={{
                     backgroundColor: '#dbeafe',
                     color: '#1e40af',
@@ -146,7 +146,7 @@ export default function UsuariosClient() {
         {
             header: "Status",
             accessor: "ativo",
-            render: (item) => (
+            render: (_, item) => (
                 <span style={{
                     backgroundColor: item.ativo ? '#dcfce7' : '#fee2e2',
                     color: item.ativo ? '#166534' : '#991b1b',
@@ -162,74 +162,85 @@ export default function UsuariosClient() {
         },
         {
             header: "Ações",
-            accessor: "actions",
-            render: (user) => (
-                <>
-                    {/* AÇÕES DE DESKTOP */}
-                    <div className={styles.desktopActions}>
-                        <Can perform="usuarios.visualizar">
-                            <Link
-                                href={`/admin/usuarios/${user.id}?mode=view`}
-                                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
-                                title="Visualizar"
-                            >
-                                <Eye size={18} />
-                            </Link>
-                        </Can>
+            accessor: "id", // Mudado para id para garantir o recebimento do identificador base
+            className: styles.actionCell,
+            render: (value, row, index) => {
+                // Se a tabela enviar o objeto completo na primeira ou segunda propriedade, garantimos o fallback
+                const userObj = row || value;
 
-                        <Can perform="usuarios.editar">
-                            <Link
-                                href={`/admin/usuarios/${user.id}?mode=edit`}
-                                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
-                                title="Editar"
-                            >
-                                <Edit size={18} />
-                            </Link>
-                        </Can>
+                if (!userObj || typeof userObj !== 'object') return null;
 
-                        {user.ativo ? (
-                            <Can perform="usuarios.deletar">
-                                <button
-                                    onClick={() => handleArchiveUser(user.id, user.nome)}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
-                                    title="Inativar Usuário"
+                const isLastItems = index >= usuarios.length - 2;
+
+                return (
+                    <>
+                        {/* AÇÕES DE DESKTOP */}
+                        <div className={styles.desktopActions}>
+                            <Can perform="usuarios.visualizar">
+                                <Link
+                                    href={`/admin/usuarios/${userObj.id}?mode=view`}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
+                                    title="Visualizar"
                                 >
-                                    <Trash2 size={18} />
-                                </button>
+                                    <Eye size={18} />
+                                </Link>
                             </Can>
-                        ) : (
-                            <Can perform="usuarios.reativar">
-                                <button
-                                    onClick={() => handleReactivateUser(user.id, user.nome)}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
-                                    title="Reativar Acesso"
+
+                            <Can perform="usuarios.editar">
+                                <Link
+                                    href={`/admin/usuarios/${userObj.id}?mode=edit`}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
+                                    title="Editar"
                                 >
-                                    <RotateCcw size={18} />
-                                </button>
+                                    <Edit size={18} />
+                                </Link>
                             </Can>
-                        )}
 
-                        <Can perform="permissoes.visualizar">
-                            <Link
-                                href={`/admin/usuarios/${user.id}/permissions`}
-                                title="Gerenciar Permissões"
-                                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
-                            >
-                                <Shield size={18} />
-                            </Link>
-                        </Can>
-                    </div>
+                            {userObj.ativo ? (
+                                <Can perform="usuarios.deletar">
+                                    <button
+                                        onClick={() => handleArchiveUser(userObj.id, userObj.nome)}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                                        title="Inativar Usuário"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </Can>
+                            ) : (
+                                <Can perform="usuarios.reativar">
+                                    <button
+                                        onClick={() => handleReactivateUser(userObj.id, userObj.nome)}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
+                                        title="Reativar Acesso"
+                                    >
+                                        <RotateCcw size={18} />
+                                    </button>
+                                </Can>
+                            )}
 
-                    {/* AÇÕES DE MOBILE */}
-                    <div className={styles.mobileActions}>
-                        <ActionMenu
-                            user={user}
-                            onArchive={handleArchiveUser}
-                            onReactivate={handleReactivateUser}
-                        />
-                    </div>
-                </>
-            ),
+                            <Can perform="permissoes.visualizar">
+                                <Link
+                                    href={`/admin/usuarios/${userObj.id}/permissions`}
+                                    title="Gerenciar Permissões"
+                                    style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
+                                >
+                                    <Shield size={18} />
+                                </Link>
+                            </Can>
+                        </div>
+
+                        {/* AÇÕES DE MOBILE */}
+                        <div className={styles.mobileActions}>
+                            <ActionMenu
+                                usuario={userObj} // 👈 Corrigido: mapeado de 'user' para 'usuario'
+                                onArchive={handleArchiveUser}
+                                onReactivate={handleReactivateUser}
+                                isLast={isLastItems}
+                            />
+                        </div>
+                    </>
+                );
+            },
         }
     ];
 

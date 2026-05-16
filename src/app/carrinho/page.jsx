@@ -9,7 +9,7 @@ import { usePedidos } from "@/hooks/usePedidos.js"
 
 import { usePedido } from "@/context/PedidoContext.js"
 
-import { TelefoneInput } from "@/components/ui/inputMask/index.jsx"
+import TelefoneInput  from "@/components/ui/inputMask/index.jsx"
 
 import toast from "react-hot-toast"
 import { Trash2 } from "lucide-react"

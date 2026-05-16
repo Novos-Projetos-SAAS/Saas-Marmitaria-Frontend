@@ -65,14 +65,18 @@ export default function Table({
               {data && data.length > 0 ? (
                 data.map((row, rowIndex) => (
                   <tr key={rowIndex} className={`${styles.tr} ${styles.dataRow}`}>
-                    {columns.map((col, colIndex) => (
-                      <td
-                        key={colIndex}
-                        className={`${styles.td} ${col.className || ''}`}
-                      >
-                        {col.render ? col.render(row) : row[col.accessor]}
-                      </td>
-                    ))}
+                    {columns.map((col, colIndex) => {
+                      const value = row[col.accessor];
+
+                      return (
+                        <td
+                          key={colIndex}
+                          className={`${styles.td} ${col.className || ''}`}
+                        >
+                          {col.render ? col.render(value, row, rowIndex) : value}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               ) : (

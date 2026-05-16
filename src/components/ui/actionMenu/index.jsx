@@ -10,9 +10,12 @@ import { MoreVertical, Eye, Edit, Trash2, RotateCcw, Shield } from "lucide-react
 
 import styles from "./index.module.css";
 
-export default function ActionMenu({ usuario, onArchive, onReactivate }) {
+export default function ActionMenu({ usuario, onArchive, onReactivate, isLast }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [menuStyle, setMenuStyle] = useState({});
     const menuRef = useRef(null);
+    const buttonRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -24,9 +27,48 @@ export default function ActionMenu({ usuario, onArchive, onReactivate }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!isOpen || !buttonRef.current) {
+            setMenuStyle({});
+            return;
+        }
+
+        const rect = buttonRef.current.getBoundingClientRect();
+        const estimatedHeight = dropdownRef.current?.offsetHeight || 200;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        const openUp = isLast || (spaceBelow < estimatedHeight + 12 && spaceAbove > estimatedHeight + 12);
+        const MENU_WIDTH = 160;
+        const H_MARGIN = 8;
+
+        const left = Math.min(
+            Math.max(H_MARGIN, rect.left),
+            window.innerWidth - MENU_WIDTH - H_MARGIN
+        );
+
+        const nextStyle = {
+            position: 'fixed',
+            left: `${left}px`,
+            zIndex: 99999,
+            minWidth: `${MENU_WIDTH}px`
+        };
+
+        if (openUp) {
+            const top = Math.max(H_MARGIN, rect.top - estimatedHeight - 6);
+            nextStyle.top = `${top}px`;
+        } else {
+            nextStyle.top = `${rect.bottom + 6}px`;
+        }
+
+        setMenuStyle(nextStyle);
+    }, [isOpen, isLast]);
+
+    if (!usuario || !usuario.id) return null;
+
     return (
         <div className={styles.wrapper} ref={menuRef}>
             <button
+                ref={buttonRef}
                 className={styles.menuButton}
                 onClick={() => setIsOpen(!isOpen)}
                 title="Ações"
@@ -35,7 +77,7 @@ export default function ActionMenu({ usuario, onArchive, onReactivate }) {
             </button>
 
             {isOpen && (
-                <div className={styles.dropdown}>
+                <div ref={dropdownRef} className={styles.dropdown} style={menuStyle}>
 
                     <Can perform="usuarios.visualizar">
                         <Link
@@ -59,13 +101,13 @@ export default function ActionMenu({ usuario, onArchive, onReactivate }) {
                         </Link>
                     </Can>
 
-                    {/* Alterado usu_situacao para ativo */}
                     {usuario.ativo ? (
-                        <Can perform="usuarios.inativar">
+                        <Can perform="usuarios.deletar">
                             <button
+                                type="button"
                                 className={`${styles.item} ${styles.danger}`}
                                 onClick={() => {
-                                    onArchive(usuario.id, usuario.nome); // Alterado usu_id/usu_nome
+                                    onArchive(usuario.id, usuario.nome);
                                     setIsOpen(false);
                                 }}
                             >
@@ -76,9 +118,10 @@ export default function ActionMenu({ usuario, onArchive, onReactivate }) {
                     ) : (
                         <Can perform="usuarios.reativar">
                             <button
+                                type="button"
                                 className={`${styles.item} ${styles.success}`}
                                 onClick={() => {
-                                    onReactivate(usuario.id, usuario.nome); // Alterado usu_id/usu_nome
+                                    onReactivate(usuario.id, usuario.nome);
                                     setIsOpen(false);
                                 }}
                             >

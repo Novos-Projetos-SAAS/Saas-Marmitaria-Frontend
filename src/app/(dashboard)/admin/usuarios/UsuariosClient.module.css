@@ -144,6 +144,7 @@
 .tableContainer {
   width: 100%;
   overflow-x: auto;
+  overflow-y: visible !important;
   -webkit-overflow-scrolling: touch;
   background-color: #FFFFFF;
   border-radius: 8px;
@@ -157,6 +158,10 @@
   gap: 12px;
 }
 
+.actionCell {
+  overflow: visible !important;
+}
+
 /* Suaviza o hover nos ícones de ação da tabela no desktop */
 .desktopActions a:hover,
 .desktopActions button:hover {
@@ -167,6 +172,12 @@
 
 .mobileActions {
   display: none; /* Escondido no desktop */
+}
+
+.tableContainer table,
+.tableContainer tr,
+.tableContainer td {
+  overflow: visible !important;
 }
 
 /* Animação suave de entrada da tela */
