@@ -1,9 +1,13 @@
 'use client'
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
+import { useEffect } from 'react';
+
 import { usePedido } from '@/context/PedidoContext';
+
 import { CheckCircle, Home, ShoppingBag } from 'lucide-react';
+
 import styles from './page.module.css';
 
 export default function PedidoSucesso() {

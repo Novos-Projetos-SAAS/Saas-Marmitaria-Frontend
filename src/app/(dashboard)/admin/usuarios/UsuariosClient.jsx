@@ -1,40 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { Edit, Plus, Eye, Search, Trash2, RotateCcw, Filter, Shield } from "lucide-react";
+
 import { useState, useEffect, useRef } from "react";
-import Swal from "sweetalert2";
 
 import { useUsuarios } from "@/hooks/useUsuarios.js";
-import { Table } from "@/components/ui/table";
-import { ActionMenu } from "@/components/ui/actionMenu";
-import { Pagination } from "@/components/ui/pagination";
-import { Can } from "@/components/ui/can";
 
 import { toggleUserStatus } from "@/services/usuariosService.js";
+
+import Table from "@/components/ui/table";
+import ActionMenu from "@/components/ui/actionMenu";
+import Pagination from "@/components/ui/pagination";
+import Can from "@/components/ui/can";
+
+import { Edit, Plus, Eye, Search, Trash2, RotateCcw, Filter, Shield } from "lucide-react";
+import Swal from "sweetalert2";
+
 import styles from "./UsuariosClient.module.css";
 
 export default function UsuariosClient() {
     const {
-        usuarios, 
-        loading, 
+        usuarios,
+        loading,
         listarUsuarios, // Nome corrigido do hook
-        page, 
+        page,
         totalPages,
-        sortColumn, 
-        sortDirection, 
+        sortColumn,
+        sortDirection,
         handleSort
     } = useUsuarios();
 
     const [inputValue, setInputValue] = useState("");
     // 'false' significa que deletado_em é null (ou seja, usuários ativos)
-    const [statusFilter, setStatusFilter] = useState("false"); 
+    const [statusFilter, setStatusFilter] = useState("false");
     const isMounted = useRef(false);
 
     // 1. BUSCA INICIAL (Roda apenas na montagem)
     useEffect(() => {
         // Ordenação padrão pelo backend do Knex: 'usuarios.id'
-        listarUsuarios("", 1, statusFilter, "usuarios.id", "ASC"); 
+        listarUsuarios("", 1, statusFilter, "usuarios.id", "ASC");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -259,7 +263,7 @@ export default function UsuariosClient() {
                 </div>
 
                 <Can perform="usuarios.criar">
-                    <Link href="/admin/usuarios/register" className={styles.newButton}>
+                    <Link href="/admin/usuarios/cadastro" className={styles.newButton}>
                         <Plus size={20} />
                         <span>Novo Usuário</span>
                     </Link>

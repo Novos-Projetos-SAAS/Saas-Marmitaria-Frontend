@@ -1,18 +1,17 @@
 'use client'
 
-import { useState } from "react"
-
 import { useRouter } from "next/navigation"
 
-import { usePedido } from "@/context/PedidoContext.js"
+import { useState } from "react"
 
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento.js"
 import { usePedidos } from "@/hooks/usePedidos.js"
 
+import { usePedido } from "@/context/PedidoContext.js"
+
 import { TelefoneInput } from "@/components/ui/inputMask/index.jsx"
 
 import toast from "react-hot-toast"
-
 import { Trash2 } from "lucide-react"
 
 import styles from './page.module.css'

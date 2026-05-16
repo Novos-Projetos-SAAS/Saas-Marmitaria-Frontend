@@ -1,17 +1,15 @@
 'use client'
 
-import { useEffect } from 'react';
-
 import { useRouter } from 'next/navigation';
 
-import { usePedido } from '@/context/PedidoContext.js';
+import { useEffect } from 'react';
 
 import { useCardapio } from '@/hooks/useCardapio.js';
 import { useLoja } from '@/hooks/useLoja.js';
 
+import { usePedido } from '@/context/PedidoContext.js';
+
 import styles from './page.module.css';
-
-
 
 export default function Pedido() {
 

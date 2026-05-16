@@ -1,9 +1,10 @@
 'use client';
 
-import styles from './index.module.css';
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'; // Ícones de ordenação
 
-export function Table({
+import styles from './index.module.css';
+
+export default function Table({
   columns,
   data,
   isLoading,

@@ -1,6 +1,6 @@
 import { IMaskInput } from "react-imask"
 
-export const TelefoneInput = ({ value, onChange, className, placeholder }) => {
+export default function TelefoneInput({ value, onChange, className, placeholder }) {
     return (
         <IMaskInput
             mask='(00) 00000-0000'

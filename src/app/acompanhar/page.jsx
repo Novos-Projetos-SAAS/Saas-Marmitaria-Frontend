@@ -1,9 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+
+import { useState, useEffect } from 'react';
+
 import { usePedidos } from '@/hooks/usePedidos';
+
 import { Clock, ChefHat, Bike, CheckCircle2, Search, ArrowLeft, Package, Store, XCircle } from 'lucide-react';
+
 import styles from './page.module.css';
 
 export default function AcompanharPedido() {

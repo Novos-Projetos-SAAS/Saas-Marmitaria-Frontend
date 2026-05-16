@@ -1,9 +1,13 @@
 // src/components/Sidebar/Sidebar.js
 'use client'
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
 import { useAuthContext } from '@/context/AuthContext.js';
+
+import Can from '../ui/can/index.jsx';
+import ItemSidebar from '../ui/itemSidebar/index.jsx';
+
 import {
     LayoutDashboard,
     ClipboardList,
@@ -19,10 +23,6 @@ import {
     LogOut,
     X // Adicionado o ícone de fechar
 } from "lucide-react";
-
-import { Can } from '../ui/can/index.jsx';
-
-import ItemSidebar from '../ui/itemSidebar/index.jsx';
 
 import styles from './page.module.css';
 

@@ -1,5 +1,7 @@
 import Link from "next/link";
+
 import { ShieldAlert, ArrowLeft } from "lucide-react";
+
 import styles from "./index.module.css";
 
 export default function AccessDenied() {

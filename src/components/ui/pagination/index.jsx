@@ -1,7 +1,8 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+
 import styles from "./index.module.css";
 
-export function Pagination({ currentPage, totalPages, onPageChange }) {
+export default function Pagination({ currentPage, totalPages, onPageChange }) {
   return (
     <div className={styles.container}>
       

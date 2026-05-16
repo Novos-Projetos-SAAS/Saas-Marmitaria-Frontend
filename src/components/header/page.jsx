@@ -2,7 +2,9 @@
 'use client'
 
 import { useAuthContext } from '@/context/AuthContext.js';
+
 import { Menu } from 'lucide-react';
+
 import styles from './page.module.css';
 
 export default function Header({ abrirMenu }) {

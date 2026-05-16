@@ -1,8 +1,9 @@
 // src/app/admin/page.js
 'use client'
 
-import styles from './page.module.css';
 import { Package, ChefHat, DollarSign, TrendingUp } from 'lucide-react';
+
+import styles from './page.module.css';
 
 export default function Dashboard() {
     return (

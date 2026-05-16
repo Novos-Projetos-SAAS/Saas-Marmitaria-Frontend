@@ -1,0 +1,213 @@
+/* --- CONTAINER PRINCIPAL DO FORM --- */
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Duas colunas no desktop */
+  column-gap: 1.5rem;
+  row-gap: 2rem;
+  width: 100%;
+  background-color: #FFFFFF;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #E4E4E7; /* Zinco 200 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+/* --- GRUPOS DE INPUTS --- */
+.inputGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #52525B; /* Zinco 600 */
+}
+
+/* --- ESTILOS DE INPUT E SELECT --- */
+.input, .select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  padding: 10px 14px;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E4E7; /* Zinco 200 */
+  border-radius: 8px;
+  color: #18181B; /* Zinco 900 */
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input::placeholder {
+  color: #A1A1AA; /* Zinco 400 */
+}
+
+/* Estado Desabilitado (Modo View) */
+.input:disabled, .select:disabled {
+  background-color: #F4F4F5; /* Zinco 100 */
+  color: #71717A; /* Zinco 500 */
+  cursor: not-allowed;
+  border-color: #E4E4E7;
+}
+
+/* Estado Focado (Laranja da Marca) */
+.input:not(:disabled):focus, .select:not(:disabled):focus {
+  border-color: #EA580C;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+}
+
+/* Customização da setinha do Select */
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2371717A%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 10px auto;
+}
+
+/* --- MENSAGENS DE ERRO --- */
+.errorText {
+  color: #EF4444; /* Vermelho erro */
+  font-size: 0.75rem;
+  font-weight: 500;
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* --- CHECKLIST E CAMPO DE SENHA --- */
+.passwordWrapperBox {
+  position: relative; /* CRÍTICO: Prende o olho dentro desta caixa */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Garante que ocupe a coluna inteira do Grid */
+}
+
+.eyeButton {
+  position: absolute;
+  right: 12px;
+  /* Alinha a partir do fundo (13px centraliza o ícone de 18px num input de 44px) */
+  bottom: 13px; 
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #A1A1AA;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  z-index: 10; /* Garante que ele fique clicável por cima do input */
+}
+
+.eyeButton:hover {
+  color: #18181B; /* Cor muda ao passar o mouse */
+}
+
+.passwordRequirements {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 50;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.reqItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.pending { color: #EF4444; } /* Vermelho */
+.success { color: #10B981; } /* Verde */
+
+/* --- BOTÕES DE AÇÃO --- */
+.actions {
+  grid-column: 1 / -1; /* Ocupa as duas colunas */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E4E4E7;
+}
+
+.btnCancel {
+  padding: 0 1.5rem;
+  height: 44px;
+  background: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #52525B;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btnCancel:hover {
+  background: #F4F4F5;
+  color: #18181B;
+}
+
+.btnSave {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 44px;
+  background: #18181B; /* Zinco 900 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btnSave:not(:disabled):hover {
+  background: #EA580C; /* Hover Laranja */
+  transform: translateY(-1px);
+}
+
+.btnSave:disabled {
+  background: #E4E4E7;
+  color: #A1A1AA;
+  cursor: not-allowed;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 640px) {
+  .form {
+      grid-template-columns: 1fr; /* Volta para 1 coluna no celular */
+      padding: 1.5rem;
+      row-gap: 1.75rem;
+  }
+  
+  .actions {
+      flex-direction: column-reverse; /* Empilha botões (Cancelar embaixo) */
+      gap: 0.75rem;
+  }
+  
+  .btnCancel, .btnSave {
+      width: 100%;
+      justify-content: center;
+  }
+}

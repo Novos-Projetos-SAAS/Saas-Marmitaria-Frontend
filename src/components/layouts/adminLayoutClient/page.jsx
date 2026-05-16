@@ -5,9 +5,7 @@ import { useState } from "react"
 import Header from "@/components/header/page.jsx";
 import Sidebar from "@/components/sidebar/page.jsx";
 
-
 import styles from './page.module.css';
-
 
 export default function AdminLayoutClient({ children }) {
     

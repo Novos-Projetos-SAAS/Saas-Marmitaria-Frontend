@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+
 import styles from "./index.module.css";
 
 export default function ItemSidebar({ label, icon: Icon, href, onClick }) {

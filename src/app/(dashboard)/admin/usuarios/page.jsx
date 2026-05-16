@@ -1,7 +1,9 @@
-import styles from "./page.module.css";
 import UsuariosClient from "./UsuariosClient.jsx";
-import { Can } from "@/components/ui/can/index.jsx";
+
+import Can from "@/components/ui/can/index.jsx";
 import AccessDenied from "@/components/ui/accessDenied/index"; // Ajuste o caminho se necessário
+
+import styles from "./page.module.css";
 
 export default function Users() {
     return (

@@ -1,8 +1,9 @@
 // src/components/Can/Can.js
 "use client";
+
 import { useAuthContext } from "@/context/AuthContext.js";
 
-export function Can({ perform, fallback = null, children }) {
+export default function Can({ perform, fallback = null, children }) {
   const { hasPermission, isReady } = useAuthContext();
 
   if (!isReady) return null;
