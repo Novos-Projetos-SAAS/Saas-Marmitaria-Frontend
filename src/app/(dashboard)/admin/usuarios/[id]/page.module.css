@@ -1,0 +1,67 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btnVoltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #71717A; /* Zinco 500 */
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  width: fit-content;
+  transition: color 0.2s;
+}
+
+.btnVoltar:hover {
+  color: #EA580C; /* Laranja da marca */
+}
+
+.title {
+  color: #18181B; /* Zinco 900 */
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* Estado de Carregamento Centralizado */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
+  color: #71717A;
+  font-weight: 500;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  color: #EA580C;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -6,8 +6,8 @@ import { useNiveisAcesso } from "@/hooks/useNiveisAcesso.js";
 
 import { validateEmail, validatePassword, getPasswordIssues } from "@/utils/validators";
 
-import  InputForm  from "@/components/ui/inputForm/inputForm.jsx";
-import  SelectForm  from "@/components/ui/selectForm/selectForm.jsx";
+import InputForm from "@/components/ui/inputForm/inputForm.jsx";
+import SelectForm from "@/components/ui/selectForm/selectForm.jsx";
 
 import { Edit, Save, Eye, EyeOff, Check, X } from "lucide-react";
 
@@ -220,15 +220,21 @@ export default function UsuarioForm({ initialData, mode = 'create', onSave, onCa
 
             <div className={styles.passwordWrapperBox}>
                 <InputForm
-                    label={mode === 'edit' ? "Nova Senha (deixe em branco para manter)" : "Senha"}
+                    label={mode === 'edit' ? "Nova Senha" : "Senha"}
                     name="senha"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder={mode === 'edit' ? "Deixe em branco para manter a atual" : "••••••••"}
                     value={formData.senha}
                     onChange={handleChange}
                     disabled={!isEditable}
                     error={errors.senha}
                 />
+
+                {isEditable && initialData?.id && (
+                    <span className={styles.passwordHelpText}>
+                        💡 Se não quiser alterar a senha atual deste usuário, basta deixar este campo vazio.
+                    </span>
+                )}
 
                 {isEditable && (
                     <button

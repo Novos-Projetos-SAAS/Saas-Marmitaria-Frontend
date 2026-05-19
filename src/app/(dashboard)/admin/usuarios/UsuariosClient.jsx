@@ -19,50 +19,33 @@ import Swal from "sweetalert2";
 import styles from "./UsuariosClient.module.css";
 
 export default function UsuariosClient() {
-    const {
+   const {
         usuarios,
         loading,
-        listarUsuarios, // Nome corrigido do hook
         page,
+        setPage,
         totalPages,
         sortColumn,
         sortDirection,
-        handleSort
+        statusFilter,
+        setStatusFilter,
+        setSearch,
+        handleSort,
+        refrescarLista
     } = useUsuarios();
 
     const [inputValue, setInputValue] = useState("");
-    // 'false' significa que deletado_em é null (ou seja, usuários ativos)
-    const [statusFilter, setStatusFilter] = useState("false");
-    const isMounted = useRef(false);
 
-    // 1. BUSCA INICIAL (Roda apenas na montagem)
-    useEffect(() => {
-        // Ordenação padrão pelo backend do Knex: 'usuarios.id'
-        listarUsuarios("", 1, statusFilter, "usuarios.id", "ASC");
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const isFirstRender = useRef(true);
 
-    // 2. EFEITO INSTANTÂNEO (Filtro de Status e Ordenação)
-    useEffect(() => {
-        if (!isMounted.current) return;
-        listarUsuarios(inputValue, 1, statusFilter, sortColumn, sortDirection);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [statusFilter, sortColumn, sortDirection]);
-
-    // 3. EFEITO DEBOUNCE (Apenas para Digitação no Input)
-    useEffect(() => {
-        if (!isMounted.current) {
-            isMounted.current = true;
-            return;
-        }
-
+   useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            listarUsuarios(inputValue, 1, statusFilter, sortColumn, sortDirection);
+            setSearch(inputValue);
+            setPage(1); // Reseta a paginação ao digitar uma nova busca
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [inputValue]);
+    }, [inputValue, setSearch, setPage]);
 
     const handlePageChange = (newPage) => {
         listarUsuarios(inputValue, newPage, statusFilter, sortColumn, sortDirection);

@@ -24,6 +24,30 @@ export async function buscarUsuarios(search = '', page = 1, status = 'all', sort
     }
 }
 
+export async function buscarUsuarioPorId(id) {
+    try {
+        const response = await api.get(`/usuarios/${id}`);
+        return response.data.data || response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar usuário com ID ${id}:`, error);
+        throw error;
+    }
+}
+
+export async function atualizarUsuario(id, payload) {
+    
+    try {
+
+        const response = await api.patch(`/usuarios/${id}`, payload);
+        return response.data.data || response.data
+
+    } catch (error) {
+        console.error(`Erro ao atualizar usuário com ID ${id}:`, error);
+        throw error;
+    }
+
+}
+
 export const toggleUserStatus = async (id, status) => {
     try {
         let response;

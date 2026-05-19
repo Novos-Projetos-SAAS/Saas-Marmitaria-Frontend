@@ -48,41 +48,77 @@ export function PedidoProvider({ children }) {
     //     });
     // }, []);
 
+    // const alternarAlimento = useCallback((alimento, limiteDaCategoria) => {
+
+    //     const jaSelecionado = marmitaAtual.itens.find(
+    //         i => i.id === alimento.id
+    //     );
+
+    //     if (jaSelecionado) {
+
+    //         setMarmitaAtual(prev => ({
+    //             ...prev,
+    //             itens: prev.itens.filter(i => i.id !== alimento.id)
+    //         }));
+
+    //         return;
+    //     }
+
+    //     const itensDaMesmaCategoria = marmitaAtual.itens.filter(
+    //         i => i.categoria_id === alimento.categoria_id
+    //     ).length;
+
+    //     if (itensDaMesmaCategoria >= limiteDaCategoria) {
+
+    //         toast.error(
+    //             `Limite atingido! Esta categoria permite apenas ${limiteDaCategoria} opções.`
+    //         );
+
+    //         return;
+    //     }
+
+    //     setMarmitaAtual(prev => ({
+    //         ...prev,
+    //         itens: [...prev.itens, alimento]
+    //     }));
+
+    // }, [marmitaAtual]);
+
     const alternarAlimento = useCallback((alimento, limiteDaCategoria) => {
 
-        const jaSelecionado = marmitaAtual.itens.find(
-            i => i.id === alimento.id
-        );
+        setMarmitaAtual(prev => {
 
-        if (jaSelecionado) {
-
-            setMarmitaAtual(prev => ({
-                ...prev,
-                itens: prev.itens.filter(i => i.id !== alimento.id)
-            }));
-
-            return;
-        }
-
-        const itensDaMesmaCategoria = marmitaAtual.itens.filter(
-            i => i.categoria_id === alimento.categoria_id
-        ).length;
-
-        if (itensDaMesmaCategoria >= limiteDaCategoria) {
-
-            toast.error(
-                `Limite atingido! Esta categoria permite apenas ${limiteDaCategoria} opções.`
+            const jaSelecionado = prev.itens.find(
+                i => i.id === alimento.id
             );
 
-            return;
-        }
+            if (jaSelecionado) {
+                return {
+                    ...prev,
+                    itens: prev.itens.filter(i => i.id !== alimento.id)
+                };
+            }
 
-        setMarmitaAtual(prev => ({
-            ...prev,
-            itens: [...prev.itens, alimento]
-        }));
+            const itensDaMesmaCategoria = prev.itens.filter(
+                i => i.categoria_id === alimento.categoria_id
+            ).length;
 
-    }, [marmitaAtual]);
+            if (itensDaMesmaCategoria >= limiteDaCategoria) {
+
+                toast.error(
+                    `Limite atingido! Esta categoria permite apenas ${limiteDaCategoria} opções.`
+                );
+
+                return prev;
+            }
+
+            return {
+                ...prev,
+                itens: [...prev.itens, alimento]
+            };
+        });
+
+    }, []);
 
     const adicionarAoCarrinho = useCallback((quantidade = 1) => {
         if (!marmitaAtual.tamanho || marmitaAtual.itens.length === 0) {
@@ -91,7 +127,7 @@ export function PedidoProvider({ children }) {
         }
 
         const novaMarmita = {
-            id_temp: Date.now(),
+            id_temp: crypto.randomUUID(),
             tamanho: marmitaAtual.tamanho,
             itens: marmitaAtual.itens,
             quantidade: Number(quantidade),
@@ -104,11 +140,17 @@ export function PedidoProvider({ children }) {
         return true;
     }, [marmitaAtual]);
 
-    const removerDoCarrinho = (indexParaRemover) => {
-        // Filtra o carrinho, mantendo todos os itens EXCETO o que tem o index igual ao clicado
-        const novoCarrinho = carrinho.filter((_, index) => index !== indexParaRemover);
-        setCarrinho(novoCarrinho);
-    }
+    // const removerDoCarrinho = (indexParaRemover) => {
+    //     // Filtra o carrinho, mantendo todos os itens EXCETO o que tem o index igual ao clicado
+    //     const novoCarrinho = carrinho.filter((_, index) => index !== indexParaRemover);
+    //     setCarrinho(novoCarrinho);
+    // }
+
+    const removerDoCarrinho = useCallback((indexParaRemover) => {
+        setCarrinho(prev =>
+            prev.filter((_, index) => index !== indexParaRemover)
+        );
+    }, []);
 
     const limparCarrinho = useCallback(() => {
         setFinalizando(true);

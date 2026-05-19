@@ -46,6 +46,14 @@
   color: #A1A1AA; /* Zinco 400 */
 }
 
+.passwordHelpText {
+  font-size: 0.75rem;
+  color: #71717A; /* Zinco 500 (cinza discreto) */
+  margin-top: 4px;
+  font-weight: 500;
+  display: block;
+}
+
 /* Estado Desabilitado (Modo View) */
 .input:disabled, .select:disabled {
   background-color: #F4F4F5; /* Zinco 100 */
@@ -92,8 +100,8 @@
 .eyeButton {
   position: absolute;
   right: 12px;
-  /* Alinha a partir do fundo (13px centraliza o ícone de 18px num input de 44px) */
-  bottom: 13px; 
+  /* Substitua o bottom: 25px por top se o layout oscilar: */
+  top: 38px; /* Alinha perfeitamente pulando a altura da label */
   background: none;
   border: none;
   cursor: pointer;
@@ -102,11 +110,12 @@
   display: flex;
   align-items: center;
   transition: color 0.2s;
-  z-index: 10; /* Garante que ele fique clicável por cima do input */
+  z-index: 10;
 }
 
 .eyeButton:hover {
-  color: #18181B; /* Cor muda ao passar o mouse */
+  /* color: #18181B; Cor muda ao passar o mouse */
+  color: #EA580C;
 }
 
 .passwordRequirements {

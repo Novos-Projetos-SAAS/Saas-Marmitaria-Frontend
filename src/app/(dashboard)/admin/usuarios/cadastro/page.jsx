@@ -10,6 +10,8 @@ import UsuarioForm from "@/components/forms/usuarios/usuarioForm";
 import Can from "@/components/ui/can";
 import AccessDenied from "@/components/ui/accessDenied";
 
+import Swal from "sweetalert2";
+
 import styles from "./page.module.css";
 
 export default function RegisterUserPage() {
@@ -18,8 +20,23 @@ export default function RegisterUserPage() {
     // Extrai apenas a função que precisamos do hook
     const { cadastrarUsuario } = useCadastro();
 
-    const handleCancel = () => {
-        router.push('/admin/usuarios');
+    const handleCancel = async () => {
+        const result = await Swal.fire({
+            title: 'Deseja realmente cancelar?',
+            text: 'Todas as alterações não salvas serão perdidas.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b', // 🟡 O amarelo/âmbar que definimos para warnings
+            cancelButtonColor: '#71717a',  // Cinza discreto para o botão de voltar/desistir
+            confirmButtonText: 'Sim, quero cancelar',
+            cancelButtonText: 'Não, continuar editando',
+            reverseButtons: true // Opcional: Inverte a posição dos botões para deixar o "Sim" na direita
+        });
+
+        // Se o usuário clicou no botão "Sim, quero cancelar"
+        if (result.isConfirmed) {
+            router.push("/admin/usuarios"); // Executa o redirecionamento
+        }
     };
 
     return (
