@@ -1,12 +1,15 @@
 'use client'
 
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 import { useState, useEffect } from "react"
 
 import { useCardapio } from "@/hooks/useCardapio.js"
 
 import { usePedido } from "@/context/PedidoContext"
+
+import formatarNomeImagem from "@/utils/formatImages.js"
 
 import styles from './page.module.css'
 
@@ -62,6 +65,25 @@ export default function Montagem() {
             setIsFinalizando(false)
         }
 
+    }
+    function FotoAlimento({ nome }) {
+        const nomeArquivo = formatarNomeImagem(nome);
+        // Tenta carregar em .webp por performance, se preferir png mude a extensão abaixo
+        const [imgSrc, setImgSrc] = useState(`/alimentos/${nomeArquivo}.webp`);
+
+        return (
+            <div className={styles.containerFotoAlimento}>
+                <Image
+                    src={imgSrc}
+                    alt={nome}
+                    fill
+                    sizes="96px"
+                    className={styles.fotoAlimento}
+                    // Se a imagem não existir na public/alimentos, assume o fallback sem quebrar a tela
+                    onError={() => setImgSrc('/alimentos/padrao.webp')}
+                />
+            </div>
+        );
     }
 
 
@@ -123,7 +145,11 @@ export default function Montagem() {
                                             className={`${styles.cardAlimento} ${isSelecionado ? styles.cardSelecionado : ''}`}
                                             onClick={() => alternarAlimento(alimento, categoria.limite)}
                                         >
+
+                                            <FotoAlimento nome={alimento.nome} />
+
                                             <span className={styles.nomeAlimento}>{alimento.nome}</span>
+
                                             {isSelecionado && <span className={styles.iconeCheck}>✓</span>}
                                         </div>
                                     );

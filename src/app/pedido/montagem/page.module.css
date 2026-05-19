@@ -117,12 +117,81 @@ body {
   font-weight: 500;
 }
 
-/* Check mark com peso e cor forte */
+/* Container que segura o preenchimento automático do Next Image */
+.containerFotoAlimento {
+  width: 72px;
+  height: 72px;
+  position: relative;
+  flex-shrink: 0; /* Impede a imagem de amassar em telas menores */
+  border-radius: 16px; /* Garante o visual circular premium */
+  overflow: hidden;
+  background-color: #f4f4f5; /* Fundo cinza suave enquanto carrega */
+  border: 1px solid #e4e4e7;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Garante o corte perfeito do conteúdo da imagem */
+.fotoAlimento {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Modifique o seu .cardAlimento original para aceitar o alinhamento flex lateral */
+/* .cardAlimento {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+} */
+
+
+.cardAlimento {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Aumentamos o espaço entre a fotozona e o texto */
+  padding: 12px; /* Card mais gordinho e clicável */
+  cursor: pointer;
+  border: 1px solid #e4e4e7;
+  border-radius: 20px;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  position: relative; /* Importante para o ícone de Check ficar legal */
+}
+
+/* Efeito tátil de aplicativo nativo */
+.cardAlimento:active {
+  transform: scale(0.98);
+}
+
+.cardSelecionado {
+  border-color: #EA580C;
+  background-color: #fff7ed; /* Fundo levemente laranja */
+}
+
+.cardSelecionado .fotoAlimento {
+  transform: scale(1.05); /* Dá um micro-zoom na comida quando selecionada */
+}
+
+.nomeAlimento {
+  font-weight: 600;
+  font-size: 1.1rem; /* Texto levemente maior para equilibrar com a foto grande */
+  color: #18181b;
+  flex-grow: 1; /* Empurra o ícone de check para a direita */
+}
+
+/* Ajuste o ícone de check se precisar */
 .iconeCheck {
+  color: #EA580C;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* .iconeCheck {
   color: #EA580C;
   font-weight: 800;
   font-size: 1.2rem;
-}
+} */
 
 /* BARRA FIXA PREMIUM */
 /* .barraFixa {
