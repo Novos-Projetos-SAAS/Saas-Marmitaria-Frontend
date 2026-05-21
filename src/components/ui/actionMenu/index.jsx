@@ -133,7 +133,7 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
 
                     <Can perform="permissoes.visualizar">
                         <Link
-                            href={`/admin/usuarios/${usuario.id}/permissions`} // Alterado usu_id para id
+                            href={`/admin/usuarios/${usuario.id}/permissoes`} // Alterado usu_id para id
                             className={styles.item}
                             style={{ color: '#8b5cf6' }}
                             onClick={() => setIsOpen(false)}

@@ -32,9 +32,10 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('user');
 
             setUser(null);
-            router.push('/auth/login');
+            // router.push('/auth/login');
+            window.location.href = '/auth/login';
         }
-    }, [router])
+    }, [])
 
     const buscarDadosUsuario = useCallback(async () => {
         const isLogged = Cookies.get("is_logged");
@@ -69,21 +70,30 @@ export function AuthProvider({ children }) {
             }
         } else {
             if (pathname.startsWith('/admin')) {
-                router.push('/login');
+                // router.push('/login');
+                window.location.href = '/auth/login';
             }
         }
         setIsReady(true);
-    }, [pathname, router, logoutRequest]);
+    }, [pathname, logoutRequest]);
 
     useEffect(() => {
-        // Criamos uma função async interna
+        let isMounted = true;
+
         const inicializarSessao = async () => {
-            await buscarDadosUsuario();
+            if (isMounted) {
+                await buscarDadosUsuario();
+            }
         };
 
-        // E chamamos ela imediatamente
         inicializarSessao();
-    }, [buscarDadosUsuario]);
+
+        return () => {
+            isMounted = false;
+        };
+        // A regra abaixo diz ao Next.js: "Eu sei o que estou fazendo, não exija a função aqui"
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const hasPermission = useCallback((permissionName) => {
         if (!permissionName) return true;

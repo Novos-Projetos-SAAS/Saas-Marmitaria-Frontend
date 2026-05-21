@@ -6,7 +6,7 @@ body {
   max-width: 600px;
   margin: 0 auto;
   padding: 24px 16px;
-  padding-bottom: 140px; /* Espaço para a barra fixa não cobrir o conteúdo */
+  padding-bottom: 140px; 
   background-color: #FAFAFA;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -16,7 +16,6 @@ body {
   margin-bottom: 32px;
 }
 
-/* Botão voltar com a cor de destaque (Accent Color) */
 .btnVoltar {
   background: none;
   border: none;
@@ -52,7 +51,6 @@ body {
   margin: 0;
 }
 
-/* Blocos de Categoria */
 .blocoCategoria {
   margin-bottom: 32px;
 }
@@ -73,7 +71,6 @@ body {
   font-weight: 700;
 }
 
-/* Contador de limite com a Tag Laranja */
 .contadorLimite {
   font-size: 0.85rem;
   color: #EA580C; 
@@ -90,7 +87,6 @@ body {
   gap: 12px;
 }
 
-/* Cards de Ingredientes (Geométricos e limpos) */
 .cardAlimento {
   background-color: #FFFFFF;
   border: 1px solid #E4E4E7;
@@ -104,7 +100,6 @@ body {
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
-/* Estilo Selecionado - Acende o fundo e a borda com o tom laranja */
 .cardSelecionado {
   background-color: #FFF7ED;
   border-color: #EA580C;
@@ -117,104 +112,61 @@ body {
   font-weight: 500;
 }
 
-/* Container que segura o preenchimento automático do Next Image */
 .containerFotoAlimento {
   width: 72px;
   height: 72px;
   position: relative;
-  flex-shrink: 0; /* Impede a imagem de amassar em telas menores */
-  border-radius: 16px; /* Garante o visual circular premium */
+  flex-shrink: 0; 
+  border-radius: 16px; 
   overflow: hidden;
-  background-color: #f4f4f5; /* Fundo cinza suave enquanto carrega */
+  background-color: #f4f4f5; 
   border: 1px solid #e4e4e7;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* Garante o corte perfeito do conteúdo da imagem */
 .fotoAlimento {
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-/* Modifique o seu .cardAlimento original para aceitar o alinhamento flex lateral */
-/* .cardAlimento {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  cursor: pointer;
-} */
-
-
 .cardAlimento {
   display: flex;
   align-items: center;
-  gap: 16px; /* Aumentamos o espaço entre a fotozona e o texto */
-  padding: 12px; /* Card mais gordinho e clicável */
+  gap: 16px; 
+  padding: 12px; 
   cursor: pointer;
   border: 1px solid #e4e4e7;
   border-radius: 20px;
   background-color: #ffffff;
   transition: all 0.2s ease;
-  position: relative; /* Importante para o ícone de Check ficar legal */
+  position: relative; 
 }
 
-/* Efeito tátil de aplicativo nativo */
 .cardAlimento:active {
   transform: scale(0.98);
 }
 
 .cardSelecionado {
   border-color: #EA580C;
-  background-color: #fff7ed; /* Fundo levemente laranja */
+  background-color: #fff7ed; 
 }
 
 .cardSelecionado .fotoAlimento {
-  transform: scale(1.05); /* Dá um micro-zoom na comida quando selecionada */
+  transform: scale(1.05); 
 }
 
 .nomeAlimento {
   font-weight: 600;
-  font-size: 1.1rem; /* Texto levemente maior para equilibrar com a foto grande */
+  font-size: 1.1rem; 
   color: #18181b;
-  flex-grow: 1; /* Empurra o ícone de check para a direita */
+  flex-grow: 1; 
 }
 
-/* Ajuste o ícone de check se precisar */
 .iconeCheck {
   color: #EA580C;
   font-size: 1.2rem;
   font-weight: bold;
 }
-
-/* .iconeCheck {
-  color: #EA580C;
-  font-weight: 800;
-  font-size: 1.2rem;
-} */
-
-/* BARRA FIXA PREMIUM */
-/* .barraFixa {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #FFFFFF;
-  border-top: 1px solid #E4E4E7;
-  padding: 20px 16px;
-  display: flex;
-  justify-content: center;
-  z-index: 100;
-}
-
-.conteudoBarra {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  box-sizing: border-box;
-} */
 
 .barraFixa * {
   box-sizing: border-box;
@@ -225,7 +177,7 @@ body {
   bottom: 0;
   left: 0;
   width: 100%;
-  box-sizing: border-box; /* CRUCIAL: Faz o padding ficar "dentro" dos 100% */
+  box-sizing: border-box; 
   background-color: #FFFFFF;
   border-top: 1px solid #E4E4E7;
   padding: 16px; 
@@ -244,12 +196,12 @@ body {
 }
 
 .controleQtd {
-  flex-shrink: 0; /* Impede que o seletor de quantidade amasse no mobile */
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 12px; /* Reduzi levemente o gap interno */
+  gap: 12px; 
   background-color: #F4F4F5;
-  padding: 12px 14px; /* Reduzi o padding interno */
+  padding: 12px 14px; 
   border-radius: 6px;
   font-weight: 700;
   border: 1px solid #E4E4E7;
@@ -269,24 +221,10 @@ body {
 .controleQtd button:active {
   opacity: 0.6;
 }
-/* 
-.btnAdicionar {
-  flex: 1;
-  background-color: #18181B; 
-  color: #FFFFFF;
-  border: none;
-  border-radius: 6px;
-  padding: 18px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.2s ease;
-} */
 
 .btnAdicionar {
   flex: 1;
   min-width: 0; 
-  /* Garante que o texto longo não quebre o layout */
   display: block;
   white-space: nowrap;
   overflow: hidden;
@@ -296,14 +234,14 @@ body {
   color: #FFFFFF;
   border: none;
   border-radius: 6px;
-  padding: 16px 8px; /* Padding vertical e lateral ajustados */
+  padding: 16px 8px; 
   font-size: 0.95rem; 
   font-weight: 700;
   cursor: pointer;
 }
 
 .btnAdicionar:active {
-  background-color: #EA580C; /* Flash laranja ao clicar */
+  background-color: #EA580C; 
   transform: scale(0.98);
 }
 
@@ -313,7 +251,7 @@ body {
   }
   
   .controleQtd {
-    padding: 14px 10px; /* Menor espaço interno no seletor de quantidade */
+    padding: 14px 10px;
     gap: 10px;
   }
 

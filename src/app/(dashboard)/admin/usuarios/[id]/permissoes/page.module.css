@@ -1,0 +1,289 @@
+.container {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ebe5e5;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #ebe5e5;
+    padding-bottom: 1.5rem;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.headerIcon {
+    color: #ea580c;
+    /* Laranja da marca */
+    background-color: #ffedd5;
+    /* Fundo laranja clarinho */
+    padding: 8px;
+    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+}
+
+.headerTitle h1 {
+    font-size: 1.5rem;
+    color: #111827;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.headerTitle p {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.btnBack {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid #ebe5e5;
+    color: #4b5563;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btnBack:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.modulesGrid {
+    display: grid;
+    /* 🚀 Adicionada a função min() para impedir o vazamento em telas muito pequenas */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 1.5rem;
+}
+
+.moduleCard {
+    background-color: #fcfcfc;
+    border: 1px solid #ebe5e5;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.moduleTitle {
+    background-color: #f9fafb;
+    padding: 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #374151;
+    border-bottom: 1px solid #ebe5e5;
+    letter-spacing: 0.05em;
+}
+
+.togglesList {
+    display: flex;
+    flex-direction: column;
+}
+
+.toggleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toggleRow:last-child {
+    border-bottom: none;
+}
+
+.toggleRow:hover {
+    background-color: #f9fafb;
+}
+
+.toggleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 1rem;
+    min-width: 0;
+    /* 🚀 Permite que o flexbox encolha o texto se precisar */
+    flex: 1;
+    /* 🚀 Ocupa o espaço disponível, empurrando o toggle pro canto */
+}
+
+.chave {
+    font-weight: 600;
+    color: #111827;
+    font-size: 0.875rem;
+    word-wrap: break-word;
+    /* 🚀 Se a palavra for gigante, ela quebra pra linha de baixo */
+}
+
+.descricao {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+/* TOGGLE SWITCH CUSTOMIZADO */
+.switchWrapper {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switchInput {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switchSlider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #d1d5db;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.switchSlider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.switchInput:checked+.switchSlider {
+    background-color: #ea580c;
+    /* Laranja da marca ativo */
+}
+
+.switchInput:checked+.switchSlider:before {
+    transform: translateX(20px);
+}
+
+.actionsBar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #ebe5e5;
+    margin-top: 1rem;
+}
+
+.btnCancel {
+    padding: 0.6rem 1.5rem;
+    background: #fff;
+    border: 1px solid #dbd1d1;
+    border-radius: 6px;
+    color: #513737;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.btnCancel:hover {
+    background: #f6f3f3;
+}
+
+.btnSave {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.5rem;
+    background: #ea580c;
+    /* Laranja primário */
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.btnSave:hover {
+    background: #c2410c;
+    /* Laranja escuro no hover */
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 1rem;
+    color: #6b7280;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #ea580c;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btnBack {
+        align-self: flex-start;
+    }
+
+    .actionsBar {
+        flex-direction: column-reverse;
+    }
+
+    .btnCancel,
+    .btnSave {
+        width: 100%;
+        justify-content: center;
+        height: 48px;
+    }
+}

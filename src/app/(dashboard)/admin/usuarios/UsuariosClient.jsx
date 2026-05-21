@@ -203,7 +203,7 @@ export default function UsuariosClient() {
 
                             <Can perform="permissoes.visualizar">
                                 <Link
-                                    href={`/admin/usuarios/${userObj.id}/permissions`}
+                                    href={`/admin/usuarios/${userObj.id}/permissoes`}
                                     title="Gerenciar Permissões"
                                     style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
                                 >

@@ -209,6 +209,7 @@
   background-color: #FFFFFF;
   border-top: 1px solid #E4E4E7;
   padding: 16px 24px;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
@@ -218,7 +219,7 @@
 
 .btnCarrinho {
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
   background-color: #EA580C;
   color: #FFFFFF;
   border: none;
