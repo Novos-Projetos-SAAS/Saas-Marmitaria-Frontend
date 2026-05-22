@@ -72,7 +72,7 @@ export default function UsuariosClient() {
                 // Passando false para inativar
                 await toggleUserStatus(id, false);
                 await Swal.fire({ title: 'Inativado!', text: 'Usuário bloqueado.', icon: 'success', confirmButtonColor: '#16a34a' });
-                listarUsuarios(inputValue, page, statusFilter, sortColumn, sortDirection);
+                refrescarLista(inputValue, page, statusFilter, sortColumn, sortDirection);
             } catch (error) {
                 console.error(error);
                 Swal.fire('Erro', 'Erro ao inativar.', 'error');
@@ -97,7 +97,7 @@ export default function UsuariosClient() {
                 // Passando true para reativar
                 await toggleUserStatus(id, true);
                 await Swal.fire({ title: 'Ativado!', text: 'Acesso restaurado.', icon: 'success', confirmButtonColor: '#16a34a' });
-                listarUsuarios(inputValue, page, statusFilter, sortColumn, sortDirection);
+                refrescarLista(inputValue, page, statusFilter, sortColumn, sortDirection);
             } catch (error) {
                 console.error(error);
                 Swal.fire('Erro', 'Erro ao reativar.', 'error');

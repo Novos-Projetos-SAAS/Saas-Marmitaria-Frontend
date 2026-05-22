@@ -7,7 +7,7 @@ export default function CatchAllNotFound() {
             <p style={{ color: '#71717a' }}>A URL que você tentou acessar não existe no sistema.</p>
             
             <Link 
-                href="/admin/usuarios" 
+                href="/admin" 
                 style={{ marginTop: '1rem', padding: '10px 20px', backgroundColor: '#ea580c', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
             >
                 Voltar para o Painel
