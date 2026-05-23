@@ -1,12 +1,9 @@
 'use client'
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import {
-    buscarTamanhosMarmitasAdmin,
-    criarTamanhoMarmita,
-    alterarTamanhoMarmita,
-    excluirTamanhoMarmita
+    buscarTamanhosMarmitasAdmin
 } from "../services/tamanhosMarmitasService.js";
 
 import Swal from "sweetalert2";
@@ -15,13 +12,23 @@ export function useTamanhosMarmitas() {
     const [tamanhos, setTamanhos] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [statusFilter, setStatusFilter] = useState("false"); // "false" = apenas ativos por padrão
+    const [sortColumn, setSortColumn] = useState('preco_base'); // Ordena por preço por padrão
+    const [sortDirection, setSortDirection] = useState('ASC');
+    const [search, setSearch] = useState("");
+
     const carregarTamanhos = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await buscarTamanhosMarmitasAdmin();
-            setTamanhos(data || []);
+            const response = await buscarTamanhosMarmitasAdmin(search, page, statusFilter, sortColumn, sortDirection);
+            setTamanhos(response.data || []);
 
-            console.log(data || []);
+            setTotalPages(response?.pagination?.lastPage || 1);
+            setPage(response?.pagination?.page || 1);
+
+
         } catch (error) {
             console.error(error);
             Swal.fire({
@@ -33,122 +40,47 @@ export function useTamanhosMarmitas() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [search, page, statusFilter, sortColumn, sortDirection]);
 
-    const handleSalvarTamanho = async (id, dados) => {
-        try {
-            if (id) {
-                await alterarTamanhoMarmita(id, dados);
+    useEffect(() => {
+        let isMounted = true;
 
-                Swal.fire({
-                    icon: "success",
-                    title: "Sucesso!",
-                    text: "Tamanho atualizado com sucesso.",
-                    confirmButtonColor: "#16a34a",
-                });
+        const iniciarBusca = async () => {
+            // Microtask para permitir que o React termine de renderizar a tela antes de travar no loading
+            await Promise.resolve();
 
-            } else {
-
-                await criarTamanhoMarmita(dados);
-
-                Swal.fire({
-                    icon: "success",
-                    title: "Sucesso!",
-                    text: "Novo tamanho cadastrado.",
-                    confirmButtonColor: "#16a34a",
-                });
+            if (isMounted) {
+                carregarTamanhos();
             }
+        };
 
-            await carregarTamanhos();
+        iniciarBusca();
 
-            console.log(tamanhos);
-            return true;
+        return () => {
+            isMounted = false;
+        };
+    }, [carregarTamanhos]);
 
-        } catch (error) {
-            console.error(error);
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: extrairMensagemErro(error, 'Não foi possível salvar o tamanho.'),
-                confirmButtonColor: '#ea580c'
-            });
-
-            return false;
-        }
-    };
-
-    const handleToggleStatus = async (id, statusAtual) => {
-        try {
-
-            await alterarTamanhoMarmita(id, { ativo: !statusAtual });
-
-            setTamanhos(prev => prev.map(t =>
-                t.id === id ? { ...t, ativo: !statusAtual } : t
-            ));
-
-            return true;
-
-        } catch (error) {
-
-            console.error(error);
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: ('Não foi possível atualizar o status do tamanho.'),
-                confirmButtonColor: '#ea580c'
-            });
-
-            return false;
-        }
-    };
-
-    const handleExcluirTamanho = async (id) => {
-        const result = await Swal.fire({
-            title: 'Tem certeza?',
-            text: "Este tamanho não estará mais disponível para novas montagens.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ea580c',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Sim, remover!',
-            cancelButtonText: 'Cancelar',
-            reverseButtons: true
-        });
-
-        if (result.isConfirmed) {
-            try {
-                await excluirTamanhoMarmita(id);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Removido!',
-                    text: 'O tamanho foi removido com sucesso.',
-                    confirmButtonColor: '#16a34a'
-                });
-
-                // Atualiza a lista tirando o item deletado
-                setTamanhos(prev => prev.filter(t => t.id !== id));
-                return true;
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    text: extrairMensagemErro(error, 'Não foi possível remover o tamanho.'),
-                    confirmButtonColor: '#ea580c'
-                });
-                return false;
-            }
-        }
-        return false;
+    const handleSort = (column) => {
+        const isSameColumn = sortColumn === column;
+        const newDirection = isSameColumn && sortDirection === "ASC" ? "DESC" : "ASC";
+        setSortColumn(column);
+        setSortDirection(newDirection);
+        setPage(1); // Reseta para a primeira página ao ordenar
     };
 
     return {
         tamanhos,
         loading,
-        carregarTamanhos,
-        handleSalvarTamanho,
-        handleToggleStatus,
-        handleExcluirTamanho
+        page,
+        setPage,
+        totalPages,
+        sortColumn,
+        sortDirection,
+        statusFilter,
+        setStatusFilter,
+        setSearch, // Expõe para a barra de pesquisa do Client
+        handleSort,
+        refrescarLista: carregarTamanhos
     };
 }

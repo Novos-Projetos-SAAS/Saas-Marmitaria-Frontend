@@ -36,7 +36,7 @@ export default function Sidebar({ menuAberto, fecharMenu }) {
         { label: "Cardápio", href: "/admin/cardapio", icon: ChefHat, permissao: "cardapio.listar" },
         { label: "Alimentos", href: "/admin/alimentos", icon: Utensils, permissao: "alimentos.listar" },
         { label: "Categorias", href: "/admin/categorias", icon: Tags, permissao: "categorias_alimentos.listar" },
-        { label: "Tamanhos Marmitas", href: "/admin/tamanhos", icon: Package, permissao: "tamanhos_marmitas.listar" },
+        { label: "Tamanhos Marmitas", href: "/admin/tamanhos-marmitas", icon: Package, permissao: "tamanhos_marmitas.listar" },
          { label: "Usuários", href: "/admin/usuarios", icon: Users, permissao: "usuarios.listar" },
         // { label: "Relatórios", href: "/admin/relatorios", icon: PieChart, permissao: "relatorios.financeiro" },
         { label: "Pagamentos", href: "/admin/pagamentos", icon: CreditCard, permissao: "metodos_pagamento.listar" },

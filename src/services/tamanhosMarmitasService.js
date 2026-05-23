@@ -8,18 +8,38 @@ export async function buscarTamanhosMarmitasParaMontagem() {
         console.error(error);
         throw new Error("Não foi possível carregar os tamanhos de marmitas.");
     }
-    
+
 }
 
-export async function buscarTamanhosMarmitasAdmin() {
+export async function buscarTamanhosMarmitasAdmin(search = '', page = 1, status = 'all', sort = 'id', order = 'ASC') {
     try {
-        const response = await api.get("/tamanhos-marmitas/admin");
+        const response = await api.get("/tamanhos-marmitas/admin", {
+            params: {
+                search,
+                page,
+                limit: 10,
+                sort,
+                order,
+                deletados: status
+            }
+        });
         console.log(response);
-        return response.data.data;
-        
+        return response.data;
+
     } catch (error) {
         console.error(error);
         throw new Error("Não foi possível carregar os tamanhos de marmitas para admin.");
+    }
+}
+
+export async function buscarTamanhoPorId(id) {
+    try {
+        const response = await api.get(`/tamanhos-marmitas/${id}`);
+        // Retorna direto os dados para o formulário
+        return response.data.data || response.data;
+    } catch (error) {
+        console.error(`Erro ao buscar tamanho com ID ${id}:`, error);
+        throw error;
     }
 }
 
@@ -43,12 +63,22 @@ export async function alterarTamanhoMarmita(id, tamanhoData) {
     }
 }
 
-export async function excluirTamanhoMarmita(id) {
+export async function toggleTamanhoStatus(id, status) {
+
     try {
-        const response = await api.delete(`/tamanhos-marmitas/${id}`);
-        return response.data.data;
+        let response;
+        if (status === true) {
+            response = await api.patch(`/tamanhos-marmitas/${id}/reativar`);
+        } else {
+            response = await api.delete(`/tamanhos-marmitas/${id}`);
+        }
+
+        return response.data;
+
+
     } catch (error) {
         console.error(error);
-        throw new Error("Não foi possível excluir o tamanho de marmita.");
+        throw new Error(`Não foi possível ${status ? 'reativar' : 'inativar'} o tamanho de marmita.`);
     }
 }
+
