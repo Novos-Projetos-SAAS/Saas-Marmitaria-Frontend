@@ -4,6 +4,7 @@ export async function buscarStatusLoja() {
     try {
         const response = await api.get('/status-loja');
         // O seu JSON retorna { data: { esta_aberta: true } }
+        console.log("Status da loja:", response.data.data.esta_aberta);
         return response.data.data.esta_aberta; 
     } catch (error) {
         console.error("Erro ao buscar status da loja", error);

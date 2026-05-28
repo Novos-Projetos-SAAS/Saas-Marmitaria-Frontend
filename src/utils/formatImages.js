@@ -1,4 +1,9 @@
 export default function formatarNomeImagem(nome) {
+
+    if (!nome) {
+        return null; // ou retorne uma string com uma imagem padrão: return '/placeholder.png';
+    }
+
     return nome
         .toLowerCase()
         .normalize("NFD") // Separa as letras dos acentos

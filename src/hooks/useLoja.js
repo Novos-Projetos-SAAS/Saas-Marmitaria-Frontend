@@ -31,6 +31,9 @@ export function useLoja() {
             carregarStatus();
         });
     }, [])
+
+
+
     const alterarStatus = async () => {
         try {
             setAtualizando(true);

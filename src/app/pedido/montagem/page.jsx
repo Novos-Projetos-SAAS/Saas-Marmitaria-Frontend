@@ -75,7 +75,7 @@ export default function Montagem() {
             <div className={styles.containerFotoAlimento}>
                 <Image
                     src={imgSrc}
-                    alt={nome}
+                    alt={nome ? nome : "Foto do Alimento"}
                     fill
                     sizes="96px"
                     className={styles.fotoAlimento}
