@@ -2,109 +2,73 @@
 
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-
 import { useState, useEffect } from "react"
 
-import { useCardapio } from "@/hooks/useCardapio.js"
-
+import { useCardapioClient } from "@/hooks/useCardapioClient"
 import { usePedido } from "@/context/PedidoContext"
-
 import formatarNomeImagem from "@/utils/formatImages.js"
-
 import styles from './page.module.css'
 
 export default function Montagem() {
-
     const router = useRouter();
-
-    const { alimentos, loading: loadingCardapio } = useCardapio();
+    
+    // 🚀 Pegamos o alimentosAgrupados direto do hook (que já fez o reduce por nós)
+    const { alimentosAgrupados, loading: loadingCardapio } = useCardapioClient();
 
     const { marmitaAtual, alternarAlimento, adicionarAoCarrinho } = usePedido();
 
     const [quantidade, setQuantidade] = useState(1);
-    const [isFinalizando, setIsFinalizando] = useState(false)
+    const [isFinalizando, setIsFinalizando] = useState(false);
 
-    // Proteção de rota: se não tiver tamanho selecinado, retorna para a tela de pedido para selecionar o tamanho
     useEffect(() => {
         if (!marmitaAtual?.tamanho) {
             router.replace('/pedido');
         }
     }, [marmitaAtual, router, isFinalizando]);
 
-
-    // Agrupamento por Categoria
-    const categoriasAgrupadas = alimentos.reduce((acc, alimento) => {
-        // se a api não mandar o nome da categoria, cai num fallback
-        const nomeCat = alimento.categoria_nome || 'Opções';
-
-        if (!acc[nomeCat]) {
-            acc[nomeCat] = {
-                nome: nomeCat,
-                // Aqui pega o limite por categoria vindo do banco (se não retornar do banco, assume valor 2)
-                limite: alimento.limite_escolhas || 2,
-                itens: []
-            }
-        }
-
-        acc[nomeCat].itens.push(alimento)
-        return acc;
-
-    }, {})
-
-
     const handleAdicionar = () => {
-
-        setIsFinalizando(true)
-
+        setIsFinalizando(true);
         const sucesso = adicionarAoCarrinho(quantidade);
-
         if (sucesso) {
-            // se adicionou com sucesso, manda o usuário para a home
-            router.push('/pedido')
+            router.push('/pedido');
         } else {
-            setIsFinalizando(false)
+            setIsFinalizando(false);
         }
+    };
 
-    }
     function FotoAlimento({ nome }) {
         const nomeArquivo = formatarNomeImagem(nome);
-        // Tenta carregar em .webp por performance, se preferir png mude a extensão abaixo
         const [imgSrc, setImgSrc] = useState(`/alimentos/${nomeArquivo}.webp`);
 
         return (
             <div className={styles.containerFotoAlimento}>
                 <Image
                     src={imgSrc}
-                    alt={nome ? nome : "Foto do Alimento"}
+                    alt={nome || "Foto do Alimento"}
                     fill
                     sizes="96px"
                     className={styles.fotoAlimento}
-                    // Se a imagem não existir na public/alimentos, assume o fallback sem quebrar a tela
                     onError={() => setImgSrc('/alimentos/padrao.webp')}
                 />
             </div>
         );
     }
 
-
-    // Trava de loading visual
     if (loadingCardapio) {
         return (
             <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAFAFA' }}>
                 <span style={{ color: '#EA580C', fontWeight: '600' }}>Preparando ingredientes...</span>
             </div>
-        )
+        );
     }
 
-
-    // Trava anti-tela-branca
     if (!marmitaAtual?.tamanho) return null;
 
-
-    // Cálculos de preço em tempo real
     const precoBase = Number(marmitaAtual.tamanho.preco_base);
     const total = precoBase * quantidade;
 
+    // 🚀 Extraímos as chaves (nomes das categorias) do objeto que veio do hook
+    const nomesCategorias = Object.keys(alimentosAgrupados || {});
 
     return (
         <main className={styles.container}>
@@ -117,39 +81,41 @@ export default function Montagem() {
             </header>
 
             <section className={styles.areaMontagem}>
-                {Object.values(categoriasAgrupadas).map((categoria) => {
+                {/* 🚀 Usamos a lista de nomes para renderizar */}
+                {nomesCategorias.map((nomeCategoria) => {
+                    // Pega a lista de alimentos (itens) que pertencem a essa categoria
+                    const itensDaCategoria = alimentosAgrupados[nomeCategoria];
+                    
+                    // Pega o limite do primeiro item (se não existir, o fallback é 2)
+                    const limiteDaCategoria = itensDaCategoria[0]?.limite_escolhas || 2;
 
-                    // Conta quantos itens desta categoria já estão no objeto marmitaAtual.itens
+                    // Conta quantos já foram marcados
                     const qtdSelecionadaNestaCat = marmitaAtual.itens.filter(
-                        i => i.categoria_nome === categoria.nome
+                        i => i.categoria_nome === nomeCategoria
                     ).length;
 
                     return (
-                        <div key={categoria.nome} className={styles.blocoCategoria}>
+                        <div key={nomeCategoria} className={styles.blocoCategoria}>
                             <div className={styles.cabecalhoCategoria}>
-                                <h2>{categoria.nome}</h2>
+                                <h2>{nomeCategoria}</h2>
                                 <span className={styles.contadorLimite}>
-                                    {qtdSelecionadaNestaCat} / {categoria.limite} opções
+                                    {qtdSelecionadaNestaCat} / {limiteDaCategoria} opções
                                 </span>
                             </div>
 
                             <div className={styles.gridAlimentos}>
-                                {categoria.itens.map((alimento) => {
-                                    // Verifica se ESTE alimento específico já foi clicado
+                                {itensDaCategoria.map((alimento) => {
                                     const isSelecionado = marmitaAtual.itens.some(i => i.id === alimento.id);
 
                                     return (
                                         <div
                                             key={alimento.id}
-                                            // Se estiver selecionado, aplica a classe que acende a borda laranja
                                             className={`${styles.cardAlimento} ${isSelecionado ? styles.cardSelecionado : ''}`}
-                                            onClick={() => alternarAlimento(alimento, categoria.limite)}
+                                            // 🚀 Passamos a função passando o alimento e o limite exato
+                                            onClick={() => alternarAlimento(alimento, limiteDaCategoria)}
                                         >
-
                                             <FotoAlimento nome={alimento.nome} />
-
                                             <span className={styles.nomeAlimento}>{alimento.nome}</span>
-
                                             {isSelecionado && <span className={styles.iconeCheck}>✓</span>}
                                         </div>
                                     );
@@ -160,7 +126,6 @@ export default function Montagem() {
                 })}
             </section>
 
-            {/* BARRA FIXA INFERIOR */}
             <div className={styles.barraFixa}>
                 <div className={styles.conteudoBarra}>
                     <div className={styles.controleQtd}>
@@ -175,6 +140,4 @@ export default function Montagem() {
             </div>
         </main>
     );
-
-
 }

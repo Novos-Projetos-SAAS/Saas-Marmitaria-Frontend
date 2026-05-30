@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import { useEffect } from 'react';
 
-import { useCardapio } from '@/hooks/useCardapio.js';
+import { useCardapioClient } from '@/hooks/useCardapioClient';
 import { useLoja } from '@/hooks/useLoja.js';
 
 import { usePedido } from '@/context/PedidoContext.js';
@@ -16,7 +16,7 @@ export default function Pedido() {
     const router = useRouter();
 
     const { statusLoja, loading: loadingLoja } = useLoja();
-    const { tamanhos, loading: loadingCardapio } = useCardapio();
+    const { tamanhos, loading: loadingCardapio } = useCardapioClient();
 
     const { iniciarNovaMarmita, carrinho, totalGeral } = usePedido();
 

@@ -1,0 +1,197 @@
+/* src/app/(dashboard)/admin/cardapio/cardapioClient.module.css */
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.actionsBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e4e4e7;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.infoText p {
+    color: #52525b;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.btnZerar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnZerar:hover {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.emptyState {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid #e4e4e7;
+    text-align: center;
+    color: #71717a;
+}
+
+.gridCategorias {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.categoriaCard {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.categoriaTitle {
+    background-color: #f4f4f5;
+    padding: 1rem 1.25rem;
+    margin: 0;
+    font-size: 1.1rem;
+    color: #18181b;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+.listaAlimentos {
+    display: flex;
+    flex-direction: column;
+}
+
+.alimentoItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f4f4f5;
+    transition: background-color 0.2s;
+}
+
+.alimentoItem:last-child {
+    border-bottom: none;
+}
+
+.alimentoItem.ativo {
+    background-color: #fffbeb; 
+}
+
+.alimentoInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.alimentoNome {
+    font-weight: 600;
+    color: #27272a;
+    font-size: 0.95rem;
+}
+
+.badgeAtivo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #ea580c;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badgeInativo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #a1a1aa;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* --- TOGGLE SWITCH CSS --- */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #e4e4e7;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.switch input:checked + .slider {
+    background-color: #ea580c; 
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Loading */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    color: #71717a;
+    font-weight: 500;
+    gap: 1rem;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+    color: #ea580c;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

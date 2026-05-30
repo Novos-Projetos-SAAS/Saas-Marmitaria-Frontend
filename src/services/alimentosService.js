@@ -1,14 +1,14 @@
 import api from "./api";
 
 export async function buscarAlimentos(params = {}) {
-    const response = await api.get("/alimentos",{ params });
+    const response = await api.get("/alimentos", { params });
     return response.data.data;
 }
 
 export async function buscarAlimentosAdmin(search = '', page = 1, statusFilter = 'all', sort = 'id', order = 'ASC') {
     let excluidos = 'mixed';
-    if (statusFilter === 'false') excluidos = 'false'; 
-    if (statusFilter === 'true') excluidos = 'true';   
+    if (statusFilter === 'false') excluidos = 'false';
+    if (statusFilter === 'true') excluidos = 'true';
 
     try {
         const response = await api.get("/alimentos/admin", {
@@ -26,6 +26,18 @@ export async function buscarAlimentosAdmin(search = '', page = 1, statusFilter =
     } catch (error) {
         console.error("Erro ao buscar alimentos:", error);
         throw new Error("Não foi possível carregar os alimentos.");
+    }
+}
+
+
+export async function buscarAlimentosDisponiveisHoje() {
+    try {
+        // Apontando para uma rota pública que não vai exigir token de admin
+        const response = await api.get("/alimentos/cardapio-hoje");
+        return response.data.data || response.data || [];
+    } catch (error) {
+        console.error("Erro ao buscar cardápio de hoje:", error);
+        throw new Error("Não foi possível carregar os itens do cardápio.");
     }
 }
 
