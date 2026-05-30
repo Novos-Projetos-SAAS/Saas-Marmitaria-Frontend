@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import { criarCategoria } from '@/services/categoriasAlimentosService.js';
-import CategoriaAlimentosForm from '@/components/forms/categoriasAlimentos/categoriasAlimentosForm';
+import { criarAlimento } from '@/services/alimentosService';
+import AlimentoForm from '@/components/forms/alimentos/alimentosForm';
 import Can from '@/components/ui/can/index.jsx';
 import AccessDenied from '@/components/ui/accessDenied/index.jsx';
 
@@ -13,25 +13,25 @@ import Swal from "sweetalert2";
 
 import styles from './page.module.css';
 
-export default function CadastroCategoriaPage() {
+export default function CadastroAlimentoPage() {
     const router = useRouter();
 
     const handleSave = async (payload) => {
         try {
-            await criarCategoria(payload);
+            await criarAlimento(payload);
             Swal.fire({
                 icon: 'success',
                 title: 'Sucesso',
-                text: 'Nova categoria cadastrada com sucesso!',
+                text: 'Novo alimento cadastrado com sucesso!',
                 timer: 2000,
                 showConfirmButton: false,
             });
-            router.push("/admin/categorias-alimentos");
+            router.push("/admin/alimentos");
         } catch (error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Erro',
-                text: 'Falha ao cadastrar a categoria.',
+                text: 'Falha ao cadastrar o alimento.',
                 confirmButtonColor: '#ea580c'
             });
             throw error;
@@ -52,24 +52,24 @@ export default function CadastroCategoriaPage() {
         });
 
         if (result.isConfirmed) {
-            router.push("/admin/categorias-alimentos"); 
+            router.push("/admin/alimentos"); 
         }
     };
 
     return (
-        <Can perform="categorias_alimentos.criar" fallback={<AccessDenied />}>
+        <Can perform="alimentos.criar" fallback={<AccessDenied />}>
             <div className={styles.wrapper}>
                 <div className={styles.header}>
-                    <Link href="/admin/categorias-alimentos" className={styles.btnVoltar}>
+                    <Link href="/admin/alimentos" className={styles.btnVoltar}>
                         <ArrowLeft size={18} />
                         <span>Voltar para Lista</span>
                     </Link>
                     <h1 className={styles.title}>
-                        Cadastrar Nova Categoria
+                        Cadastrar Novo Alimento 
                     </h1>
                 </div>
 
-                <CategoriaAlimentosForm
+                <AlimentoForm
                     initialData={null}
                     mode="create" 
                     onSave={handleSave}
