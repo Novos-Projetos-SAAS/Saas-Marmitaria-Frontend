@@ -24,7 +24,7 @@ export default function AcompanharPedido() {
         setErro('');
         const response = await buscarPedidoPorTelefoneUsuario(telefone);
 
-        if (response && response.status === 'success' && response.results > 0) {
+        if (response && response.status === 'success' && response.data.length > 0) {
             // 👇 Agora salvamos TODOS os pedidos retornados na lista
             setPedidos(response.data);
         } else {

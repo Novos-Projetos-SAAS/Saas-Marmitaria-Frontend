@@ -5,6 +5,8 @@
     min-height: 100vh;
     background-color: #fdfdfd;
     padding: 20px;
+    min-height: 100dvh;
+    box-sizing: border-box;
 }
 
 .card {

@@ -192,12 +192,31 @@ export function useCardapio() {
                 // Recarrega a tela usando a função manual
                 await recarregarCardapioManualmente(); 
                 
-                Swal.fire('Encerrado!', 'O cardápio foi zerado com sucesso.', 'success');
+                await Swal.fire({
+                    title: 'Expediente Encerrado!',
+                    text: 'A loja foi fechada e o cardápio está zerado.',
+                    icon: 'success',
+                    iconColor: '#16a34a', // Ícone de check verde limpo
+                    confirmButtonColor: '#16a34a', // Botão usando o laranja da sua marca
+                    
+                    background: '#ffffff',
+                    color: '#27272a'
+                });
+
+                return true; // Retorna true para indicar que a ação foi concluída
             } catch (error) {
-                Swal.fire('Erro', 'Falha ao tentar zerar o cardápio.', 'error');
+                Swal.fire({
+                    title: 'Ops! Algo deu errado',
+                    text: 'Falha ao tentar encerrar o expediente. Verifique a sua ligação.',
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444', // 🔴 Botão Vermelho para erro
+                    confirmButtonText: 'Fechar'
+                });
                 setLoading(false);
             }
         }
+
+        return false; // Retorna false se o usuário cancelar a ação ou se ocorrer um erro
     };
 
     // Agrupa os dados para a interface

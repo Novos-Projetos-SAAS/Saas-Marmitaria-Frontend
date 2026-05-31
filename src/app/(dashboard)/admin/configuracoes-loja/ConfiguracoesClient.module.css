@@ -1,0 +1,204 @@
+/* src/app/(dashboard)/admin/configuracoes/configuracoesClient.module.css */
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 800px;
+}
+
+/* Base dos Cartões (Cards) */
+.card, .cardDanger {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.card {
+    border: 1px solid #e4e4e7;
+}
+
+.cardDanger {
+    border: 1px solid #fca5a5;
+}
+
+/* Cabeçalhos (Headers) */
+.cardHeader {
+    background-color: #f4f4f5;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+.cardHeaderDanger {
+    background-color: #fef2f2;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #fca5a5;
+}
+
+.iconeNormal { color: #52525b; }
+.iconeDanger { color: #dc2626; }
+
+.h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #18181b;
+}
+
+/* Corpos dos Cartões */
+.cardBody, .cardBodyDanger {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.infoBlock {
+    max-width: 450px;
+}
+
+.infoBlock h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.05rem;
+    color: #27272a;
+}
+
+.tituloDanger {
+    color: #991b1b !important;
+}
+
+.infoBlock p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #71717a;
+    line-height: 1.5;
+}
+
+/* ==========================================
+   O TOGGLE SWITCH (CHAVINHA)
+   ========================================== */
+.toggleWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #e4e4e7;
+    transition: .3s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input:checked + .slider {
+    background-color: #16a34a; /* Verde sucesso */
+}
+
+input:disabled + .slider {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+input:checked + .slider:before {
+    transform: translateX(28px);
+}
+
+.textoAberto {
+    color: #16a34a;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.textoFechado {
+    color: #71717a;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Botão Encerrar Expediente */
+.btnZerar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    min-width: 200px;
+    justify-content: center;
+}
+
+.btnZerar:hover { background-color: #dc2626; }
+.btnZerar:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* Estado de Carregamento (Loading) */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    color: #71717a;
+    gap: 12px;
+}
+
+.spin { animation: spin 1s linear infinite; }
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+    .cardBody, .cardBodyDanger {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .btnZerar { width: 100%; }
+    .toggleWrapper { align-items: flex-start; }
+}

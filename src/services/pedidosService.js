@@ -19,6 +19,11 @@ export async function listarPedidoPorTelefoneUsuario(telefone) {
         return response.data;
 
     } catch (error) {
+        if (error.response && error.response.status === 404) {
+            // Retornamos nulo (ou um array vazio []) para a interface saber que não tem pedido, sem quebrar!
+            return null;
+        }
+
         console.error("Erro no pedidoService:", error);
         throw error;
     }

@@ -41,7 +41,7 @@ export default function Sidebar({ menuAberto, fecharMenu }) {
         // { label: "Relatórios", href: "/admin/relatorios", icon: PieChart, permissao: "relatorios.financeiro" },
         { label: "Pagamentos", href: "/admin/pagamentos", icon: CreditCard, permissao: "metodos_pagamento.listar" },
         // { label: "Permissões", href: "/admin/permissoes", icon: ShieldCheck, permissao: "permissoes.listar" },
-        { label: "Configuração Loja", href: "/admin/loja", icon: Settings, permissao: "loja.configurar" },
+        { label: "Configuração Loja", href: "/admin/configuracoes-loja", icon: Settings, permissao: "loja.configurar" },
     ];
 
     return (
