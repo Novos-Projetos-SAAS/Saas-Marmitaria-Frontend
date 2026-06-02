@@ -1,0 +1,250 @@
+.overlay { 
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.6); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 100; 
+    padding: 20px; 
+}
+
+.modal { 
+    background: white; 
+    width: 100%; 
+    max-width: 550px; 
+    border-radius: 12px; 
+    display: flex; 
+    flex-direction: column; 
+    max-height: 90vh; 
+    animation: slideUp 0.2s ease-out; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 1.2rem 1.5rem; 
+    border-bottom: 1px solid #e4e4e7; 
+}
+
+.header h3 { 
+    margin: 0; 
+    color: #18181b; 
+}
+
+.btnFechar { 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    color: #71717a; 
+    padding: 6px; 
+    border-radius: 6px; 
+    display: flex;
+}
+
+.btnFechar:hover { 
+    background: #fee2e2; 
+    color: #ef4444; 
+}
+
+.body { 
+    padding: 1.5rem; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1.5rem; 
+}
+
+.secao h4 { 
+    margin: 0 0 10px 0; 
+    color: #3f3f46; 
+    font-size: 1rem; 
+}
+
+.selectModal { 
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid #d4d4d8; 
+    border-radius: 8px; 
+    font-size: 1rem; 
+    color: #18181b; 
+    outline: none; 
+    background: white;
+}
+
+.selectModal:focus { 
+    border-color: #ea580c; 
+}
+
+/* Agrupamento de Categorias */
+.grupoCategoria {
+    margin-bottom: 1.2rem;
+}
+
+.tituloCategoria {
+    margin: 0 0 10px 0;
+    font-size: 0.85rem;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e4e4e7;
+    padding-bottom: 4px;
+}
+
+.gridAlimentos { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+}
+
+.cardAlimento { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    padding: 10px 12px; 
+    border: 1px solid #e4e4e7; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    user-select: none; 
+    color: #3f3f46;
+}
+
+.cardAlimento:hover { 
+    border-color: #d4d4d8; 
+    background: #fafafa; 
+}
+
+.cardAlimento.selecionado { 
+    border-color: #ea580c; 
+    background: #fff7ed; 
+    color: #9a3412;
+    font-weight: 500;
+}
+
+.checkboxOculto { 
+    display: none; 
+}
+
+.checkIcon { 
+    width: 18px; 
+    height: 18px; 
+    border-radius: 4px; 
+    border: 1px solid #d4d4d8; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    background: white; 
+    flex-shrink: 0;
+}
+
+.selecionado .checkIcon { 
+    background: #ea580c; 
+    border-color: #ea580c; 
+}
+
+.secaoHorizontal { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #fafafa; 
+    padding: 1rem; 
+    border-radius: 8px; 
+    border: 1px solid #e4e4e7;
+}
+
+.secaoHorizontal h4 { 
+    margin: 0; 
+    color: #3f3f46; 
+}
+
+.contador { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    background: white; 
+    border: 1px solid #d4d4d8; 
+    border-radius: 8px; 
+    padding: 4px; 
+}
+
+.contador button { 
+    background: #f4f4f5; 
+    border: none; 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    color: #3f3f46; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contador button:hover { 
+    background: #e4e4e7; 
+}
+
+.contador span { 
+    font-weight: 600; 
+    width: 24px; 
+    text-align: center; 
+    color: #18181b;
+}
+
+.footer { 
+    padding: 1.2rem 1.5rem; 
+    border-top: 1px solid #e4e4e7; 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 12px; 
+    background: #fafafa;
+    border-radius: 0 0 12px 12px;
+}
+
+.btnCancelar { 
+    background: white; 
+    border: 1px solid #d4d4d8; 
+    padding: 10px 18px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    color: #3f3f46; 
+}
+
+.btnConfirmar { 
+    background: #ea580c; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: 600; 
+}
+
+.btnConfirmar:hover { background: #c2410c; }
+.btnConfirmar:disabled, .btnCancelar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+    color: #ea580c;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.spin { animation: spin 1s linear infinite; }
+.emptyCardapio { color: #ef4444; font-size: 0.95rem; padding: 1rem; background: #fef2f2; border-radius: 8px; text-align: center; }
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 600px) {
+    .gridAlimentos { grid-template-columns: 1fr; }
+}

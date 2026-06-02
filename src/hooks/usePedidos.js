@@ -15,8 +15,6 @@ export function usePedidos() {
         try {
             await criarPedido(payload);
 
-            console.log(payload)
-
             toast.success("Pedido registrado com sucesso!");
             limparCarrinho();
             return true; // Sucesso
