@@ -164,7 +164,14 @@ export default function CategoriasClient() {
                         </div>
 
                         <div className={styles.mobileActions}>
-                            <ActionMenu usuario={itemMobile} onArchive={handleArchiveCategoria} onReactivate={handleReactivateCategoria} isLast={isLastItems} />
+                           <ActionMenu 
+                                item={itemMobile}
+                                basePath="/admin/categorias-alimentos"
+                                permissionPrefix="categorias_alimentos" 
+                                onArchive={handleArchiveCategoria} 
+                                onReactivate={handleReactivateCategoria} 
+                                isLast={isLastItems} 
+                            />
                         </div>
                     </>
                 );

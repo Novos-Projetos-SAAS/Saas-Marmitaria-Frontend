@@ -200,7 +200,9 @@ export default function TamanhosClient() {
 
                         <div className={styles.mobileActions}>
                             <ActionMenu
-                                usuario={itemMobile} 
+                                item={itemMobile} 
+                                basePath="/admin/tamanhos-marmitas" 
+                                permissionPrefix="tamanhos_marmitas" 
                                 onArchive={handleArchiveTamanho}
                                 onReactivate={handleReactivateTamanho}
                                 isLast={isLastItems}

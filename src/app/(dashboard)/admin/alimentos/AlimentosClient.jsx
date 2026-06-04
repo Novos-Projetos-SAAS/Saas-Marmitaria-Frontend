@@ -154,7 +154,14 @@ export default function AlimentosClient() {
                         </div>
 
                         <div className={styles.mobileActions}>
-                            <ActionMenu usuario={itemMobile} onArchive={handleArchiveAlimento} onReactivate={handleReactivateAlimento} isLast={isLastItems} />
+                            <ActionMenu 
+                                item={itemMobile}
+                                basePath="/admin/alimentos"
+                                permissionPrefix="alimentos"
+                                onArchive={handleArchiveAlimento} 
+                                onReactivate={handleReactivateAlimento} 
+                                isLast={isLastItems} 
+                            />
                         </div>
                     </>
                 );

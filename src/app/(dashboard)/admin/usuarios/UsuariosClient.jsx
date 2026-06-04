@@ -19,7 +19,7 @@ import Swal from "sweetalert2";
 import styles from "./UsuariosClient.module.css";
 
 export default function UsuariosClient() {
-   const {
+    const {
         usuarios,
         loading,
         page,
@@ -38,7 +38,7 @@ export default function UsuariosClient() {
 
     const isFirstRender = useRef(true);
 
-   useEffect(() => {
+    useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             setSearch(inputValue);
             setPage(1); // Reseta a paginação ao digitar uma nova busca
@@ -215,10 +215,13 @@ export default function UsuariosClient() {
                         {/* AÇÕES DE MOBILE */}
                         <div className={styles.mobileActions}>
                             <ActionMenu
-                                usuario={userObj} // 👈 Corrigido: mapeado de 'user' para 'usuario'
-                                onArchive={handleArchiveUser}
-                                onReactivate={handleReactivateUser}
-                                isLast={isLastItems}
+                                item={userObj} 
+                                basePath="/admin/usuarios"
+                                permissionPrefix="usuarios"
+                                showPermissions={true}
+                                onArchive={handleArchiveUser} 
+                                onReactivate={handleReactivateUser} 
+                                isLast={isLastItems} 
                             />
                         </div>
                     </>

@@ -1,6 +1,8 @@
 // src/app/admin/page.js
 'use client'
 
+import EmConstrucao from '@/components/EmConstrução/emConstrucao';
+
 import { Package, ChefHat, DollarSign, TrendingUp } from 'lucide-react';
 
 import styles from './page.module.css';
@@ -8,14 +10,19 @@ import styles from './page.module.css';
 export default function Dashboard() {
     return (
         <main className={styles.container}>
-            <header className={styles.header}>
+
+            <section style={{ width: '100%', marginTop: '2rem' }}>
+                <EmConstrucao />
+            </section>
+            
+            {/* <header className={styles.header}>
                 <div>
                     <h1>Resumo do Dia</h1>
                     <p>Acompanhe o movimento da sua cozinha hoje.</p>
                 </div>
-            </header>
+            </header> */}
 
-            {/* 👇 Cartões de resumo (Mocks temporários) */}
+            {/* 👇 Cartões de resumo (Mocks temporários)
             <div className={styles.gridCards}>
                 <div className={styles.card}>
                     <div className={styles.cardIcon} style={{ backgroundColor: '#e0e7ff', color: '#4338ca' }}>
@@ -49,12 +56,11 @@ export default function Dashboard() {
             </div>
 
             <section className={styles.content}>
-                {/* Aqui entrarão os gráficos ou a lista de últimos pedidos no futuro */}
                 <div className={styles.placeholderBox}>
                     <TrendingUp size={48} color="#ccc" />
                     <p>Os gráficos e listagens aparecerão aqui</p>
                 </div>
-            </section>
+            </section> */}
         </main>
     );
 }

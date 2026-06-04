@@ -1,9 +1,13 @@
 'use client'
 
 import { useState } from "react";
+
 import { usePedidosAdmin } from "@/hooks/usePedidosAdmin.js";
-import { RefreshCw, Eye, Plus, List, X } from "lucide-react";
+
 import FormPedidoPresencial from "@/components/forms/pedidoPresencial/pedidoPresencialForm";
+
+import { RefreshCw, Eye, Plus, List, X } from "lucide-react";
+
 import styles from "./PedidosClient.module.css";
 
 const STATUS_OPCOES = ['Pendente', 'Em Preparo', 'Pronto para Retirada', 'Saiu para Entrega', 'Entregue', 'Cancelado'];
@@ -45,7 +49,7 @@ export default function PedidosClient() {
                         </button>
                     </div>
 
-                    <div className={styles.tableContainer}>
+                    {/* <div className={styles.tableContainer}>
                         <table className={styles.table}>
                             <thead>
                                 <tr>
@@ -69,7 +73,7 @@ export default function PedidosClient() {
                                             </td>
                                             <td>R$ {Number(pedido.valor_total).toFixed(2).replace('.', ',')}</td>
                                             <td>
-                                                {/* Select Inline para Status */}
+                          
                                                 <select 
                                                     className={`${styles.selectStatus} ${styles[`status_${pedido.status.replace(/\s+/g, '')}`]}`}
                                                     value={pedido.status}
@@ -83,6 +87,60 @@ export default function PedidosClient() {
                                             <td>
                                                 <button className={styles.btnVer} onClick={() => setPedidoSelecionado(pedido)}>
                                                     <Eye size={18} /> Ver Itens
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div> */}
+
+                    <div className={styles.tableContainer}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>#ID</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Status (Atualizar)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pedidos.length === 0 ? (
+                                    <tr><td colSpan="5" className={styles.empty}>Nenhum pedido encontrado.</td></tr>
+                                ) : (
+                                    pedidos.map(pedido => (
+                                        <tr key={pedido.id}>
+                                            <td style={{ fontWeight: '500', color: '#71717a' }}>#{pedido.id}</td>
+                                            
+                                            <td>
+                                                <div className={styles.clienteInfo}>
+                                                    <span className={styles.clienteNome}>{pedido.nome_cliente}</span>
+                                                    <span className={styles.clienteTelefone}>{pedido.telefone_cliente || 'Sem telefone'}</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td style={{ fontWeight: '600', color: '#ea580c' }}>
+                                                R$ {Number(pedido.valor_total).toFixed(2).replace('.', ',')}
+                                            </td>
+                                            
+                                            <td>
+                                                <select 
+                                                    className={`${styles.selectStatus} ${styles[`status_${pedido.status.replace(/\s+/g, '')}`]}`}
+                                                    value={pedido.status}
+                                                    onChange={(e) => atualizarStatus(pedido.id, e.target.value)}
+                                                >
+                                                    {STATUS_OPCOES.map(opt => (
+                                                        <option key={opt} value={opt}>{opt}</option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            
+                                            <td>
+                                                <button className={styles.btnVer} onClick={() => setPedidoSelecionado(pedido)} title="Ver Detalhes">
+                                                    <Eye size={18} /> <span>Detalhes</span>
                                                 </button>
                                             </td>
                                         </tr>

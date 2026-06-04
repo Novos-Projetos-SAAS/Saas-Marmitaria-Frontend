@@ -1,12 +1,10 @@
-/* src/app/(dashboard)/admin/pedidos/pedidosClient.module.css */
-
+/* 
 .wrapper { 
     display: flex; 
     flex-direction: column; 
     gap: 1rem; 
 }
 
-/* Navegação por Abas */
 .tabs { 
     display: flex; 
     gap: 10px; 
@@ -36,7 +34,7 @@
     color: white; 
 }
 
-/* Área do Cartão e Tabela */
+
 .cardGeral {
     background: white; 
     border: 1px solid #e4e4e7;
@@ -107,7 +105,7 @@
     padding: 3rem !important; 
 }
 
-/* Select de Status (Cores Dinâmicas para combinar perfeitamente com a Vercel/Tailwind) */
+
 .selectStatus {
     padding: 6px 10px; 
     border-radius: 6px; 
@@ -143,7 +141,7 @@
     background: #f4f4f5; 
 }
 
-/* Modal de Detalhes */
+
 .modalOverlay { 
     position: fixed; 
     top: 0; left: 0; right: 0; bottom: 0; 
@@ -213,7 +211,7 @@
     color: #18181b; 
 }
 
-/* Lista de Marmitas no Modal */
+
 .marmitasGrid { 
     display: flex; 
     flex-direction: column; 
@@ -246,7 +244,333 @@
     line-height: 1.6;
 }
 
-/* Loading State */
+
+.loading { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    gap: 10px; 
+    padding: 3rem; 
+    color: #71717a; 
+    font-weight: 500;
+}
+
+.spin { 
+    animation: spin 1s linear infinite; 
+    color: #ea580c;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } */
+
+
+/* =========================================
+   ESTRUTURA GERAL E ABAS
+========================================= */
+.wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem; 
+}
+
+.tabs { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 1rem; 
+}
+
+.tabBtn {
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    padding: 10px 16px; 
+    border: none; 
+    border-radius: 8px;
+    background: #f4f4f5; 
+    color: #52525b; 
+    font-weight: 600; 
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tabBtn:hover:not(.tabAtiva) {
+    background: #e4e4e7;
+}
+
+.tabAtiva { 
+    background: #ea580c; 
+    color: white; 
+}
+
+/* =========================================
+   CARTÃO E CABEÇALHO DA LISTA
+========================================= */
+.cardGeral {
+    background: white; 
+    border: 1px solid #e4e4e7;
+    border-radius: 12px; 
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.headerRow { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 1.5rem; 
+}
+
+.headerRow h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #18181b;
+}
+
+.btnAtualizar { 
+    display: flex; 
+    gap: 6px; 
+    align-items: center; 
+    border: 1px solid #d4d4d8; 
+    background: #ffffff; 
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600;
+    color: #3f3f46;
+    transition: 0.2s;
+}
+
+.btnAtualizar:hover {
+    background: #f4f4f5;
+}
+
+/* =========================================
+   ESTILO DA GRID (TABELA MODERNA)
+========================================= */
+.tableContainer { 
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    overflow-x: auto; 
+    overflow-y: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    text-align: left; 
+    font-size: 0.9rem;
+}
+
+.table th { 
+    background: #f9fafb;
+    color: #71717a; 
+    font-size: 0.75rem; 
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 14px 16px; 
+    font-weight: 600;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #e4e4e7;
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table td { 
+    padding: 16px; 
+    vertical-align: middle; 
+    color: #3f3f46;
+}
+
+.empty { 
+    text-align: center; 
+    color: #71717a; 
+    padding: 3rem !important; 
+    font-weight: 500;
+}
+
+/* Informações do Cliente na Grid */
+.clienteInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.clienteNome {
+    font-weight: 600;
+    color: #18181b;
+}
+
+.clienteTelefone {
+    font-size: 0.85rem;
+    color: #71717a;
+}
+
+/* =========================================
+   SELECT DE STATUS E BOTÕES DE AÇÃO
+========================================= */
+.selectStatus {
+    /* padding: 6px 12px;  */
+    padding: 6px 30px 6px 14px;
+    border-radius: 999px;
+    font-weight: 600; 
+    border: 1px solid transparent; 
+    cursor: pointer; 
+    outline: none;
+    font-size: 0.85rem;
+    /* appearance: none; */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2352525b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Posiciona a seta à direita e centralizada verticalmente */
+    background-size: 14px;
+    
+    text-align: left;
+}
+
+.status_Pendente { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.status_EmPreparo { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+.status_ProntoparaRetirada { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+.status_SaiuparaEntrega { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+.status_Entregue { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.status_Cancelado { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+.btnVer { 
+    background: none; 
+    border: none; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    display: flex; 
+    gap: 6px; 
+    align-items: center; 
+    color: #2563eb;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btnVer:hover { 
+    background: #eff6ff; 
+    color: #1d4ed8;
+}
+
+/* =========================================
+   MODAL DE DETALHES DO PEDIDO
+========================================= */
+.modalOverlay { 
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.6); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 50; 
+    padding: 20px;
+}
+
+.modalContent { 
+    background: white; 
+    width: 100%; 
+    max-width: 550px; 
+    border-radius: 12px; 
+    padding: 2rem; 
+    max-height: 90vh; 
+    overflow-y: auto; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideUp 0.2s ease-out;
+}
+
+.modalHeader { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid #e4e4e7; 
+    padding-bottom: 1rem; 
+    margin-bottom: 1.5rem; 
+}
+
+.modalHeader h2 { 
+    margin: 0; 
+    color: #18181b; 
+}
+
+.modalHeader button { 
+    background: #f4f4f5; 
+    border: none; 
+    cursor: pointer; 
+    color: #71717a; 
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    transition: 0.2s;
+}
+
+.modalHeader button:hover { 
+    background: #fee2e2; 
+    color: #ef4444; 
+}
+
+.modalBody p { 
+    margin: 0 0 10px 0; 
+    color: #3f3f46; 
+}
+
+.modalBody hr { 
+    border: 0; 
+    border-top: 1px dashed #d4d4d8; 
+    margin: 1.5rem 0; 
+}
+
+.modalBody h3 { 
+    margin: 0 0 1rem 0; 
+    color: #18181b; 
+}
+
+.marmitasGrid { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+}
+
+.marmitaCard { 
+    background: #fafafa; 
+    border: 1px solid #e4e4e7; 
+    padding: 1.25rem; 
+    border-radius: 8px; 
+}
+
+.marmitaHeader { 
+    display: flex; 
+    justify-content: space-between; 
+    font-weight: 600; 
+    border-bottom: 1px solid #e4e4e7; 
+    padding-bottom: 10px; 
+    margin-bottom: 10px; 
+    color: #18181b;
+}
+
+.alimentosList { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0; 
+    color: #52525b; 
+    font-size: 0.95rem; 
+    line-height: 1.6;
+}
+
+/* =========================================
+   ANIMAÇÕES E LOADING
+========================================= */
 .loading { 
     display: flex; 
     align-items: center; 
@@ -264,3 +588,22 @@
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   RESPONSIVIDADE (MOBILE)
+========================================= */
+@media (max-width: 768px) {
+    .headerRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .modalContent {
+        padding: 1.5rem;
+    }
+}

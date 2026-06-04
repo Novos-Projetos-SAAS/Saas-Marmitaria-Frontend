@@ -245,6 +245,7 @@ import { usePedidos } from "@/hooks/usePedidos";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento"; 
 
 import ModalMontarMarmita from "@/components/modals/montarMarmitaModal"; 
+import TelefoneInput from "@/components/ui/inputMask";
 
 import { Save, X, ShoppingBag, User, MapPin, CreditCard } from "lucide-react";
 import toast from "react-hot-toast";
@@ -361,12 +362,12 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
 
                         <div className={styles.inputGroup}>
                             <label>Telefone / WhatsApp</label>
-                            <input 
-                                type="text" 
-                                name="telefone_cliente"
+                            <TelefoneInput 
+                                name="telefone_cliente" // 🚀 O nome exato que está no seu formData
                                 value={formData.telefone_cliente}
                                 onChange={handleChange}
                                 placeholder="(00) 00000-0000"
+                                required={false} // No balcão geralmente não é obrigatório
                             />
                         </div>
 

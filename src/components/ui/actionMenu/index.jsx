@@ -10,7 +10,15 @@ import { MoreVertical, Eye, Edit, Trash2, RotateCcw, Shield } from "lucide-react
 
 import styles from "./index.module.css";
 
-export default function ActionMenu({ usuario, onArchive, onReactivate, isLast }) {
+export default function ActionMenu({
+    item,
+    basePath,
+    permissionPrefix,
+    showPermissions = false,
+    onArchive,
+    onReactivate,
+    isLast
+}) {
     const [isOpen, setIsOpen] = useState(false);
     const [menuStyle, setMenuStyle] = useState({});
     const menuRef = useRef(null);
@@ -63,7 +71,7 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
         setMenuStyle(nextStyle);
     }, [isOpen, isLast]);
 
-    if (!usuario || !usuario.id) return null;
+    if (!item || !item.id) return null;
 
     return (
         <div className={styles.wrapper} ref={menuRef}>
@@ -79,9 +87,9 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
             {isOpen && (
                 <div ref={dropdownRef} className={styles.dropdown} style={menuStyle}>
 
-                    <Can perform="usuarios.visualizar">
+                    <Can perform={`${permissionPrefix}.visualizar`}>
                         <Link
-                            href={`/admin/usuarios/${usuario.id}?mode=view`} // Alterado usu_id para id
+                            href={`${basePath}/${item.id}?mode=view`} // Alterado usu_id para id
                             className={styles.item}
                             onClick={() => setIsOpen(false)}
                         >
@@ -90,9 +98,9 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
                         </Link>
                     </Can>
 
-                    <Can perform="usuarios.editar">
+                    <Can perform={`${permissionPrefix}.editar`}>
                         <Link
-                            href={`/admin/usuarios/${usuario.id}?mode=edit`} // Alterado usu_id para id
+                            href={`${basePath}/${item.id}?mode=edit`} // Alterado usu_id para id
                             className={styles.item}
                             onClick={() => setIsOpen(false)}
                         >
@@ -101,13 +109,13 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
                         </Link>
                     </Can>
 
-                    {usuario.ativo ? (
-                        <Can perform="usuarios.deletar">
+                    {item.ativo ? (
+                        <Can perform={`${permissionPrefix}.deletar`}>
                             <button
                                 type="button"
                                 className={`${styles.item} ${styles.danger}`}
                                 onClick={() => {
-                                    onArchive(usuario.id, usuario.nome);
+                                    onArchive(item.id, item.nome);
                                     setIsOpen(false);
                                 }}
                             >
@@ -116,12 +124,12 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
                             </button>
                         </Can>
                     ) : (
-                        <Can perform="usuarios.reativar">
+                        <Can perform={`${permissionPrefix}.reativar`}>
                             <button
                                 type="button"
                                 className={`${styles.item} ${styles.success}`}
                                 onClick={() => {
-                                    onReactivate(usuario.id, usuario.nome);
+                                    onReactivate(item.id, item.nome);
                                     setIsOpen(false);
                                 }}
                             >
@@ -131,17 +139,19 @@ export default function ActionMenu({ usuario, onArchive, onReactivate, isLast })
                         </Can>
                     )}
 
-                    <Can perform="permissoes.visualizar">
-                        <Link
-                            href={`/admin/usuarios/${usuario.id}/permissoes`} // Alterado usu_id para id
-                            className={styles.item}
-                            style={{ color: '#8b5cf6' }}
-                            onClick={() => setIsOpen(false)}
-                        >
-                            <Shield size={16} />
-                            <span>Permissões</span>
-                        </Link>
-                    </Can>
+                    {showPermissions && (
+                        <Can perform={`${permissionPrefix}.visualizar`}>
+                            <Link
+                                href={`${basePath}/${item.id}/permissoes`} // Alterado usu_id para id
+                                className={styles.item}
+                                style={{ color: '#8b5cf6' }}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Shield size={16} />
+                                <span>Permissões</span>
+                            </Link>
+                        </Can>
+                    )}
 
                 </div>
             )}
