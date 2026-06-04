@@ -474,11 +474,13 @@ export default function Carrinho() {
                 {form.metodo_entrega === 'Entrega' && (
                     <div style={{ padding: '15px', backgroundColor: '#fafafa', borderRadius: '8px', border: '1px solid #e4e4e7', marginBottom: '1rem' }}>
                         <div className={styles.row}>
-                            <div className={styles.inputGroup} style={{ flex: 3 }}>
+                           <div className={styles.inputGroup} style={{ flex: 3, minWidth: 0 }}>
                                 <label>Rua / Avenida *</label>
                                 <input type="text" name="logradouro" required={form.metodo_entrega === 'Entrega'} value={form.logradouro} onChange={handleChange} placeholder="Ex: Rua das Flores" />
                             </div>
-                            <div className={styles.inputGroup} style={{ flex: 1, minWidth: '80px' }}>
+                            
+                            {/* 👇 Diminuído ligeiramente de 80px para 70px para caber melhor no mobile */}
+                            <div className={styles.inputGroup} style={{ flex: 1, minWidth: '70px' }}>
                                 <label>Nº *</label>
                                 <input type="text" name="numero" required={form.metodo_entrega === 'Entrega'} value={form.numero} onChange={handleChange} placeholder="Ex: 123" />
                             </div>
