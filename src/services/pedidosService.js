@@ -32,10 +32,12 @@ export async function listarPedidoPorTelefoneUsuario(telefone) {
 
 // ... suas funções criarPedido e listarPedidoPorTelefoneUsuario já existentes ...
 
-export async function listarPedidosAdmin() {
+export async function listarPedidosAdmin(params = {}) {
     try {
         // Ajuste a rota para a que você definiu no backend (ex: /pedidos/admin ou apenas /pedidos)
-        const response = await api.get('/pedidos/admin');
+        const response = await api.get('/pedidos/admin', {
+            params
+        });
         return response.data;
     } catch (error) {
         console.error("Erro ao listar pedidos do admin:", error);

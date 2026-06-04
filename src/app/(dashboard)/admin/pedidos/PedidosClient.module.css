@@ -465,6 +465,31 @@
 }
 
 /* =========================================
+   SELECT DO FILTRO (BARRA DE BUSCA)
+========================================= */
+.selectFiltro {
+    border: none;
+    background-color: transparent;
+    outline: none;
+    font-weight: 500;
+    color: #3f3f46;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 24px 0 4px; /* O 24px na direita é o espaço para a nossa seta */
+    appearance: none; /* Remove a seta feia do Windows/Mac */
+    
+    /* Injeta uma setinha minimalista cinza */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+}
+
+/* Um hover subtil para mostrar que é clicável */
+.selectFiltro:hover {
+    color: #18181b;
+}
+
+/* =========================================
    MODAL DE DETALHES DO PEDIDO
 ========================================= */
 .modalOverlay { 
@@ -589,8 +614,10 @@
 @keyframes spin { 100% { transform: rotate(360deg); } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+
+
 /* =========================================
-   RESPONSIVIDADE (MOBILE)
+   RESPONSIVIDADE (MOBILE - CARD VIEW)
 ========================================= */
 @media (max-width: 768px) {
     .headerRow {
@@ -605,5 +632,74 @@
     
     .modalContent {
         padding: 1.5rem;
+    }
+
+    /* 1. Remove o fundo do container da tabela para usar os cards isolados */
+    .tableContainer {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        overflow-x: hidden; 
+    }
+
+    /* 2. Esconde o cabeçalho original da tabela */
+    .table thead {
+        display: none;
+    }
+
+    /* 3. Transforma cada linha (TR) num "Card" com bordas arredondadas e sombra */
+    .table tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    /* 4. Alinha as células em flexbox (Label na esquerda, Valor na direita) */
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+        border-bottom: 1px dashed #f4f4f5; /* Linha tracejada sutil separando as infos */
+        padding-bottom: 10px;
+        text-align: right;
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    /* 5. Usa o 'data-label' do HTML para criar os minitítulos dinamicamente */
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #a1a1aa;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-right: 1rem;
+    }
+
+    /* 6. Ajustes de alinhamento visual para não esmagar no telemóvel */
+    .clienteInfo {
+        align-items: flex-end; /* Alinha o texto do cliente à direita */
+        text-align: right;
+    }
+
+    .selectStatus {
+        max-width: 160px; /* Impede o select de empurrar o título para fora */
+        font-size: 0.8rem;
     }
 }
