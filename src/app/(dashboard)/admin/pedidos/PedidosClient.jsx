@@ -376,9 +376,36 @@ export default function PedidosClient() {
 
             {/* Modal de Detalhes omitido para brevidade (mantenha o código do seu modal exatamente como estava) */}
             {pedidoSelecionado && (
-                /* ... seu código do modal de detalhes aqui ... */
                 <div className={styles.modalOverlay} onClick={() => setPedidoSelecionado(null)}>
-                    {/* ... */}
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <h2>Detalhes do Pedido #{pedidoSelecionado.id}</h2>
+                            <button onClick={() => setPedidoSelecionado(null)}><X size={24} /></button>
+                        </div>
+                        
+                        <div className={styles.modalBody}>
+                            <p><b>Endereço:</b> {pedidoSelecionado.endereco_cliente || 'Retirada no Balcão'}</p>
+                            <p><b>Obs:</b> {pedidoSelecionado.observacoes || 'Nenhuma'}</p>
+                            <hr />
+                            
+                            <h3>Marmitas do Pedido:</h3>
+                            <div className={styles.marmitasGrid}>
+                                {pedidoSelecionado.marmitas && pedidoSelecionado.marmitas.map((marmita, idx) => (
+                                    <div key={idx} className={styles.marmitaCard}>
+                                        <div className={styles.marmitaHeader}>
+                                            <span><b>{marmita.quantidade}x</b> Marmita {marmita.tamanho}</span>
+                                            <span>R$ {Number(marmita.preco_unitario).toFixed(2).replace('.', ',')}</span>
+                                        </div>
+                                        <ul className={styles.alimentosList}>
+                                            {marmita.alimentos && marmita.alimentos.map((alimento, idxAli) => (
+                                                <li key={idxAli}>✓ {alimento}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
