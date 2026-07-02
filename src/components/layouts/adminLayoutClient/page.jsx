@@ -3,7 +3,8 @@
 import { useState } from "react"
 
 import Header from "@/components/header/page.jsx";
-import Sidebar from "@/components/sidebar/page.jsx";
+import Sidebar from "@/components/sidebar/page.jsx"
+import NotificationListener from "@/components/NotificationListener.jsx";
 
 import styles from './page.module.css';
 
@@ -16,6 +17,8 @@ export default function AdminLayoutClient({ children }) {
 
     return (
         <div className={styles.layoutContainer}>
+            <NotificationListener /> {/* Componente invisível que escuta notificações */}
+
             {/* BACKDROP PARA MOBILE */}
             {menuAberto && <div className={styles.backdrop} onClick={fecharMenu}></div>}
 
