@@ -489,6 +489,49 @@
     color: #18181b;
 }
 
+/* ==========================
+   BOTÕES DE IMPRESSÃO
+========================== */
+
+/* Ícone na Grid */
+.btnImprimirGrid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    background-color: #f4f4f5;
+    color: #52525b;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnImprimirGrid:hover {
+    background-color: #e4e4e7;
+    color: #ea580c;
+}
+
+/* Botão Laranja no Modal */
+.btnImprimirModal {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background-color: #ea580c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnImprimirModal:hover {
+    background-color: #c2410c;
+}
+
 /* =========================================
    MODAL DE DETALHES DO PEDIDO
 ========================================= */

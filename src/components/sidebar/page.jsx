@@ -45,7 +45,7 @@ export default function Sidebar({ menuAberto, fecharMenu }) {
     ];
 
     return (
-        <aside className={`${styles.sidebar} ${menuAberto ? styles.sidebarAberta : ''}`}>
+        <aside className={`${styles.sidebar} no-print ${menuAberto ? styles.sidebarAberta : ''}`}>
             <div className={styles.logoContainer}>
                 <ChefHat size={32} color="#ea580c" />
                 <h2>Marmitaria</h2>

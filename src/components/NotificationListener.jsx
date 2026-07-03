@@ -24,7 +24,7 @@ export default function NotificationListener() {
             // 2. Exibe o Toast na tela (vai aparecer por cima de qualquer página)
             toast.success(
                 (t) => (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <span>
                             📢 Novo Pedido <b>#{novoPedido.id}</b> de <b>{novoPedido.nome_cliente}</b>!
                         </span>

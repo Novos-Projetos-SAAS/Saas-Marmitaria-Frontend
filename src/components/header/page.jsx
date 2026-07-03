@@ -15,7 +15,7 @@ export default function Header({ abrirMenu }) {
     const inicial = nomeUsuario.charAt(0).toUpperCase();
 
     return (
-        <header className={styles.header}>
+        <header className={`${styles.header} no-print`}>
             <button className={styles.btnMenuMobile} onClick={abrirMenu}>
                 <Menu size={24} />
             </button>
