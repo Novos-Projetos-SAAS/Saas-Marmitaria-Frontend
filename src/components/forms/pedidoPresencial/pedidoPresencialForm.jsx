@@ -244,7 +244,7 @@ import { useState, useEffect } from "react";
 import { usePedidos } from "@/hooks/usePedidos"; 
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento"; 
 
-import ModalMontarMarmita from "@/components/modals/montarMarmitaModal"; 
+import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal"; 
 import TelefoneInput from "@/components/ui/inputMask";
 
 import { Save, X, ShoppingBag, User, MapPin, CreditCard } from "lucide-react";

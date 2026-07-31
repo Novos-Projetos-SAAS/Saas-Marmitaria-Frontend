@@ -52,9 +52,31 @@ table {
     
 }
 
+
+@media screen {
+    .area-impressao {
+        display: none !important;
+    }
+}
+
 @media print {
-    /* Esconde qualquer coisa que tenha a classe "no-print" */
+    body * {
+        visibility: hidden;
+    }
     .no-print {
         display: none !important;
+    }
+    
+    .area-impressao, .area-impressao * {
+        visibility: visible;
+    }
+    
+    .area-impressao {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
     }
 }
