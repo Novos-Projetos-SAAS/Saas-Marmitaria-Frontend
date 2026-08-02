@@ -4,6 +4,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+
 const ehCampoDinheiro = (chave = "") =>
     chave.includes("valor") ||
     chave.includes("faturado") ||
