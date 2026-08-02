@@ -17,7 +17,7 @@ export default function RelatoriosClient() {
 
     const [inputValue, setInputValue] = useState("");
     const [relatorioSelecionado, setRelatorioSelecionado] = useState(null);
-    const [acaoSelecionada, setAcaoSelecionada] = useState(null); 
+    const [acaoSelecionada, setAcaoSelecionada] = useState(null);
     const [dadosImpressao, setDadosImpressao] = useState(null);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export default function RelatoriosClient() {
 
     const relatoriosFiltrados = useMemo(() => {
         if (!inputValue) return relatorios;
-        return relatorios.filter(rel => 
+        return relatorios.filter(rel =>
             rel.nome.toLowerCase().includes(inputValue.toLowerCase()) ||
             rel.descricao.toLowerCase().includes(inputValue.toLowerCase())
         );
@@ -40,15 +40,15 @@ export default function RelatoriosClient() {
     const handleConfirmarGeracao = async (filtros) => {
         try {
             const relatorioGerado = await fetchDadosRelatorio(relatorioSelecionado.id, filtros);
-            
+
             if (acaoSelecionada === 'excel') {
                 gerarExcel(relatorioGerado);
                 // Swal.fire({ title: 'Sucesso!', text: 'Planilha Excel baixada com sucesso.', icon: 'success', confirmButtonColor: '#16a34a' });
-            } 
+            }
             else if (acaoSelecionada === 'pdf') {
                 gerarPDF(relatorioGerado);
                 // Swal.fire({ title: 'Sucesso!', text: 'Documento PDF gerado com sucesso.', icon: 'success', confirmButtonColor: '#16a34a' });
-            } 
+            }
             else if (acaoSelecionada === 'imprimir') {
                 setDadosImpressao(relatorioGerado);
                 setTimeout(() => window.print(), 800);
@@ -130,10 +130,12 @@ export default function RelatoriosClient() {
             {/* A TABELA DE IMPRESSÃO FICA FORA, COMO VOCÊ FEZ NO CUPOM PEDIDO */}
             {dadosImpressao && (
                 <div className={styles.printOnly}>
+
+
                     <h2 style={{ textAlign: 'center', marginBottom: '20px', fontFamily: 'sans-serif' }}>
                         {dadosImpressao.nome}
                     </h2>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', fontFamily: 'sans-serif' }}>
+                    <table className="tabela-impressao" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', fontFamily: 'sans-serif' }}>
                         <thead>
                             <tr>
                                 {dadosImpressao.colunas.map((c, i) => (
@@ -147,11 +149,24 @@ export default function RelatoriosClient() {
                             {dadosImpressao.dados.length > 0 ? (
                                 dadosImpressao.dados.map((linha, i) => (
                                     <tr key={i}>
-                                        {dadosImpressao.colunas.map((c, j) => (
-                                            <td key={j} style={{ border: '1px solid #000', padding: '6px' }}>
-                                                {linha[c.chave]}
-                                            </td>
-                                        ))}
+                                        {dadosImpressao.colunas.map((c, j) => {
+                                            // Pegamos o valor bruto da linha
+                                            const valorBruto = linha[c.chave];
+
+                                            // Verificamos se a coluna é de dinheiro (mesma regra do Total)
+                                            const isDinheiro = c.chave.includes('valor') || c.chave.includes('faturado') || c.chave.includes('faturamento') || c.chave.includes('preco') || c.chave.includes('ticket_medio');
+
+                                            // Formatamos se for dinheiro
+                                            const valorFormatado = isDinheiro && valorBruto != null
+                                                ? `R$ ${Number(valorBruto).toFixed(2).replace('.', ',')}`
+                                                : valorBruto;
+
+                                            return (
+                                                <td key={j} style={{ border: '1px solid #000', padding: '6px' }}>
+                                                    {valorFormatado}
+                                                </td>
+                                            );
+                                        })}
                                     </tr>
                                 ))
                             ) : (
@@ -164,21 +179,21 @@ export default function RelatoriosClient() {
                         </tbody>
                         {dadosImpressao.dados.length > 0 && (
                             <tfoot>
-                                <tr>
+                                <tr id="linha-total-print">
                                     {dadosImpressao.colunas.map((col, colIndex) => {
-                                        if (colIndex === 0) return <td key={colIndex} style={tdTotalStyle}>TOTAL:</td>;
+                                        if (colIndex === 0) return <td key={colIndex} style={{ padding: '8px 6px' }}>TOTAL:</td>;
 
                                         if (col.totalizar) {
                                             const soma = dadosImpressao.dados.reduce((acc, linha) => acc + Number(linha[col.chave] || 0), 0);
-                                            const isDinheiro = col.chave.includes('valor') || col.chave.includes('faturado') || col.chave.includes('preco') || col.chave.includes('ticket_medio');
+                                            const isDinheiro = c.chave.includes('valor') || c.chave.includes('faturado') || c.chave.includes('faturamento') || c.chave.includes('preco') || c.chave.includes('ticket_medio');
                                             return (
-                                                <td key={colIndex} style={tdTotalStyle}>
+                                                <td key={colIndex} style={{ padding: '8px 6px' }}>
                                                     {isDinheiro ? `R$ ${soma.toFixed(2).replace('.', ',')}` : soma}
                                                 </td>
                                             );
                                         }
 
-                                        return <td key={colIndex} style={tdTotalStyle}>-</td>;
+                                        return <td key={colIndex} style={{ padding: '8px 6px' }}>-</td>;
                                     })}
                                 </tr>
                             </tfoot>
@@ -190,4 +205,15 @@ export default function RelatoriosClient() {
     );
 }
 
-const tdTotalStyle = { border: '1px solid #000', padding: '6px', fontWeight: 'bold', background: '#f4f4f5' };
+// const tdTotalStyle = { border: '1px solid #000', padding: '6px', fontWeight: 'bold', background: '#f4f4f5' };
+
+const tdTotalStyle = {
+    border: '1px solid #000',
+    padding: '8px 6px', // Um pouquinho mais de padding para respirar 
+    fontWeight: 'bold',
+    background: '#ea580c', // Laranja principal
+    color: '#ffffff',       // Texto branco para contraste
+    boxShadow: 'inset 0 0 0 1000px #ea580c',
+    WebkitPrintColorAdjust: 'exact',
+    printColorAdjust: 'exact'
+};

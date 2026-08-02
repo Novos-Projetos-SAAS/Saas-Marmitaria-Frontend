@@ -5,6 +5,11 @@ import AccessDenied from "@/components/ui/accessDenied/index"; // Ajuste o camin
 
 import styles from "./page.module.css";
 
+export const metadata = {
+    title: "Marmitaria | Usuários", // Ajuste para o nome do seu sistema
+    description: "Módulo de usuários da Marmitaria",
+};
+
 export default function Users() {
     return (
         // Envolvemos a página inteira com a permissão exigida

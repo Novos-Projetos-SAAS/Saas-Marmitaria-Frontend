@@ -7,8 +7,8 @@ import styles from "./page.module.css";
 
 
 export const metadata = {
-    title: "Relatórios | GESTOOERP", // Ajuste para o nome do seu sistema
-    description: "Módulo de relatórios gerenciais e cadastrais.",
+    title: "Marmitaria | Relatórios", // Ajuste para o nome do seu sistema
+    description: "Módulo de relatórios da Marmitaria",
 };
 
 export default function RelatoriosPage() {

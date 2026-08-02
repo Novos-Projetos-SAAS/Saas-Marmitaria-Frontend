@@ -3,7 +3,10 @@ import AccessDenied from "@/components/ui/accessDenied/index.jsx";
 import PedidosClient from "./PedidosClient.jsx";
 import styles from "./page.module.css"; 
 
-export const metadata = { title: "Gestão de Pedidos | Admin" };
+export const metadata = {
+    title: "Marmitaria | Usuários", // Ajuste para o nome do seu sistema
+    description: "Módulo de usuários da Marmitaria",
+};
 
 export default function PedidosPage() {
     return (

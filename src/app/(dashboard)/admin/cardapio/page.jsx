@@ -4,7 +4,8 @@ import CardapioClient from "./CardapioClient.jsx";
 import styles from "./page.module.css";
 
 export const metadata = {
-    title: "Cardápio do Dia | Admin",
+    title: "Marmitaria | Cardápio", // Ajuste para o nome do seu sistema
+    description: "Módulo de cardápio da Marmitaria",
 };
 
 export default function CardapioPage() {

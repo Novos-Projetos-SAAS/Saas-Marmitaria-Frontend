@@ -46,7 +46,8 @@
 }
 
 .searchInput:focus {
-    border-color: #f97316; /* Cor primária do GESTOOERP */
+    border-color: #f97316;
+    /* Cor primária do GESTOOERP */
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
@@ -84,6 +85,18 @@
     text-align: center;
 }
 
+.tdTotal {
+    border: 1px solid #000 !important;
+    padding: 8px 6px !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+    background-color: #ea580c !important;
+    /* O Box Shadow com important impede que o navegador deixe branco */
+    box-shadow: inset 0 0 0 1000px #ea580c !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
 /* Esconde a área de impressão na tela comum do computador */
 @media screen {
     .printOnly {
@@ -93,8 +106,11 @@
 
 /* Quando abrir a janela de impressão */
 @media print {
+
     /* Força a tabela a ocupar a página toda com fundo branco, sobrepondo qualquer menu lateral */
     .printOnly {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
         display: block !important;
         position: absolute;
         top: 0;
@@ -103,5 +119,24 @@
         background-color: white;
         z-index: 999999;
         padding: 20px;
+    }
+
+    .printOnly tfoot tr {
+        background-color: #ea580c !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 2. Ataca as células do rodapé forçando o laranja e a letra branca */
+    .printOnly tfoot td {
+        background-color: rgb(226, 226, 226) !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
+        border: 1px solid #000 !important;
+        padding: 8px 6px !important;
+        /* O hack do Opera/Chrome para garantir o preenchimento de fundo */
+        box-shadow: inset 0 0 0 1000px #ea580c !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 }

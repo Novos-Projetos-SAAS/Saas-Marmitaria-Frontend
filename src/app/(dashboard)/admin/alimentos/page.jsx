@@ -4,7 +4,8 @@ import AlimentosClient from "./AlimentosClient";
 import styles from "./page.module.css";
 
 export const metadata = {
-    title: "Alimentos | Admin",
+    title: "Marmitaria | Alimentos", // Ajuste para o nome do seu sistema
+    description: "Módulo de alimentos da Marmitaria",
 };
 
 export default function AlimentosPage() {

@@ -5,6 +5,11 @@ import AccessDenied from "@/components/ui/accessDenied/index.jsx";
 
 import styles from "./page.module.css";
 
+export const metadata = {
+    title: "Marmitaria | Tamanhos de marmitas", // Ajuste para o nome do seu sistema
+    description: "Módulo de tamanhos de marmitas Marmitaria",
+};
+
 export default function TamanhosPage() {
     return (
         <Can perform="tamanhos_marmitas.listar" fallback={<AccessDenied />}>

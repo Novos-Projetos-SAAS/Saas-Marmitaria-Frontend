@@ -4,7 +4,8 @@ import CategoriasClient from "./CategoriasAlimentosClient";
 import styles from "./page.module.css";
 
 export const metadata = {
-    title: "Categorias de Alimentos | Admin",
+    title: "Marmitaria | Categorias de alimentos", // Ajuste para o nome do seu sistema
+    description: "Módulo de categorias de alimentos Marmitaria",
 };
 
 export default function CategoriasPage() {

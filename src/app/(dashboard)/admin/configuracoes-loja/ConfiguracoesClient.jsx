@@ -5,6 +5,11 @@ import { useCardapio } from "@/hooks/useCardapio.js"; // Reaproveitando a lógic
 import { Store, RefreshCw, Power, AlertTriangle } from "lucide-react";
 import styles from "./ConfiguracoesClient.module.css";
 
+export const metadata = {
+    title: "Marmitaria | Configurações", // Ajuste para o nome do seu sistema
+    description: "Módulo de configurações da Marmitaria",
+};
+
 export default function ConfiguracoesClient() {
     const { statusLoja, loading: loadingLoja, alterarStatus, atualizando, carregarStatus } = useLoja();
     const { handleZerarCardapio, loading: loadingCardapio } = useCardapio();
