@@ -12,6 +12,33 @@ import { FileText, Download, Printer, Search } from "lucide-react";
 import Swal from "sweetalert2";
 import styles from "./RelatoriosClient.module.css";
 
+
+const CAMPOS_DINHEIRO = [
+    "valor",
+    "valor_total",
+    "total",
+    "total_faturado",
+    "ticket_medio",
+    "preco",
+    "subtotal",
+    "desconto",
+    "acrescimo",
+    "troco"
+];
+
+const ehCampoDinheiro = (chave = "") =>
+    CAMPOS_DINHEIRO.includes(chave);
+
+const formatarValor = (valor, chave) => {
+    if (valor == null) return "";
+
+    if (ehCampoDinheiro(chave)) {
+        return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
+    }
+
+    return valor;
+};
+
 export default function RelatoriosClient() {
     const { relatorios, loading, fetchRelatorios, fetchDadosRelatorio, loadingGeracao } = useRelatorios();
 
@@ -145,7 +172,43 @@ export default function RelatoriosClient() {
                                 ))}
                             </tr>
                         </thead>
+
                         <tbody>
+                            {dadosImpressao.dados.length > 0 ? (
+                                dadosImpressao.dados.map((linha, i) => (
+                                    <tr key={i}>
+                                        {dadosImpressao.colunas.map((col, j) => (
+                                            <td
+                                                key={j}
+                                                style={{
+                                                    border: "1px solid #000",
+                                                    padding: "6px"
+                                                }}
+                                            >
+                                                {formatarValor(
+                                                    linha[col.chave],
+                                                    col.chave
+                                                )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td
+                                        colSpan={dadosImpressao.colunas.length}
+                                        style={{
+                                            border: "1px solid #000",
+                                            padding: "10px",
+                                            textAlign: "center"
+                                        }}
+                                    >
+                                        Nenhum registro encontrado.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                        {/* <tbody>
                             {dadosImpressao.dados.length > 0 ? (
                                 dadosImpressao.dados.map((linha, i) => (
                                     <tr key={i}>
@@ -176,27 +239,65 @@ export default function RelatoriosClient() {
                                     </td>
                                 </tr>
                             )}
-                        </tbody>
+                        </tbody> */}
                         {dadosImpressao.dados.length > 0 && (
                             <tfoot>
                                 <tr id="linha-total-print">
                                     {dadosImpressao.colunas.map((col, colIndex) => {
-                                        if (colIndex === 0) return <td key={colIndex} style={{ padding: '8px 6px' }}>TOTAL:</td>;
 
-                                        if (col.totalizar) {
-                                            const soma = dadosImpressao.dados.reduce((acc, linha) => acc + Number(linha[col.chave] || 0), 0);
-                                            const isDinheiro = c.chave.includes('valor') || c.chave.includes('faturado') || c.chave.includes('faturamento') || c.chave.includes('preco') || c.chave.includes('ticket_medio');
+                                        if (colIndex === 0) {
                                             return (
-                                                <td key={colIndex} style={{ padding: '8px 6px' }}>
-                                                    {isDinheiro ? `R$ ${soma.toFixed(2).replace('.', ',')}` : soma}
+                                                <td key={colIndex} style={tdTotalStyle}>
+                                                    TOTAL:
                                                 </td>
                                             );
                                         }
 
-                                        return <td key={colIndex} style={{ padding: '8px 6px' }}>-</td>;
+                                        if (col.totalizar) {
+
+                                            const soma = dadosImpressao.dados.reduce(
+                                                (acc, linha) =>
+                                                    acc + Number(linha[col.chave] || 0),
+                                                0
+                                            );
+
+                                            return (
+                                                <td key={colIndex} style={tdTotalStyle}>
+                                                    {ehCampoDinheiro(col.chave)
+                                                        ? `R$ ${soma.toFixed(2).replace(".", ",")}`
+                                                        : soma}
+                                                </td>
+                                            );
+                                        }
+
+                                        return (
+                                            <td key={colIndex} style={tdTotalStyle}>
+                                                -
+                                            </td>
+                                        );
                                     })}
                                 </tr>
                             </tfoot>
+
+                            // <tfoot>
+                            //     <tr id="linha-total-print">
+                            //         {dadosImpressao.colunas.map((col, colIndex) => {
+                            //             if (colIndex === 0) return <td key={colIndex} style={{ padding: '8px 6px' }}>TOTAL:</td>;
+
+                            //             if (col.totalizar) {
+                            //                 const soma = dadosImpressao.dados.reduce((acc, linha) => acc + Number(linha[col.chave] || 0), 0);
+                            //                 const isDinheiro = c.chave.includes('valor') || c.chave.includes('faturado') || c.chave.includes('faturamento') || c.chave.includes('preco') || c.chave.includes('ticket_medio');
+                            //                 return (
+                            //                     <td key={colIndex} style={{ padding: '8px 6px' }}>
+                            //                         {isDinheiro ? `R$ ${soma.toFixed(2).replace('.', ',')}` : soma}
+                            //                     </td>
+                            //                 );
+                            //             }
+
+                            //             return <td key={colIndex} style={{ padding: '8px 6px' }}>-</td>;
+                            //         })}
+                            //     </tr>
+                            // </tfoot>
                         )}
                     </table>
                 </div>
