@@ -1,0 +1,66 @@
+.wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.menuButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #71717A;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+}
+
+.menuButton:hover {
+    background: #F4F4F5;
+    color: #EA580C;
+}
+
+.dropdown {
+    position: fixed;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #E4E4E7;
+    box-shadow: 0 10px 15px rgba(0,0,0,.12);
+    overflow: hidden;
+    z-index: 99999;
+    animation: fadeIn .15s ease-out;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: .875rem;
+    color: #18181B;
+    transition: .2s;
+}
+
+.item:hover {
+    background: #FFF7ED;
+    color: #EA580C;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px) scale(.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
