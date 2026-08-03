@@ -89,7 +89,12 @@ export default function Pedido() {
                 <div className={styles.barraCarrinho}>
                     <button
                         className={styles.btnCarrinho}
-                        onClick={() => router.push('/carrinho')}
+                        onClick={() =>
+                            router.push(
+                                '/pedido/complementos'
+                            )
+
+                        }
                     >
                         <div className={styles.infoCarrinho}>
                             <span
@@ -99,7 +104,7 @@ export default function Pedido() {
                             >
                                 {quantidadeTotalItens}
                             </span>
-                            <span>Ver carrinho</span>
+                            <span>Avancar</span>
                         </div>
                         <span className={styles.totalCarrinho}>
                             R$ {totalGeral.toFixed(2).replace('.', ',')}

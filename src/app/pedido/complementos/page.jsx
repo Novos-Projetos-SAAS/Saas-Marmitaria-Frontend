@@ -245,13 +245,6 @@ export default function ComplementosPedido() {
                 </button>
 
 
-                <span
-                    className={
-                        styles.etapa
-                    }
-                >
-                    Complementos opcionais
-                </span>
 
 
                 <h1>
@@ -260,7 +253,7 @@ export default function ComplementosPedido() {
 
 
                 <p>
-                    Escolha bebidas, sobremesas ou outros produtos.
+                    Escolha outros produtos.
                     Você pode pular esta etapa se quiser.
                 </p>
 

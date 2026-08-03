@@ -48,8 +48,9 @@ export default function Home() {
                         {statusLoja ? 'Estamos Abertos!' : 'Fechado no momento'}
                     </div>
 
-                    <h1 className={styles.titulo}>Marmitaria Delivery</h1>
-                    <p className={styles.subtitulo}>Comida caseira com gostinho de roça</p>
+                    <h1 className={styles.titulo}>LA CASA</h1>
+                    <h1 className={styles.titulo}>DE MARMITA</h1>
+                    <p className={styles.subtitulo}>O sabor que abraçar, comida caseira todos os dias</p>
                 </header>
 
                 <section className={styles.actionArea}>

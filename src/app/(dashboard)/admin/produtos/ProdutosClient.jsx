@@ -1050,7 +1050,7 @@ export default function ProdutosClient() {
                     </div>
 
 
-                    <div
+                    {/* <div
                         className={
                             styles.selectWrapper
                         }
@@ -1110,7 +1110,7 @@ export default function ProdutosClient() {
 
                         </select>
 
-                    </div>
+                    </div> */}
 
 
                     <div
@@ -1169,7 +1169,7 @@ export default function ProdutosClient() {
                     </div>
 
 
-                    <div
+                    {/* <div
                         className={
                             styles.selectWrapper
                         }
@@ -1218,7 +1218,7 @@ export default function ProdutosClient() {
 
                         </select>
 
-                    </div>
+                    </div> */}
 
                 </div>
 
