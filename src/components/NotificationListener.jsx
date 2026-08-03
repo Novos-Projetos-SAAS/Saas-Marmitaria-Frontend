@@ -1,68 +1,212 @@
-'use client'
+'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import {
+    useEffect
+} from 'react';
 
-import { io } from "socket.io-client";
-import toast from "react-hot-toast";
+import {
+    useRouter
+} from 'next/navigation';
+
+import {
+    io
+} from 'socket.io-client';
+
+import toast from 'react-hot-toast';
+
 
 export default function NotificationListener() {
 
-    const router = useRouter();
-    
+    const router =
+        useRouter();
+
+
     useEffect(() => {
-        // Conecta ao seu backend Node.js
-        const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333");
 
-        socket.on('novo_pedido_recebido', (novoPedido) => {
-            // 1. Toca o sinal sonoro globalmente
-            const audio = new Audio('/sons/campainha.mp3');
-            audio.play().catch(() => {
-                console.log("Áudio bloqueado pelo navegador. Aguardando interação do usuário.");
-            });
+        const socket =
+            io(
+                process.env
+                    .NEXT_PUBLIC_API_URL ||
 
-            // 2. Exibe o Toast na tela (vai aparecer por cima de qualquer página)
-            toast.success(
-                (t) => (
-                    <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <span>
-                            📢 Novo Pedido <b>#{novoPedido.id}</b> de <b>{novoPedido.nome_cliente}</b>!
-                        </span>
-                        
-                        <button
-                            onClick={() => {
-                                toast.dismiss(t.id); // Esconde o toast
-                                router.push('/admin/pedidos'); // Redireciona para a tela de pedidos
-                            }}
+                'http://localhost:3333',
+                {
+
+                    /**
+                     * Envia o cookie HTTP Only
+                     * durante o handshake.
+                     */
+                    withCredentials:
+                        true
+                }
+            );
+
+
+        socket.on(
+            'novo_pedido_recebido',
+            novoPedido => {
+
+                /**
+                 * Toca o alerta sonoro.
+                 */
+                const audio =
+                    new Audio(
+                        '/sons/campainha.mp3'
+                    );
+
+
+                audio
+                    .play()
+                    .catch(
+                        () => {
+
+                            console.log(
+                                'Áudio aguardando interação do usuário.'
+                            );
+                        }
+                    );
+
+
+                toast.success(
+                    t => (
+
+                        <div
+                            className="no-print"
                             style={{
-                                backgroundColor: '#ea580c', // Laranja que combina com o seu sistema
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '6px',
-                                padding: '6px 12px',
-                                fontSize: '0.85rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'background 0.2s'
-                            }}
-                            onMouseOver={(e) => e.target.style.backgroundColor = '#c2410c'}
-                            onMouseOut={(e) => e.target.style.backgroundColor = '#ea580c'}
-                        >
-                            Ver Pedido
-                        </button>
-                    </div>
-                ), {
-                duration: 7000, // 7 segundos para dar tempo do admin ver
-                position: "top-right",
-                id: `toast-pedido-${novoPedido.id}` // Evita múltiplos toasts para o mesmo pedido
-            });
-        });
 
-        // Só desconecta se o admin fechar o sistema ou fizer logout
+                                display:
+                                    'flex',
+
+                                flexDirection:
+                                    'column',
+
+                                gap:
+                                    '10px'
+                            }}
+                        >
+
+                            <span>
+
+                                📢 Novo Pedido{' '}
+
+                                <b>
+                                    #{novoPedido.id}
+                                </b>{' '}
+
+                                de{' '}
+
+                                <b>
+                                    {novoPedido.nome_cliente}
+                                </b>
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                onClick={() => {
+
+                                    toast.dismiss(
+                                        t.id
+                                    );
+
+
+                                    router.push(
+                                        '/admin/pedidos'
+                                    );
+                                }}
+                                style={{
+
+                                    backgroundColor:
+                                        '#EA580C',
+
+                                    color:
+                                        '#FFFFFF',
+
+                                    border:
+                                        'none',
+
+                                    borderRadius:
+                                        '6px',
+
+                                    padding:
+                                        '6px 12px',
+
+                                    fontWeight:
+                                        600,
+
+                                    cursor:
+                                        'pointer'
+                                }}
+                            >
+
+                                Ver Pedido
+
+                            </button>
+
+                        </div>
+                    ),
+                    {
+
+                        duration:
+                            7000,
+
+                        position:
+                            'top-right',
+
+                        id:
+                            `toast-pedido-${novoPedido.id}`
+                    }
+                );
+
+
+                /**
+                 * O hook da lista administrativa
+                 * ouvirá este evento e fará uma nova
+                 * consulta autenticada à API.
+                 */
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'marmitaria:pedidos-atualizados'
+                    )
+                );
+            }
+        );
+
+
+        socket.on(
+            'pedido_atualizado',
+            () => {
+
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'marmitaria:pedidos-atualizados'
+                    )
+                );
+            }
+        );
+
+
+        socket.on(
+            'connect_error',
+            error => {
+
+                console.warn(
+                    'Socket administrativo indisponível:',
+                    error.message
+                );
+            }
+        );
+
+
         return () => {
+
             socket.disconnect();
         };
-    }, [router]);
 
-    return null; // Componente invisível, não afeta o design
+    }, [
+        router
+    ]);
+
+
+    return null;
 }

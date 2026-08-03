@@ -11,7 +11,7 @@ import styles from './page.module.css'
 
 export default function Montagem() {
     const router = useRouter();
-    
+
     // 🚀 Pegamos o alimentosAgrupados direto do hook (que já fez o reduce por nós)
     const { alimentosAgrupados, loading: loadingCardapio } = useCardapioClient();
 
@@ -26,13 +26,34 @@ export default function Montagem() {
         }
     }, [marmitaAtual, router, isFinalizando]);
 
+    /**
+ * Depois de montar a marmita,
+ * enviamos o cliente para os produtos complementares.
+ */
     const handleAdicionar = () => {
-        setIsFinalizando(true);
-        const sucesso = adicionarAoCarrinho(quantidade);
+
+        setIsFinalizando(
+            true
+        );
+
+
+        const sucesso =
+            adicionarAoCarrinho(
+                quantidade
+            );
+
+
         if (sucesso) {
-            router.push('/pedido');
+
+            router.push(
+                '/pedido/complementos'
+            );
+
         } else {
-            setIsFinalizando(false);
+
+            setIsFinalizando(
+                false
+            );
         }
     };
 
@@ -85,7 +106,7 @@ export default function Montagem() {
                 {nomesCategorias.map((nomeCategoria) => {
                     // Pega a lista de alimentos (itens) que pertencem a essa categoria
                     const itensDaCategoria = alimentosAgrupados[nomeCategoria];
-                    
+
                     // Pega o limite do primeiro item (se não existir, o fallback é 2)
                     const limiteDaCategoria = itensDaCategoria[0]?.limite_escolhas || 2;
 

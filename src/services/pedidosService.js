@@ -54,3 +54,23 @@ export async function alterarStatusPedidoAPI(id, novoStatus) {
         throw error;
     }
 }
+
+/**
+ * Pedido lançado através do painel administrativo.
+ *
+ * Diferente do POST /pedidos público, esta rota
+ * exige autenticação + pedidos.criar.
+ */
+export async function criarPedidoAdmin(
+    dadosPedido
+) {
+
+    const response =
+        await api.post(
+            '/pedidos/admin',
+            dadosPedido
+        );
+
+
+    return response.data;
+}

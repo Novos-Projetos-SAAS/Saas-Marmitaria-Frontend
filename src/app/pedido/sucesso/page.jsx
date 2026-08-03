@@ -46,8 +46,12 @@ export default function PedidoSucesso() {
                 </div>
 
                 <h1 className={styles.title}>Pedido Confirmado!</h1>
-                <p className={styles.message}>
-                    Sua marmita já está na fila de produção e logo sairá para entrega.
+                <p
+                    className={
+                        styles.message
+                    }
+                >
+                    Seu pedido já está na fila de produção e logo seguirá para entrega ou retirada.
                 </p>
 
                 <div className={styles.divider} />

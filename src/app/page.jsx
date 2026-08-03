@@ -12,7 +12,15 @@ export default function Home() {
 
     const { statusLoja, loading } = useLoja();
 
-    const { carrinho, totalGeral } = usePedido();
+    const {
+
+        carrinho,
+
+        totalGeral,
+
+        quantidadeTotalItens
+
+    } = usePedido();
 
     const router = useRouter();
 
@@ -27,10 +35,6 @@ export default function Home() {
             </main>
         );
     }
-
-    const quantidadeTotalItens = carrinho.reduce((acc, item) =>
-        acc + item.quantidade, 0
-    )
 
     return (
         <main className={styles.mainContainer}>

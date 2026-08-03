@@ -18,9 +18,19 @@ export default function Pedido() {
     const { statusLoja, loading: loadingLoja } = useLoja();
     const { tamanhos, loading: loadingCardapio } = useCardapioClient();
 
-    const { iniciarNovaMarmita, carrinho, totalGeral } = usePedido();
+    const {
 
-    const qtdTotalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+        iniciarNovaMarmita,
+
+        carrinho,
+
+        totalGeral,
+
+        quantidadeTotalItens
+
+    } = usePedido();
+
+
 
     useEffect(() => {
         if (!loadingLoja && statusLoja === false) {
@@ -44,7 +54,7 @@ export default function Pedido() {
 
     // Se o status for falso, retorna null para não "piscar" o conteúdo antes do redirecionamento
     if (statusLoja !== true) {
-        return null; 
+        return null;
     }
 
     return (
@@ -77,12 +87,18 @@ export default function Pedido() {
             {/* 👇 BARRA FLUTUANTE ADICIONADA AQUI */}
             {carrinho.length > 0 && (
                 <div className={styles.barraCarrinho}>
-                    <button 
+                    <button
                         className={styles.btnCarrinho}
                         onClick={() => router.push('/carrinho')}
                     >
                         <div className={styles.infoCarrinho}>
-                            <span className={styles.qtdBadge}>{qtdTotalItens}</span>
+                            <span
+                                className={
+                                    styles.qtdBadge
+                                }
+                            >
+                                {quantidadeTotalItens}
+                            </span>
                             <span>Ver carrinho</span>
                         </div>
                         <span className={styles.totalCarrinho}>

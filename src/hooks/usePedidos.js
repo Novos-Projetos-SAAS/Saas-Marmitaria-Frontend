@@ -1,52 +1,162 @@
-'use client'
+'use client';
 
-import { useState } from "react";
-import { criarPedido , listarPedidoPorTelefoneUsuario} from "@/services/pedidosService.js";
-import { usePedido } from "@/context/PedidoContext.js"; // Para limpar o carrinho depois
-import toast from "react-hot-toast";
+import {
+    useState
+} from 'react';
+
+import toast from 'react-hot-toast';
+
+import {
+    criarPedido,
+    criarPedidoAdmin,
+    listarPedidoPorTelefoneUsuario
+} from '@/services/pedidosService.js';
+
 
 export function usePedidos() {
-    const [enviando, setEnviando] = useState(false);
-    const [buscando, setBuscando] = useState(false);
-    const { limparCarrinho } = usePedido();
 
-    const finalizarPedidoNoBanco = async (payload) => {
-        setEnviando(true);
+    const [
+        enviando,
+        setEnviando
+    ] = useState(false);
+
+
+    const [
+        buscando,
+        setBuscando
+    ] = useState(false);
+
+
+    /**
+     * ============================================================
+     * FINALIZAR PEDIDO
+     * ============================================================
+     *
+     * O Hook somente envia.
+     *
+     * Quem decide quando limpar o carrinho é a tela
+     * que chamou esta função.
+     */
+    const finalizarPedidoNoBanco =
+    async (
+        payload,
+        options = {}
+    ) => {
+
+        const admin =
+            options.admin ===
+            true;
+
+
+        setEnviando(
+            true
+        );
+
+
         try {
-            await criarPedido(payload);
 
-            toast.success("Pedido registrado com sucesso!");
-            limparCarrinho();
-            return true; // Sucesso
+            const response =
+                admin
+
+                    ? await criarPedidoAdmin(
+                        payload
+                    )
+
+                    : await criarPedido(
+                        payload
+                    );
+
+
+            toast.success(
+                'Pedido registrado com sucesso!'
+            );
+
+
+            return response;
+
+
         } catch (error) {
-            toast.error("Falha ao registrar pedido no servidor.");
-            return false; // Erro
+
+            toast.error(
+
+                error
+                    ?.response
+                    ?.data
+                    ?.message
+
+                ||
+
+                'Falha ao registrar pedido no servidor.'
+            );
+
+
+            return null;
+
+
         } finally {
-            setEnviando(false);
+
+            setEnviando(
+                false
+            );
         }
     };
 
-    const buscarPedidoPorTelefoneUsuario = async (telefone) => {
-        setBuscando(true);
 
-        try {
-            const numeroLimpo = telefone.replace(/\D/g, '');
+    /**
+     * ============================================================
+     * BUSCAR PEDIDO
+     * ============================================================
+     */
+    const buscarPedidoPorTelefoneUsuario =
+        async (
+            telefone
+        ) => {
 
-            const pedidoEncontrado = await listarPedidoPorTelefoneUsuario(numeroLimpo);
-            return pedidoEncontrado;
-        } catch (error) {
-            console.error("Erro na busca:", error);
-            // Retorna null para a tela saber que não achou nada e mostrar o erro
-            return null; 
-        } finally {
-            setBuscando(false);
-        }
-    }
+            setBuscando(
+                true
+            );
+
+
+            try {
+
+                const numeroLimpo =
+                    telefone.replace(
+                        /\D/g,
+                        ''
+                    );
+
+
+                return await listarPedidoPorTelefoneUsuario(
+                    numeroLimpo
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'Erro na busca:',
+                    error
+                );
+
+
+                return null;
+
+            } finally {
+
+                setBuscando(
+                    false
+                );
+            }
+        };
+
 
     return {
+
         finalizarPedidoNoBanco,
+
         buscarPedidoPorTelefoneUsuario,
+
         buscando,
+
         enviando
     };
 }

@@ -1,6 +1,13 @@
 /* src/components/Sidebar/Sidebar.module.css */
 
 .sidebar {
+    overflow-y: auto;
+
+    /* Firefox */
+    scrollbar-width: none;
+
+    /* Internet Explorer / Edge antigo */
+    -ms-overflow-style: none;
     width: 260px;
     background-color: #1f2937;
     color: #f9fafb;
@@ -11,11 +18,26 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Chrome, Edge, Safari */
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebarMenu {
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebarMenu::-webkit-scrollbar {
+    display: none;
+}
+
 .logoContainer {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-left: 24px ;
+    padding-left: 24px;
     height: 70px;
     border-bottom: 1px solid #374151;
 }

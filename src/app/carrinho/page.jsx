@@ -264,277 +264,1261 @@
 
 // }
 
-'use client'
+'use client';
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import {
+    useRouter
+} from 'next/navigation';
 
-import { useMetodosPagamento } from "@/hooks/useMetodosPagamento.js"
-import { usePedidos } from "@/hooks/usePedidos.js"
-import { usePedido } from "@/context/PedidoContext.js"
+import {
+    useState
+} from 'react';
 
-import TelefoneInput  from "@/components/ui/inputMask/index.jsx"
+import {
+    PackagePlus,
+    Trash2
+} from 'lucide-react';
 
-import toast from "react-hot-toast"
-import { Trash2 } from "lucide-react"
+import toast from 'react-hot-toast';
 
-import styles from './page.module.css'
+import {
+    useMetodosPagamento
+} from '@/hooks/useMetodosPagamento.js';
+
+import {
+    usePedidos
+} from '@/hooks/usePedidos.js';
+
+import {
+    usePedido
+} from '@/context/PedidoContext.js';
+
+import TelefoneInput from '@/components/ui/inputMask/index.jsx';
+
+import styles from './page.module.css';
+
+
+function formatarMoeda(
+    valor
+) {
+
+    return Number(
+        valor || 0
+    ).toLocaleString(
+        'pt-BR',
+        {
+
+            style:
+                'currency',
+
+            currency:
+                'BRL'
+        }
+    );
+}
+
 
 export default function Carrinho() {
-    const router = useRouter();
 
-    const { carrinho, totalGeral, limparCarrinho, setSucessoPedido, removerDoCarrinho, finalizando } = usePedido();
-    const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
-    const { finalizarPedidoNoBanco, enviando } = usePedidos();
+    const router =
+        useRouter();
 
-    const [loading, setLoading] = useState(false);
 
-    // 🚀 1. Estado atualizado com metodo_entrega
-    const [form, setForm] = useState({
-        nome: '',
-        telefone: '',
-        metodo_entrega: 'Entrega', // Padrão é entrega
-        logradouro: '',
-        numero: '',
-        complemento: '',
-        metodo_pagamento_id: '',
-        tipo_pedido: 'Remoto',
-        observacoes: ''
-    })
+    const {
 
-    // 🚀 2. HandleChange inteligente que limpa a morada se escolher "Retirada"
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prev => {
-            const newState = { ...prev, [name]: value };
-            
-            if (name === 'metodo_entrega' && value === 'Retirada') {
-                newState.logradouro = '';
-                newState.numero = '';
-                newState.complemento = '';
+        carrinho,
+
+        produtosCarrinho,
+
+        totalMarmitas,
+
+        totalProdutos,
+
+        totalGeral,
+
+        limparCarrinho,
+
+        setSucessoPedido,
+
+        removerDoCarrinho,
+
+        removerProdutoDoCarrinho,
+
+        finalizando,
+
+        setFinalizando
+
+    } = usePedido();
+
+
+    const {
+
+        metodosPagamento,
+
+        loadingMetodosPagamento
+
+    } = useMetodosPagamento();
+
+
+    const {
+
+        finalizarPedidoNoBanco,
+
+        enviando
+
+    } = usePedidos();
+
+
+    const [
+        form,
+        setForm
+    ] = useState({
+
+        nome:
+            '',
+
+        telefone:
+            '',
+
+        metodo_entrega:
+            'Entrega',
+
+        logradouro:
+            '',
+
+        numero:
+            '',
+
+        complemento:
+            '',
+
+        metodo_pagamento_id:
+            '',
+
+        tipo_pedido:
+            'Remoto',
+
+        observacoes:
+            ''
+    });
+
+
+    const handleChange =
+        (
+            event
+        ) => {
+
+            const {
+                name,
+                value
+            } = event.target;
+
+
+            setForm(
+                (
+                    anterior
+                ) => {
+
+                    const novoEstado = {
+
+                        ...anterior,
+
+                        [name]:
+                            value
+                    };
+
+
+                    /**
+                     * Retirada não necessita endereço.
+                     */
+                    if (
+                        name ===
+                        'metodo_entrega'
+
+                        &&
+
+                        value ===
+                        'Retirada'
+                    ) {
+
+                        novoEstado.logradouro =
+                            '';
+
+                        novoEstado.numero =
+                            '';
+
+                        novoEstado.complemento =
+                            '';
+                    }
+
+
+                    return novoEstado;
+                }
+            );
+        };
+
+
+    /**
+     * ============================================================
+     * FINALIZAR
+     * ============================================================
+     */
+    const finalizarPedido =
+        async (
+            event
+        ) => {
+
+            event.preventDefault();
+
+
+            if (
+                enviando
+            ) {
+
+                return;
             }
-            return newState;
-        });
-    };
 
-    const finalizarPedido = async (e) => {
-        e.preventDefault();
 
-        if (enviando) return;
+            /**
+             * REGRA PRINCIPAL.
+             *
+             * Produtos não contam para esta validação.
+             */
+            if (
+                carrinho.length === 0
+            ) {
 
-        if (carrinho.length === 0) {
-            return toast.error("Seu carrinho está vazio.");
-        }
-
-        const pagamentoId = form.metodo_pagamento_id;
-
-        if (!pagamentoId) {
-            return toast.error("Por favor, selecione a forma de pagamento.");
-        }
-
-        const telefoneLimpo = form.telefone.replace(/\D/g, '');
-
-        if (telefoneLimpo.length < 11) {
-            return toast.error("Por favor, digite um telefone válido com DDD.");
-        }
-
-        // 🚀 3. Validação condicional do endereço
-        let enderecoFormatado = null;
-        if (form.metodo_entrega === 'Entrega') {
-            if (!form.logradouro || !form.numero) {
-                return toast.error("Para entrega, preencha a Rua/Avenida e o Número.");
+                return toast.error(
+                    'Adicione pelo menos uma marmita com alimentos para finalizar o pedido.'
+                );
             }
-            enderecoFormatado = `${form.logradouro}, ${form.numero} - Centro (${form.complemento || 'Sem complemento'})`;
-        }
 
-        try {
-            // 🚀 4. Adicionado metodo_entrega ao payload
+
+            if (
+                !form
+                    .metodo_pagamento_id
+            ) {
+
+                return toast.error(
+                    'Por favor, selecione a forma de pagamento.'
+                );
+            }
+
+
+            const telefoneLimpo =
+                String(form.telefone || '')
+                    .replace(/\D/g, '');
+
+            if (
+                telefoneLimpo.length < 10 ||
+                telefoneLimpo.length > 11
+            ) {
+                return toast.error(
+                    'Informe um telefone válido com DDD.'
+                );
+            }
+
+
+            let enderecoFormatado =
+                null;
+
+
+            if (
+                form.metodo_entrega ===
+                'Entrega'
+            ) {
+
+                if (
+                    !form.logradouro ||
+                    !form.numero
+                ) {
+
+                    return toast.error(
+                        'Para entrega, preencha a Rua/Avenida e o Número.'
+                    );
+                }
+
+
+                enderecoFormatado =
+
+                    `${form.logradouro}, ` +
+
+                    `${form.numero} - Centro ` +
+
+                    `(${form.complemento || 'Sem complemento'})`;
+            }
+
+
+            /**
+             * =====================================================
+             * PAYLOAD
+             * =====================================================
+             *
+             * NÃO enviamos:
+             *
+             * preco
+             * subtotal
+             * valor_total
+             *
+             * Backend é responsável por isso.
+             */
             const payload = {
-                nome_cliente: form.nome,
-                telefone_cliente: telefoneLimpo,
-                endereco_cliente: enderecoFormatado,
-                metodo_entrega: form.metodo_entrega,
-                metodo_pagamento_id: Number(form.metodo_pagamento_id),
-                tipo_pedido: form.tipo_pedido,
-                observacoes: form.observacoes,
-                marmitas: carrinho.map(item => ({
-                    tamanho_id: Number(item.tamanho.id),
-                    quantidade: Number(item.quantidade),
-                    alimentos: item.itens.map(i => Number(i.id))
-                })),
-                total: Number(totalGeral)
+
+                nome_cliente:
+                    form.nome,
+
+                telefone_cliente:
+                    telefoneLimpo,
+
+                endereco_cliente:
+                    enderecoFormatado,
+
+                metodo_entrega:
+                    form.metodo_entrega,
+
+                metodo_pagamento_id:
+                    Number(
+                        form
+                            .metodo_pagamento_id
+                    ),
+
+                tipo_pedido:
+                    form.tipo_pedido,
+
+                observacoes:
+                    form.observacoes,
+
+
+                /**
+                 * Marmitas.
+                 */
+                marmitas:
+                    carrinho.map(
+                        (
+                            item
+                        ) => ({
+
+                            tamanho_id:
+                                Number(
+                                    item
+                                        .tamanho
+                                        .id
+                                ),
+
+                            quantidade:
+                                Number(
+                                    item.quantidade
+                                ),
+
+                            alimentos:
+                                item
+                                    .itens
+                                    .map(
+                                        (
+                                            alimento
+                                        ) =>
+                                            Number(
+                                                alimento.id
+                                            )
+                                    )
+                        })
+                    ),
+
+
+                /**
+                 * Produtos.
+                 */
+                produtos:
+                    produtosCarrinho.map(
+                        (
+                            produto
+                        ) => ({
+
+                            produto_id:
+                                Number(
+                                    produto.id
+                                ),
+
+                            quantidade:
+                                Number(
+                                    produto.quantidade
+                                )
+                        })
+                    )
             };
 
-            const sucesso = await finalizarPedidoNoBanco(payload);
 
-            if (sucesso) {
-                limparCarrinho();
-                setSucessoPedido(true);
-                localStorage.setItem('marmitaria_telefone_cliente', telefoneLimpo);
-                router.push('/pedido/sucesso');
+            const resposta =
+                await finalizarPedidoNoBanco(
+                    payload
+                );
+
+
+            if (
+                !resposta
+            ) {
+
+                return;
             }
 
-        } catch (error) {
-            console.error("💥 Erro 400 - Verifique o terminal do Node.js:", error);
-            toast.error("O servidor rejeitou o pedido (Erro 400).");
-        }
-    };
 
-    if (carrinho.length === 0) {
-        if (finalizando) {
+            /**
+             * Evita piscar a página vazia durante
+             * o redirecionamento.
+             */
+            setFinalizando(
+                true
+            );
+
+
+            limparCarrinho();
+
+
+            setSucessoPedido(
+                true
+            );
+
+
+            localStorage.setItem(
+                'marmitaria_telefone_cliente',
+                telefoneLimpo
+            );
+
+
+            router.push(
+                '/pedido/sucesso'
+            );
+        };
+
+
+    /**
+     * ============================================================
+     * CARRINHO SEM MARMITA
+     * ============================================================
+     */
+    if (
+        carrinho.length === 0
+    ) {
+
+        if (
+            finalizando
+        ) {
+
             return (
-                <main className={styles.containerVazio}>
-                    <div className={styles.loader}>Finalizando seu pedido...</div>
+
+                <main
+                    className={
+                        styles.containerVazio
+                    }
+                >
+
+                    <div
+                        className={
+                            styles.loader
+                        }
+                    >
+                        Finalizando seu pedido...
+                    </div>
+
                 </main>
             );
         }
 
+
         return (
-            <main className={styles.containerVazio}>
-                <h2>Seu carrinho está vazio 😕</h2>
-                <button onClick={() => router.push('/pedido')} className={styles.btnVoltar}>
-                    Voltar ao Cardápio
+
+            <main
+                className={
+                    styles.containerVazio
+                }
+            >
+
+                <h2>
+                    Seu carrinho ainda não possui uma marmita 😕
+                </h2>
+
+
+                <p
+                    className={
+                        styles.mensagemVazio
+                    }
+                >
+                    Para realizar um pedido, escolha um tamanho e monte
+                    pelo menos uma marmita com alimentos.
+                </p>
+
+
+                <button
+                    type="button"
+                    onClick={() =>
+                        router.push(
+                            '/pedido'
+                        )
+                    }
+                    className={
+                        styles.btnVoltar
+                    }
+                >
+                    Montar Marmita
                 </button>
+
             </main>
         );
     }
 
+
     return (
-        <main className={styles.container}>
-            <header className={styles.header}>
-                <button className={styles.btnLink} onClick={() => router.back()}>← Continuar Comprando</button>
-                <h1>Finalizar Pedido</h1>
+
+        <main
+            className={
+                styles.container
+            }
+        >
+
+            <header
+                className={
+                    styles.header
+                }
+            >
+
+                <button
+                    type="button"
+                    className={
+                        styles.btnLink
+                    }
+                    onClick={() =>
+                        router.push(
+                            '/pedido'
+                        )
+                    }
+                >
+                    ← Continuar Comprando
+                </button>
+
+
+                <h1>
+                    Finalizar Pedido
+                </h1>
+
             </header>
 
-            <section className={styles.resumo}>
-                <h2 className={styles.secaoTitulo}>Sua Escolha</h2>
-                {carrinho.map((item, index) => (
-                    <div key={item.id_temp} className={styles.itemCarrinho}>
-                        <div className={styles.itemInfo}>
-                            <span className={styles.itemQuantidade}>{item.quantidade}x</span>
-                            <div>
-                                <h3>Marmita {item.tamanho.nome}</h3>
-                                <p className={styles.itemDetalhes}>
-                                    {item.itens.map(i => i.nome).join(', ')}
-                                </p>
-                            </div>
-                        </div>
 
-                        <div className={styles.itemAcoes}>
-                            <span className={styles.itemPreco}>
-                                R$ {item.subtotal.toFixed(2).replace('.', ',')}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={() => removerDoCarrinho(index)}
-                                className={styles.btnRemover}
-                                title="Remover marmita"
+            <section
+                className={
+                    styles.resumo
+                }
+            >
+
+                {/* =================================================
+                    MARMITAS
+                   ================================================= */}
+
+                <h2
+                    className={
+                        styles.secaoTitulo
+                    }
+                >
+                    Marmitas
+                </h2>
+
+
+                {carrinho.map(
+                    (
+                        item,
+                        index
+                    ) => (
+
+                        <div
+                            key={
+                                item.id_temp
+                            }
+                            className={
+                                styles.itemCarrinho
+                            }
+                        >
+
+                            <div
+                                className={
+                                    styles.itemInfo
+                                }
                             >
-                                <Trash2 size={20} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
-                <div className={styles.totalBox}>
-                    <span>Total do Pedido</span>
-                    <strong>R$ {totalGeral.toFixed(2).replace('.', ',')}</strong>
-                </div>
-            </section>
 
-            <form className={styles.form} onSubmit={finalizarPedido}>
-                <h2 className={styles.secaoTitulo}>Entrega e Pagamento</h2>
+                                <span
+                                    className={
+                                        styles.itemQuantidade
+                                    }
+                                >
+                                    {item.quantidade}x
+                                </span>
 
-                <div className={styles.inputGroup}>
-                    <label>Seu Nome *</label>
-                    <input type="text" name="nome" required value={form.nome} onChange={handleChange} placeholder="Como te chamamos?" />
-                </div>
 
-                <div className={styles.inputGroup}>
-                    <label>Telefone / WhatsApp *</label>
-                    <TelefoneInput
-                        name="telefone"
-                        value={form.telefone}
-                        onChange={handleChange}
-                        className={styles.inputCustom}
-                        placeholder="(00) 00000-0000"
-                        required={true}
-                    />
-                </div>
+                                <div>
 
-                {/* 🚀 5. Campo para selecionar se quer Entrega ou Retirada */}
-                <div className={styles.inputGroup}>
-                    <label>Como deseja receber? *</label>
-                    <select name="metodo_entrega" value={form.metodo_entrega} onChange={handleChange} required>
-                        <option value="Entrega">Entrega no meu endereço (Delivery)</option>
-                        <option value="Retirada">Vou retirar no balcão</option>
-                    </select>
-                </div>
+                                    <h3>
+                                        Marmita {item.tamanho.nome}
+                                    </h3>
 
-                {/* 🚀 6. Os campos de morada só aparecem se for Entrega */}
-                {form.metodo_entrega === 'Entrega' && (
-                    <div style={{ padding: '15px', backgroundColor: '#fafafa', borderRadius: '8px', border: '1px solid #e4e4e7', marginBottom: '1rem' }}>
-                        <div className={styles.row}>
-                           <div className={styles.inputGroup} style={{ flex: 3, minWidth: 0 }}>
-                                <label>Rua / Avenida *</label>
-                                <input type="text" name="logradouro" required={form.metodo_entrega === 'Entrega'} value={form.logradouro} onChange={handleChange} placeholder="Ex: Rua das Flores" />
+
+                                    <p
+                                        className={
+                                            styles.itemDetalhes
+                                        }
+                                    >
+
+                                        {item
+                                            .itens
+                                            .map(
+                                                (
+                                                    alimento
+                                                ) =>
+                                                    alimento.nome
+                                            )
+                                            .join(
+                                                ', '
+                                            )}
+
+                                    </p>
+
+                                </div>
+
                             </div>
-                            
-                            {/* 👇 Diminuído ligeiramente de 80px para 70px para caber melhor no mobile */}
-                            <div className={styles.inputGroup} style={{ flex: 1, minWidth: '70px' }}>
-                                <label>Nº *</label>
-                                <input type="text" name="numero" required={form.metodo_entrega === 'Entrega'} value={form.numero} onChange={handleChange} placeholder="Ex: 123" />
-                            </div>
-                        </div>
 
-                        {/* 👇 Aqui adicionamos o marginTop: '12px' para dar o espaçamento correto! */}
-                        <div className={styles.inputGroup} style={{ marginTop: '12px', marginBottom: 0 }}>
-                            <label>Complemento (Opcional)</label>
-                            <input type="text" name="complemento" value={form.complemento} onChange={handleChange} placeholder="Casa, Apto 45, Bloco B..." />
+
+                            <div
+                                className={
+                                    styles.itemAcoes
+                                }
+                            >
+
+                                <span
+                                    className={
+                                        styles.itemPreco
+                                    }
+                                >
+                                    {formatarMoeda(
+                                        item.subtotal
+                                    )}
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        removerDoCarrinho(
+                                            index
+                                        )
+                                    }
+                                    className={
+                                        styles.btnRemover
+                                    }
+                                    title="Remover marmita"
+                                >
+
+                                    <Trash2
+                                        size={20}
+                                    />
+
+                                </button>
+
+                            </div>
+
                         </div>
-                    </div>
+                    )
                 )}
 
-                <div className={styles.inputGroup}>
-                    <label>Forma de Pagamento *</label>
+
+                <div
+                    className={
+                        styles.subtotalLinha
+                    }
+                >
+
+                    <span>
+                        Subtotal das marmitas
+                    </span>
+
+
+                    <strong>
+                        {formatarMoeda(
+                            totalMarmitas
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.divisorSecao
+                    }
+                />
+
+
+                {/* =================================================
+                    PRODUTOS
+                   ================================================= */}
+
+                <div
+                    className={
+                        styles.cabecalhoComplementos
+                    }
+                >
+
+                    <h2
+                        className={
+                            styles.secaoTitulo
+                        }
+                    >
+                        Complementos
+                    </h2>
+
+
+                    <button
+                        type="button"
+                        className={
+                            styles.btnAdicionarComplemento
+                        }
+                        onClick={() =>
+                            router.push(
+                                '/pedido/complementos'
+                            )
+                        }
+                    >
+
+                        <PackagePlus
+                            size={16}
+                        />
+
+                        Adicionar
+
+                    </button>
+
+                </div>
+
+
+                {produtosCarrinho.length ===
+                    0 ? (
+
+                    <p
+                        className={
+                            styles.semComplementos
+                        }
+                    >
+                        Nenhum complemento adicionado.
+                    </p>
+
+                ) : (
+
+                    produtosCarrinho.map(
+                        (
+                            produto
+                        ) => (
+
+                            <div
+                                key={
+                                    produto.id
+                                }
+                                className={
+                                    styles.itemCarrinho
+                                }
+                            >
+
+                                <div
+                                    className={
+                                        styles.itemInfo
+                                    }
+                                >
+
+                                    <span
+                                        className={
+                                            styles.itemQuantidade
+                                        }
+                                    >
+                                        {produto.quantidade}x
+                                    </span>
+
+
+                                    <div>
+
+                                        <h3>
+                                            {produto.nome}
+                                        </h3>
+
+
+                                        <p
+                                            className={
+                                                styles.itemDetalhes
+                                            }
+                                        >
+
+                                            {produto
+                                                .categoria_nome ||
+
+                                                'Produto complementar'}
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.itemAcoes
+                                    }
+                                >
+
+                                    <span
+                                        className={
+                                            styles.itemPreco
+                                        }
+                                    >
+                                        {formatarMoeda(
+                                            produto.subtotal
+                                        )}
+                                    </span>
+
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            removerProdutoDoCarrinho(
+                                                produto.id
+                                            )
+                                        }
+                                        className={
+                                            styles.btnRemover
+                                        }
+                                        title={`Remover ${produto.nome}`}
+                                    >
+
+                                        <Trash2
+                                            size={20}
+                                        />
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        )
+                    )
+                )}
+
+
+                {produtosCarrinho.length >
+                    0 && (
+
+                        <div
+                            className={
+                                styles.subtotalLinha
+                            }
+                        >
+
+                            <span>
+                                Subtotal dos complementos
+                            </span>
+
+
+                            <strong>
+                                {formatarMoeda(
+                                    totalProdutos
+                                )}
+                            </strong>
+
+                        </div>
+                    )}
+
+
+                <div
+                    className={
+                        styles.totalBox
+                    }
+                >
+
+                    <span>
+                        Total do Pedido
+                    </span>
+
+
+                    <strong>
+                        {formatarMoeda(
+                            totalGeral
+                        )}
+                    </strong>
+
+                </div>
+
+            </section>
+
+
+            {/* =====================================================
+                CHECKOUT
+               ===================================================== */}
+
+            <form
+                className={
+                    styles.form
+                }
+                onSubmit={
+                    finalizarPedido
+                }
+            >
+
+                <h2
+                    className={
+                        styles.secaoTitulo
+                    }
+                >
+                    Entrega e Pagamento
+                </h2>
+
+
+                <div
+                    className={
+                        styles.inputGroup
+                    }
+                >
+
+                    <label>
+                        Seu Nome *
+                    </label>
+
+
+                    <input
+                        type="text"
+                        name="nome"
+                        required
+                        value={
+                            form.nome
+                        }
+                        onChange={
+                            handleChange
+                        }
+                        placeholder="Como te chamamos?"
+                    />
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.inputGroup
+                    }
+                >
+
+                    <label>
+                        Telefone / WhatsApp *
+                    </label>
+
+
+                    <TelefoneInput
+                        name="telefone"
+                        value={
+                            form.telefone
+                        }
+                        onChange={
+                            handleChange
+                        }
+                        className={
+                            styles.inputCustom
+                        }
+                        placeholder="(00) 00000-0000"
+                        required={
+                            true
+                        }
+                    />
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.inputGroup
+                    }
+                >
+
+                    <label>
+                        Como deseja receber? *
+                    </label>
+
+
                     <select
-                        name="metodo_pagamento_id"
-                        value={form.metodo_pagamento_id}
-                        onChange={handleChange}
-                        disabled={loadingMetodosPagamento}
+                        name="metodo_entrega"
+                        value={
+                            form.metodo_entrega
+                        }
+                        onChange={
+                            handleChange
+                        }
                         required
                     >
-                        <option value="" disabled>
-                            {loadingMetodosPagamento ? "Carregando opções..." : "Selecione uma opção..."}
+
+                        <option value="Entrega">
+                            Entrega no meu endereço (Delivery)
                         </option>
 
-                        {!loadingMetodosPagamento && metodosPagamento.length === 0 && (
-                            <option value="" disabled>Nenhum método disponível</option>
-                        )}
+                        <option value="Retirada">
+                            Vou retirar no balcão
+                        </option>
 
-                        {!loadingMetodosPagamento && metodosPagamento.map((metodo) => (
-                            <option key={metodo.id} value={metodo.id}>
-                                {metodo.nome}
-                            </option>
-                        ))}
                     </select>
+
                 </div>
 
-                <div className={styles.inputGroup}>
-                    <label>Observações do Pedido (Opcional)</label>
+
+                {form.metodo_entrega ===
+                    'Entrega' && (
+
+                        <div
+                            className={
+                                styles.enderecoBox
+                            }
+                        >
+
+                            <div
+                                className={
+                                    styles.row
+                                }
+                            >
+
+                                <div
+                                    className={
+                                        styles.inputGroup
+                                    }
+                                    style={{
+                                        flex:
+                                            3,
+
+                                        minWidth:
+                                            0
+                                    }}
+                                >
+
+                                    <label>
+                                        Rua / Avenida *
+                                    </label>
+
+
+                                    <input
+                                        type="text"
+                                        name="logradouro"
+                                        required
+                                        value={
+                                            form.logradouro
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Ex: Rua das Flores"
+                                    />
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.inputGroup
+                                    }
+                                    style={{
+                                        flex:
+                                            1,
+
+                                        minWidth:
+                                            '70px'
+                                    }}
+                                >
+
+                                    <label>
+                                        Nº *
+                                    </label>
+
+
+                                    <input
+                                        type="text"
+                                        name="numero"
+                                        required
+                                        value={
+                                            form.numero
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Ex: 123"
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.complementoEndereco
+                                }
+                            >
+
+                                <div
+                                    className={
+                                        styles.inputGroup
+                                    }
+                                >
+
+                                    <label>
+                                        Complemento (Opcional)
+                                    </label>
+
+
+                                    <input
+                                        type="text"
+                                        name="complemento"
+                                        value={
+                                            form.complemento
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        placeholder="Casa, Apto 45, Bloco B..."
+                                    />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    )}
+
+
+                <div
+                    className={
+                        styles.inputGroup
+                    }
+                >
+
+                    <label>
+                        Forma de Pagamento *
+                    </label>
+
+
+                    <select
+                        name="metodo_pagamento_id"
+                        value={
+                            form.metodo_pagamento_id
+                        }
+                        onChange={
+                            handleChange
+                        }
+                        disabled={
+                            loadingMetodosPagamento
+                        }
+                        required
+                    >
+
+                        <option
+                            value=""
+                            disabled
+                        >
+
+                            {loadingMetodosPagamento
+                                ? 'Carregando opções...'
+                                : 'Selecione uma opção...'}
+
+                        </option>
+
+
+                        {!loadingMetodosPagamento &&
+                            metodosPagamento.length ===
+                            0 && (
+
+                                <option
+                                    value=""
+                                    disabled
+                                >
+                                    Nenhum método disponível
+                                </option>
+                            )}
+
+
+                        {!loadingMetodosPagamento &&
+
+                            metodosPagamento.map(
+                                (
+                                    metodo
+                                ) => (
+
+                                    <option
+                                        key={
+                                            metodo.id
+                                        }
+                                        value={
+                                            metodo.id
+                                        }
+                                    >
+                                        {metodo.nome}
+                                    </option>
+                                )
+                            )}
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.inputGroup
+                    }
+                >
+
+                    <label>
+                        Observações do Pedido (Opcional)
+                    </label>
+
+
                     <textarea
                         name="observacoes"
-                        value={form.observacoes}
-                        onChange={handleChange}
-                        className={styles.textarea}
-                        placeholder="Ex: Tirar cebola, alergia a amendoim, troco para R$ 50..."
+                        value={
+                            form.observacoes
+                        }
+                        onChange={
+                            handleChange
+                        }
+                        className={
+                            styles.textarea
+                        }
+                        placeholder="Ex: Tirar cebola, troco para R$ 50..."
                         rows="2"
                     />
+
                 </div>
 
-                <button type="submit" className={styles.btnFinalizar} disabled={enviando || loadingMetodosPagamento}>
-                    {loading ? 'Processando...' : 'Confirmar e Enviar Pedido'}
+
+                <button
+                    type="submit"
+                    className={
+                        styles.btnFinalizar
+                    }
+                    disabled={
+
+                        enviando ||
+
+                        loadingMetodosPagamento
+                    }
+                >
+
+                    {enviando
+
+                        ? 'Processando...'
+
+                        : `Confirmar Pedido • ${formatarMoeda(
+                            totalGeral
+                        )}`}
+
                 </button>
+
             </form>
+
         </main>
     );
 }

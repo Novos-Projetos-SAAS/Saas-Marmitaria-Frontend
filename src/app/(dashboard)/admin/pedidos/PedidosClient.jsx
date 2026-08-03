@@ -10,6 +10,8 @@ import FormPedidoPresencial from "@/components/forms/pedidoPresencial/pedidoPres
 import Pagination from "@/components/ui/pagination"; // Importação da paginação
 import CupomPedido from "@/components/CupomPedido/cupomPedido";
 
+import Can from "@/components/ui/can";
+
 import { RefreshCw, Eye, Plus, List, X, Search, Filter, Printer } from "lucide-react"; // Adicionado Search e Filter
 import styles from "./PedidosClient.module.css";
 
@@ -45,6 +47,64 @@ export default function PedidosClient() {
         }, 1000);
     };
 
+    /**
+ * Os status oferecidos dependem
+ * da forma de entrega.
+ */
+    function obterStatusOpcoes(
+        pedido
+    ) {
+
+        const opcoes = [
+
+            'Pendente',
+
+            'Em Preparo'
+        ];
+
+
+        if (
+            pedido.metodo_entrega ===
+            'Retirada'
+        ) {
+
+            opcoes.push(
+                'Pronto para Retirada'
+            );
+
+        } else {
+
+            opcoes.push(
+                'Saiu para Entrega'
+            );
+        }
+
+
+        opcoes.push(
+            'Entregue',
+            'Cancelado'
+        );
+
+
+        /**
+         * Compatibilidade com possíveis
+         * registros antigos inconsistentes.
+         */
+        if (
+            !opcoes.includes(
+                pedido.status
+            )
+        ) {
+
+            opcoes.unshift(
+                pedido.status
+            );
+        }
+
+
+        return opcoes;
+    }
+
     return (
         <>
             <div className="no-print">
@@ -53,9 +113,34 @@ export default function PedidosClient() {
                         <button className={`${styles.tabBtn} ${abaAtiva === 'lista' ? styles.tabAtiva : ''}`} onClick={() => setAbaAtiva('lista')}>
                             <List size={18} /> Pedidos do Dia
                         </button>
-                        <button className={`${styles.tabBtn} ${abaAtiva === 'novo' ? styles.tabAtiva : ''}`} onClick={() => setAbaAtiva('novo')}>
-                            <Plus size={18} /> Lançar Pedido Balcão
-                        </button>
+                        <Can
+                            perform="pedidos.criar"
+                        >
+
+                            <button
+                                className={
+                                    `${styles.tabBtn} ${abaAtiva === 'novo'
+                                        ? styles.tabAtiva
+                                        : ''
+                                    }`
+                                }
+
+                                onClick={() =>
+                                    setAbaAtiva(
+                                        'novo'
+                                    )
+                                }
+                            >
+
+                                <Plus
+                                    size={18}
+                                />
+
+                                Lançar Pedido Balcão
+
+                            </button>
+
+                        </Can>
                     </div>
 
                     {abaAtiva === 'lista' && (
@@ -82,12 +167,45 @@ export default function PedidosClient() {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f4f4f5', padding: '8px 16px', borderRadius: '8px' }}>
                                     <Filter size={18} color="#71717a" />
                                     <select
-                                        className={styles.selectFiltro}
-                                        value={statusFilter}
-                                        onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                                        className={
+                                            styles.selectFiltro
+                                        }
+                                        value={
+                                            statusFilter
+                                        }
+                                        onChange={
+                                            (event) => {
+
+                                                setStatusFilter(
+                                                    event.target.value
+                                                );
+
+                                                setPage(1);
+                                            }
+                                        }
                                     >
-                                        <option value="todos">Todos os Status</option>
-                                        {STATUS_OPCOES.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+
+                                        <option value="todos">
+                                            Todos os Status
+                                        </option>
+
+
+                                        {STATUS_OPCOES.map(
+                                            (status) => (
+
+                                                <option
+                                                    key={
+                                                        status
+                                                    }
+                                                    value={
+                                                        status
+                                                    }
+                                                >
+                                                    {status}
+                                                </option>
+                                            )
+                                        )}
+
                                     </select>
                                 </div>
                             </div>
@@ -128,13 +246,77 @@ export default function PedidosClient() {
                                                     </td>
 
                                                     <td data-label="Status">
-                                                        <select
-                                                            className={`${styles.selectStatus} ${styles[`status_${pedido.status.replace(/\s+/g, '')}`]}`}
-                                                            value={pedido.status}
-                                                            onChange={(e) => atualizarStatus(pedido.id, e.target.value)}
+                                                        <Can
+                                                            perform="pedidos.status"
+                                                            fallback={
+
+                                                                <span
+                                                                    className={
+                                                                        `${styles.selectStatus} ${styles[
+                                                                        `status_${pedido.status
+                                                                            .replace(
+                                                                                /\s+/g,
+                                                                                ''
+                                                                            )
+                                                                        }`
+                                                                        ]
+                                                                        }`
+                                                                    }
+                                                                >
+
+                                                                    {pedido.status}
+
+                                                                </span>
+                                                            }
                                                         >
-                                                            {STATUS_OPCOES.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                                        </select>
+
+                                                            <select
+                                                                className={
+                                                                    `${styles.selectStatus} ${styles[
+                                                                    `status_${pedido.status
+                                                                        .replace(
+                                                                            /\s+/g,
+                                                                            ''
+                                                                        )
+                                                                    }`
+                                                                    ]
+                                                                    }`
+                                                                }
+
+                                                                value={
+                                                                    pedido.status
+                                                                }
+
+                                                                onChange={
+                                                                    event =>
+                                                                        atualizarStatus(
+                                                                            pedido.id,
+                                                                            event.target.value
+                                                                        )
+                                                                }
+                                                            >
+
+                                                                {obterStatusOpcoes(
+                                                                    pedido
+                                                                ).map(
+                                                                    status => (
+
+                                                                        <option
+                                                                            key={
+                                                                                status
+                                                                            }
+                                                                            value={
+                                                                                status
+                                                                            }
+                                                                        >
+                                                                            {status}
+                                                                        </option>
+                                                                    )
+                                                                )}
+
+                                                            </select>
+
+                                                        </Can>
                                                     </td>
 
                                                     {/* <td data-label="Ações"> */}
@@ -221,13 +403,143 @@ export default function PedidosClient() {
                                                     <span>R$ {Number(marmita.preco_unitario).toFixed(2).replace('.', ',')}</span>
                                                 </div>
                                                 <ul className={styles.alimentosList}>
-                                                    {marmita.alimentos && marmita.alimentos.map((alimento, idxAli) => (
-                                                        <li key={idxAli}>✓ {alimento}</li>
-                                                    ))}
+                                                    {marmita.alimentos &&
+                                                        marmita.alimentos.map(
+                                                            (
+                                                                alimento,
+                                                                idxAli
+                                                            ) => (
+
+                                                                <li
+                                                                    key={
+                                                                        alimento?.id ||
+                                                                        idxAli
+                                                                    }
+                                                                >
+
+                                                                    ✓ {
+                                                                        typeof alimento ===
+                                                                            'string'
+
+                                                                            ? alimento
+
+                                                                            : alimento.nome
+                                                                    }
+
+                                                                </li>
+                                                            )
+                                                        )}
                                                 </ul>
                                             </div>
                                         ))}
                                     </div>
+                                    {pedidoSelecionado.produtos &&
+                                        pedidoSelecionado.produtos.length > 0 && (
+
+                                            <>
+
+                                                <hr />
+
+
+                                                <h3>
+                                                    Complementos do Pedido:
+                                                </h3>
+
+
+                                                <div
+                                                    className={
+                                                        styles.marmitasGrid
+                                                    }
+                                                >
+
+                                                    {pedidoSelecionado
+                                                        .produtos
+                                                        .map(
+                                                            produto => (
+
+                                                                <div
+                                                                    key={
+                                                                        produto.id
+                                                                    }
+                                                                    className={
+                                                                        styles.marmitaCard
+                                                                    }
+                                                                >
+
+                                                                    <div
+                                                                        className={
+                                                                            styles.marmitaHeader
+                                                                        }
+                                                                    >
+
+                                                                        <span>
+
+                                                                            <b>
+                                                                                {produto.quantidade}x
+                                                                            </b>{' '}
+
+                                                                            {produto.nome}
+
+                                                                        </span>
+
+
+                                                                        <span>
+
+                                                                            R$ {
+
+                                                                                Number(
+                                                                                    produto.subtotal
+                                                                                )
+                                                                                    .toFixed(2)
+                                                                                    .replace(
+                                                                                        '.',
+                                                                                        ','
+                                                                                    )
+                                                                            }
+
+                                                                        </span>
+
+                                                                    </div>
+
+
+                                                                    <span
+                                                                        style={{
+                                                                            color:
+                                                                                '#71717A',
+
+                                                                            fontSize:
+                                                                                '0.85rem'
+                                                                        }}
+                                                                    >
+
+                                                                        {produto.categoria_nome}
+
+                                                                        {' • '}
+
+                                                                        R$ {
+
+                                                                            Number(
+                                                                                produto.preco_unitario
+                                                                            )
+                                                                                .toFixed(2)
+                                                                                .replace(
+                                                                                    '.',
+                                                                                    ','
+                                                                                )
+                                                                        }
+
+                                                                        {' cada'}
+
+                                                                    </span>
+
+                                                                </div>
+                                                            )
+                                                        )}
+
+                                                </div>
+
+                                            </>
+                                        )}
                                 </div>
                             </div>
                         </div>

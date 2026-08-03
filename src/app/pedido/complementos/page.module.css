@@ -1,0 +1,601 @@
+.container {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100dvh;
+    margin: 0 auto;
+
+    padding: 24px 16px 140px;
+
+    box-sizing: border-box;
+
+    background: #FAFAFA;
+
+    color: #18181B;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+
+.loadingContainer {
+    min-height: 100dvh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #FAFAFA;
+
+    color: #EA580C;
+
+    font-weight: 600;
+}
+
+
+.header {
+    margin-bottom: 32px;
+}
+
+
+.btnVoltar {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 0;
+
+    margin-bottom: 22px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #EA580C;
+
+    font-size: 0.82rem;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+
+    cursor: pointer;
+}
+
+
+.etapa {
+    display: inline-flex;
+
+    margin-bottom: 10px;
+
+    padding: 4px 8px;
+
+    border:
+        1px solid
+        #FFEDD5;
+
+    border-radius: 4px;
+
+    background: #FFF7ED;
+
+    color: #EA580C;
+
+    font-size: 0.76rem;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+
+.header h1 {
+    margin:
+        0
+        0
+        7px;
+
+    color: #18181B;
+
+    font-size: 1.5rem;
+
+    letter-spacing: -0.02em;
+}
+
+
+.header p {
+    margin: 0;
+
+    color: #71717A;
+
+    font-size: 0.95rem;
+
+    line-height: 1.5;
+}
+
+
+.listaCategorias {
+    display: flex;
+    flex-direction: column;
+
+    gap: 32px;
+}
+
+
+.blocoCategoria {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.cabecalhoCategoria {
+    padding-bottom: 12px;
+
+    border-bottom:
+        1px solid
+        #E4E4E7;
+}
+
+
+.cabecalhoCategoria h2 {
+    margin: 0;
+
+    color: #18181B;
+
+    font-size: 1.15rem;
+
+    font-weight: 700;
+}
+
+
+.cabecalhoCategoria p {
+    margin:
+        5px
+        0
+        0;
+
+    color: #71717A;
+
+    font-size: 0.82rem;
+
+    line-height: 1.4;
+}
+
+
+.listaProdutos {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.cardProduto {
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 16px;
+
+    padding: 16px;
+
+    border:
+        1px solid
+        #E4E4E7;
+
+    border-radius: 8px;
+
+    background: #FFFFFF;
+
+    box-shadow:
+        0 1px 2px
+        rgba(
+            0,
+            0,
+            0,
+            0.02
+        );
+}
+
+
+.produtoInfo {
+    min-width: 0;
+
+    flex: 1;
+}
+
+
+.produtoInfo h3 {
+    margin: 0;
+
+    color: #18181B;
+
+    font-size: 1rem;
+
+    font-weight: 600;
+}
+
+
+.produtoInfo p {
+    margin:
+        5px
+        0
+        8px;
+
+    color: #71717A;
+
+    font-size: 0.8rem;
+
+    line-height: 1.4;
+}
+
+
+.produtoInfo strong {
+    color: #EA580C;
+
+    font-size: 0.92rem;
+
+    font-weight: 700;
+}
+
+
+.btnAdicionar {
+    flex-shrink: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    height: 40px;
+
+    padding:
+        0
+        12px;
+
+    border:
+        1px solid
+        #E4E4E7;
+
+    border-radius: 6px;
+
+    background: #FFFFFF;
+
+    color: #18181B;
+
+    font-size: 0.82rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        all
+        0.2s ease;
+}
+
+
+.btnAdicionar:hover {
+    border-color: #EA580C;
+
+    background: #FFF7ED;
+
+    color: #EA580C;
+}
+
+
+.controleQuantidade {
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 5px;
+
+    border:
+        1px solid
+        #E4E4E7;
+
+    border-radius: 6px;
+
+    background: #F4F4F5;
+}
+
+
+.controleQuantidade button {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 4px;
+
+    background: #FFFFFF;
+
+    color: #EA580C;
+
+    cursor: pointer;
+}
+
+
+.controleQuantidade span {
+    min-width: 18px;
+
+    text-align: center;
+
+    font-size: 0.9rem;
+
+    font-weight: 800;
+}
+
+
+.estadoVazio {
+    padding:
+        28px
+        20px;
+
+    border:
+        1px dashed
+        #D4D4D8;
+
+    border-radius: 8px;
+
+    background: #FFFFFF;
+
+    text-align: center;
+
+    color: #71717A;
+}
+
+
+.estadoVazio svg {
+    color: #EA580C;
+}
+
+
+.estadoVazio h2 {
+    margin:
+        10px
+        0
+        6px;
+
+    color: #18181B;
+
+    font-size: 1rem;
+}
+
+
+.estadoVazio p {
+    margin: 0;
+
+    font-size: 0.85rem;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   BARRA INFERIOR
+   ============================================================ */
+
+.barraFixa {
+    position: fixed;
+
+    left: 0;
+
+    bottom: 0;
+
+    z-index: 100;
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding:
+        14px
+        16px;
+
+    border-top:
+        1px solid
+        #E4E4E7;
+
+    background: #FFFFFF;
+
+    box-shadow:
+        0 -4px 12px
+        rgba(
+            0,
+            0,
+            0,
+            0.03
+        );
+}
+
+
+.conteudoBarra {
+    width: 100%;
+
+    max-width: 600px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    gap: 10px;
+}
+
+
+.btnOutraMarmita,
+.btnCarrinho {
+    min-height: 48px;
+
+    border-radius: 6px;
+
+    font-family: inherit;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.btnOutraMarmita {
+    flex-shrink: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    padding:
+        0
+        12px;
+
+    border:
+        1px solid
+        #D4D4D8;
+
+    background: #FFFFFF;
+
+    color: #52525B;
+
+    font-size: 0.82rem;
+}
+
+
+.btnCarrinho {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 10px;
+
+    padding:
+        0
+        14px;
+
+    border:
+        1px solid
+        #EA580C;
+
+    background: #EA580C;
+
+    color: #FFFFFF;
+}
+
+
+.carrinhoTexto {
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.badgeQuantidade {
+    flex-shrink: 0;
+
+    width: 24px;
+    height: 24px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 4px;
+
+    background: #FFFFFF;
+
+    color: #EA580C;
+
+    font-size: 0.78rem;
+
+    font-weight: 800;
+}
+
+
+.btnCarrinho strong {
+    white-space: nowrap;
+
+    font-size: 0.86rem;
+}
+
+
+@media (
+    max-width: 430px
+) {
+
+    .cardProduto {
+        align-items:
+            flex-end;
+    }
+
+
+    .conteudoBarra {
+        gap: 8px;
+    }
+
+
+    .btnOutraMarmita {
+        padding:
+            0
+            10px;
+    }
+
+
+    .btnOutraMarmita svg {
+        display: none;
+    }
+
+
+    .btnCarrinho {
+        padding:
+            0
+            10px;
+
+        font-size: 0.84rem;
+    }
+}   

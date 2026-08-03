@@ -1,48 +1,47 @@
-/* Esconde o cupom na visualização normal da tela */
 .printOnly {
     display: none;
 }
 
+
 @media print {
-    /* Mostra o cupom apenas na hora de imprimir */
+
+    .printOnly,
+    .printOnly * {
+        visibility: visible !important;
+    }
+
+
     .printOnly {
         display: block !important;
+
         position: absolute;
+
         top: 0;
         left: 0;
-        width: 80mm; /* 🚀 Tamanho da bobina térmica padrão */
+
+        width: 80mm;
+
         margin: 0;
+
         padding: 5mm;
-        font-family: 'Courier New', Courier, monospace; /* Fonte monoespaçada é melhor para cupons */
+
+        font-family:
+            'Courier New',
+            Courier,
+            monospace;
+
         color: #000;
+
         background: #fff;
+
         font-size: 13px;
+
         line-height: 1.2;
     }
 
-    /* Arranca as margens padrão do Chrome/Edge */
+
     @page {
         margin: 0;
         size: 80mm auto;
-    }
-
-    .divisor {
-        border-top: 1px dashed #000;
-        margin: 8px 0;
-    }
-
-    .cabecalho, .rodape {
-        text-align: center;
-    }
-
-    .itemCaixa {
-        margin-bottom: 8px;
-    }
-
-    .alimentoLista {
-        list-style-type: none;
-        padding-left: 10px;
-        margin: 3px 0 0 0;
-        font-size: 11px;
     }
 }

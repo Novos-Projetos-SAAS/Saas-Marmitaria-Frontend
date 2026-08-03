@@ -2,15 +2,15 @@
 
 import styles from "./selectForm.module.css";
 
-export default function SelectForm({ 
-    label, 
-    name, 
-    options = [], 
-    error, 
+export default function SelectForm({
+    label,
+    name,
+    options = [],
+    error,
     isLoading = false,
     loadingText = "Carregando...",
     placeholder = "Selecione...",
-    ...props 
+    ...props
 }) {
     return (
         <div className={styles.inputGroup}>
@@ -19,7 +19,7 @@ export default function SelectForm({
                     {label}
                 </label>
             )}
-            
+
             <select
                 id={name}
                 name={name}
@@ -35,16 +35,36 @@ export default function SelectForm({
                     <>
                         {/* Mostra o placeholder apenas se não houver valor selecionado */}
                         {!props.value && <option value="" disabled>{placeholder}</option>}
-                        
+
                         {options.map((option) => (
-                            <option key={option.value} value={option.value}>
+
+                            <option
+                                key={
+                                    option.value
+                                }
+
+                                value={
+                                    option.value
+                                }
+
+                                /**
+                                 * Permite mostrar categorias inativas
+                                 * sem permitir que sejam escolhidas
+                                 * para novos produtos.
+                                 */
+                                disabled={
+                                    option.disabled === true
+                                }
+                            >
+
                                 {option.label}
+
                             </option>
                         ))}
                     </>
                 )}
             </select>
-            
+
             {error && <span className={styles.errorText}>{error}</span>}
         </div>
     );

@@ -40,7 +40,7 @@
 //         if (!formData.nome_cliente) {
 //             return toast.error("O nome do cliente é obrigatório.");
 //         }
-        
+
 //         if (!formData.metodo_pagamento_id) {
 //             return toast.error("Selecione um método de pagamento.");
 //         }
@@ -50,7 +50,7 @@
 //         }
 
 //         const sucesso = await finalizarPedidoNoBanco(formData);
-        
+
 //         if (sucesso) {
 //             voltarParaLista();
 //         }
@@ -76,11 +76,11 @@
 //                         <X size={20} />
 //                     </button>
 //                 </div>
-                
+
 //                 <div className={styles.gridForm}>
 //                     <div className={styles.coluna}>
 //                         <h3 className={styles.sectionTitle}><User size={18} /> Dados do Cliente</h3>
-                        
+
 //                         <div className={styles.inputGroup}>
 //                             <label>Nome do Cliente *</label>
 //                             <input 
@@ -114,7 +114,7 @@
 //                                     <option value="Entrega">Entrega (Delivery)</option>
 //                                 </select>
 //                             </div>
-                            
+
 //                             <div className={styles.inputGroup}>
 //                                 <label>Método Pagamento *</label>
 //                                 <select 
@@ -209,7 +209,7 @@
 //                         )}
 //                     </div>
 //                 </div>
-                
+
 //                 <div className={styles.footerAcoes}>
 //                     <button type="button" className={styles.btnCancelar} onClick={voltarParaLista}>
 //                         Cancelar
@@ -241,10 +241,10 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { usePedidos } from "@/hooks/usePedidos"; 
-import { useMetodosPagamento } from "@/hooks/useMetodosPagamento"; 
+import { usePedidos } from "@/hooks/usePedidos";
+import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 
-import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal"; 
+import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal";
 import TelefoneInput from "@/components/ui/inputMask";
 
 import { Save, X, ShoppingBag, User, MapPin, CreditCard } from "lucide-react";
@@ -275,7 +275,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         const { name, value } = e.target;
         setFormData(prev => {
             const newState = { ...prev, [name]: value };
-            
+
             // Limpa os campos de endereço se mudar para Retirada
             if (name === 'metodo_entrega' && value === 'Retirada') {
                 newState.logradouro = '';
@@ -289,38 +289,161 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
     const handleSalvarPedido = async (e) => {
         e.preventDefault();
 
-        if (!formData.nome_cliente) {
+        /**
+         * Valida o nome do cliente antes de montar o payload.
+         */
+        if (!formData.nome_cliente.trim()) {
             return toast.error("O nome do cliente é obrigatório.");
         }
 
-        // Validação específica para o endereço fatiado
+        /**
+         * Remove máscara e qualquer caractere que não seja número.
+         * Exemplo:
+         * (18) 99757-0036 -> 18997570036
+         */
+        const telefoneLimpo = String(
+            formData.telefone_cliente || ""
+        ).replace(/\D/g, "");
+
+        /**
+         * O telefone é obrigatório no formulário.
+         * Também garantimos aqui que um valor válido será enviado ao backend.
+         */
+        if (!telefoneLimpo) {
+            return toast.error("O telefone do cliente é obrigatório.");
+        }
+
+        /**
+         * Validação básica para telefones brasileiros.
+         * Aceita telefone com DDD de 10 ou 11 dígitos.
+         */
+        if (
+            telefoneLimpo.length !== 10 &&
+            telefoneLimpo.length !== 11
+        ) {
+            return toast.error(
+                "Informe um telefone válido com DDD."
+            );
+        }
+
+        /**
+         * Monta o endereço somente quando o pedido for para entrega.
+         */
         let enderecoFinal = null;
-        if (formData.metodo_entrega === 'Entrega') {
-            if (!formData.logradouro || !formData.numero) {
-                return toast.error("Preencha a Rua/Avenida e o Número para entrega.");
+
+        if (formData.metodo_entrega === "Entrega") {
+            if (
+                !formData.logradouro.trim() ||
+                !formData.numero.trim()
+            ) {
+                return toast.error(
+                    "Preencha a Rua/Avenida e o Número para entrega."
+                );
             }
-            
-            // Formata a string exatamente no padrão solicitado antes de enviar
-            enderecoFinal = `${formData.logradouro}, ${formData.numero} - Centro (${formData.complemento || 'Sem complemento'})`;
+
+            /**
+             * Monta o endereço no formato esperado pelo backend.
+             */
+            enderecoFinal =
+                `${formData.logradouro.trim()}, ` +
+                `${formData.numero.trim()} - Centro ` +
+                `(${formData.complemento.trim() || "Sem complemento"})`;
         }
-        
+
+        /**
+         * Valida o método de pagamento.
+         */
         if (!formData.metodo_pagamento_id) {
-            return toast.error("Selecione um método de pagamento.");
+            return toast.error(
+                "Selecione um método de pagamento."
+            );
         }
 
+        /**
+         * O pedido precisa possuir pelo menos uma marmita.
+         */
         if (formData.marmitas.length === 0) {
-            return toast.error("Adicione pelo menos uma marmita ao pedido.");
+            return toast.error(
+                "Adicione pelo menos uma marmita ao pedido."
+            );
         }
 
-        // Prepara o payload final trocando as partes soltas pela string formatada
+        /**
+         * Payload final enviado para a API.
+         *
+         * O frontend envia somente os dados necessários.
+         * Valores e preços devem continuar sendo validados/calculados
+         * pelo backend.
+         */
         const payloadDoBanco = {
-            ...formData,
-            endereco_cliente: enderecoFinal
+            nome_cliente:
+                formData.nome_cliente.trim(),
+
+            telefone_cliente:
+                telefoneLimpo,
+
+            endereco_cliente:
+                enderecoFinal,
+
+            tipo_pedido:
+                formData.tipo_pedido,
+
+            metodo_entrega:
+                formData.metodo_entrega,
+
+            metodo_pagamento_id:
+                Number(formData.metodo_pagamento_id),
+
+            observacoes:
+                formData.observacoes.trim() || null,
+
+            /**
+             * Envia somente tamanho, quantidade e alimentos.
+             */
+            marmitas:
+                formData.marmitas.map((item) => ({
+                    tamanho_id:
+                        Number(item.tamanho_id),
+
+                    quantidade:
+                        Number(item.quantidade),
+
+                    alimentos:
+                        item.alimentos.map(Number),
+                })),
+
+            /**
+             * Mantém suporte aos produtos adicionais,
+             * caso existam no pedido.
+             */
+            produtos:
+                (formData.produtos || []).map(
+                    (produto) => ({
+                        produto_id:
+                            Number(produto.produto_id),
+
+                        quantidade:
+                            Number(produto.quantidade),
+                    })
+                ),
         };
 
-        const sucesso = await finalizarPedidoNoBanco(payloadDoBanco);
-        
-        if (sucesso) {
+        /**
+         * Finaliza o pedido utilizando o fluxo administrativo/PDV.
+         */
+        const resposta =
+            await finalizarPedidoNoBanco(
+                payloadDoBanco,
+                {
+                    admin: true,
+                }
+            );
+
+        /**
+         * Retorna para a listagem somente quando
+         * o pedido tiver sido finalizado com sucesso.
+         */
+        if (resposta) {
             voltarParaLista();
         }
     };
@@ -343,15 +466,15 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         <X size={20} />
                     </button>
                 </div>
-                
+
                 <div className={styles.gridForm}>
                     <div className={styles.coluna}>
                         <h3 className={styles.sectionTitle}><User size={18} /> Dados do Cliente</h3>
-                        
+
                         <div className={styles.inputGroup}>
                             <label>Nome do Cliente *</label>
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 name="nome_cliente"
                                 value={formData.nome_cliente}
                                 onChange={handleChange}
@@ -361,13 +484,20 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         </div>
 
                         <div className={styles.inputGroup}>
-                            <label>Telefone / WhatsApp</label>
-                            <TelefoneInput 
-                                name="telefone_cliente" // 🚀 O nome exato que está no seu formData
-                                value={formData.telefone_cliente}
-                                onChange={handleChange}
+                            <label>
+                                Telefone / WhatsApp *
+                            </label>
+
+                            <TelefoneInput
+                                name="telefone_cliente"
+                                value={
+                                    formData.telefone_cliente
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 placeholder="(00) 00000-0000"
-                                required={false} // No balcão geralmente não é obrigatório
+                                required
                             />
                         </div>
 
@@ -381,7 +511,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                     <option value="Remoto">Telefone / WhatsApp</option>
                                 </select>
                             </div>
-                            
+
                             <div className={styles.inputGroup}>
                                 <label>Forma de Entrega</label>
                                 <select name="metodo_entrega" value={formData.metodo_entrega} onChange={handleChange}>
@@ -397,36 +527,36 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                 <div className={styles.rowInputs} style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                                     <div className={styles.inputGroup} style={{ flex: 3 }}>
                                         <label>Rua / Avenida *</label>
-                                        <input 
-                                            type="text" 
-                                            name="logradouro" 
-                                            required 
-                                            value={formData.logradouro} 
-                                            onChange={handleChange} 
-                                            placeholder="Ex: Rua das Flores" 
+                                        <input
+                                            type="text"
+                                            name="logradouro"
+                                            required
+                                            value={formData.logradouro}
+                                            onChange={handleChange}
+                                            placeholder="Ex: Rua das Flores"
                                         />
                                     </div>
                                     <div className={styles.inputGroup} style={{ flex: 1, minWidth: '80px' }}>
                                         <label>Nº *</label>
-                                        <input 
-                                            type="text" 
-                                            name="numero" 
-                                            required 
-                                            value={formData.numero} 
-                                            onChange={handleChange} 
-                                            placeholder="Ex: 123" 
+                                        <input
+                                            type="text"
+                                            name="numero"
+                                            required
+                                            value={formData.numero}
+                                            onChange={handleChange}
+                                            placeholder="Ex: 123"
                                         />
                                     </div>
                                 </div>
 
                                 <div className={styles.inputGroup}>
                                     <label>Complemento (Opcional)</label>
-                                    <input 
-                                        type="text" 
-                                        name="complemento" 
-                                        value={formData.complemento} 
-                                        onChange={handleChange} 
-                                        placeholder="Casa, Apto 45, Bloco B..." 
+                                    <input
+                                        type="text"
+                                        name="complemento"
+                                        value={formData.complemento}
+                                        onChange={handleChange}
+                                        placeholder="Casa, Apto 45, Bloco B..."
                                     />
                                 </div>
                             </div>
@@ -435,9 +565,9 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         {/* Pagamento movido para debaixo do endereço */}
                         <div className={styles.inputGroup}>
                             <label>Método Pagamento *</label>
-                            <select 
-                                name="metodo_pagamento_id" 
-                                value={formData.metodo_pagamento_id} 
+                            <select
+                                name="metodo_pagamento_id"
+                                value={formData.metodo_pagamento_id}
                                 onChange={handleChange}
                                 required
                             >
@@ -454,7 +584,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
 
                         <div className={styles.inputGroup}>
                             <label>Observações do Pedido</label>
-                            <textarea 
+                            <textarea
                                 name="observacoes"
                                 value={formData.observacoes}
                                 onChange={handleChange}
@@ -487,8 +617,8 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                                 R$ {(item.preco_unitario * item.quantidade).toFixed(2).replace('.', ',')}
                                             </span>
                                         </div>
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className={styles.btnRemoveItem}
                                             onClick={() => removerMarmita(index)}
                                         >
@@ -509,7 +639,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         )}
                     </div>
                 </div>
-                
+
                 <div className={styles.footerAcoes}>
                     <button type="button" className={styles.btnCancelar} onClick={voltarParaLista}>
                         Cancelar
@@ -521,7 +651,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
             </form>
 
             {modalAberto && (
-                <ModalMontarMarmita 
+                <ModalMontarMarmita
                     onClose={() => setModalAberto(false)}
                     onAdicionar={(novaMarmita) => {
                         setFormData(prev => ({
