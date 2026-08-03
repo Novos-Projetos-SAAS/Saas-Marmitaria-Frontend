@@ -49,7 +49,7 @@ export default function Home() {
                     </div>
 
                     <h1 className={styles.titulo}>LA CASA</h1>
-                    <h1 className={styles.titulo}>DE MARMITA</h1>
+                    <h1 className={styles.titulo}>DA MARMITA</h1>
                     <p className={styles.subtitulo}>O sabor que abraçar, comida caseira todos os dias</p>
                 </header>
 
