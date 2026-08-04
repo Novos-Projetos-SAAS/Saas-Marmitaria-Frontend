@@ -1,6 +1,6 @@
 import api from './api';
 
-export async function buscarCategoriasDeAlimentosAdmin(search = '', page = 1, statusFilter = 'all', sort = 'id', order = 'ASC') {
+export async function buscarCategoriasDeAlimentosAdmin(search = '', page = 1, statusFilter = 'all', sort = 'id', order = 'ASC', limit = 10) {
     // 🚀 Traduzindo para a linguagem do backend
     let excluidos = 'mixed';
     if (statusFilter === 'false') excluidos = 'false'; // Apenas ativas
@@ -12,7 +12,7 @@ export async function buscarCategoriasDeAlimentosAdmin(search = '', page = 1, st
             params: {
                 search,
                 page,
-                limit: 10,
+                limit,
                 sort,
                 order,
                 excluidos,       // Bate com o req.query.excluidos
