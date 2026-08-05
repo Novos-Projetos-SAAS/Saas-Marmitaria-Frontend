@@ -286,29 +286,19 @@ export default function PedidosClient() {
                                                                 value={
                                                                     pedido.status
                                                                 }
-
-                                                                onChange={
-                                                                    event =>
+                                                                onChange={   event =>
                                                                         atualizarStatus(
                                                                             pedido.id,
                                                                             event.target.value
                                                                         )
-                                                                }
-                                                            >
-
+                                                                }>
                                                                 {obterStatusOpcoes(
                                                                     pedido
                                                                 ).map(
                                                                     status => (
-
                                                                         <option
-                                                                            key={
-                                                                                status
-                                                                            }
-                                                                            value={
-                                                                                status
-                                                                            }
-                                                                        >
+                                                                            key={status}
+                                                                            value={status}>
                                                                             {status}
                                                                         </option>
                                                                     )
@@ -415,18 +405,7 @@ export default function PedidosClient() {
                                                                         alimento?.id ||
                                                                         idxAli
                                                                     }
-                                                                >
-
-                                                                    ✓ {
-                                                                        typeof alimento ===
-                                                                            'string'
-
-                                                                            ? alimento
-
-                                                                            : alimento.nome
-                                                                    }
-
-                                                                </li>
+                                                                >✓ {typeof alimento ==='string'? alimento: alimento.nome}</li>
                                                             )
                                                         )}
                                                 </ul>
@@ -435,99 +414,31 @@ export default function PedidosClient() {
                                     </div>
                                     {pedidoSelecionado.produtos &&
                                         pedidoSelecionado.produtos.length > 0 && (
-
                                             <>
-
                                                 <hr />
-
-
-                                                <h3>
-                                                    Complementos do Pedido:
-                                                </h3>
-
-
-                                                <div
-                                                    className={
-                                                        styles.marmitasGrid
-                                                    }
-                                                >
-
+                                                <h3>Complementos do Pedido:</h3>
+                                                <div className={styles.marmitasGrid}>
                                                     {pedidoSelecionado
                                                         .produtos
                                                         .map(
                                                             produto => (
-
                                                                 <div
-                                                                    key={
-                                                                        produto.id
-                                                                    }
-                                                                    className={
-                                                                        styles.marmitaCard
-                                                                    }
+                                                                    key={produto.id}
+                                                                    className={styles.marmitaCard}
                                                                 >
-
-                                                                    <div
-                                                                        className={
-                                                                            styles.marmitaHeader
-                                                                        }
-                                                                    >
-
+                                                                    <div className={styles.marmitaHeader}>
                                                                         <span>
-
-                                                                            <b>
-                                                                                {produto.quantidade}x
-                                                                            </b>{' '}
-
+                                                                            <b>{produto.quantidade}x</b>{' '}
                                                                             {produto.nome}
-
                                                                         </span>
-
-
                                                                         <span>
-
-                                                                            R$ {
-
-                                                                                Number(
-                                                                                    produto.subtotal
-                                                                                )
-                                                                                    .toFixed(2)
-                                                                                    .replace(
-                                                                                        '.',
-                                                                                        ','
-                                                                                    )
-                                                                            }
-
+                                                                            R$ {Number(produto.subtotal).toFixed(2).replace('.',',')}
                                                                         </span>
-
                                                                     </div>
-
-
-                                                                    <span
-                                                                        style={{
-                                                                            color:
-                                                                                '#71717A',
-
-                                                                            fontSize:
-                                                                                '0.85rem'
-                                                                        }}
-                                                                    >
-
+                                                                    <span style={{color:'#71717A',fontSize:'0.85rem'}}>
                                                                         {produto.categoria_nome}
-
                                                                         {' • '}
-
-                                                                        R$ {
-
-                                                                            Number(
-                                                                                produto.preco_unitario
-                                                                            )
-                                                                                .toFixed(2)
-                                                                                .replace(
-                                                                                    '.',
-                                                                                    ','
-                                                                                )
-                                                                        }
-
+                                                                        R$ {Number(produto.preco_unitario).toFixed(2).replace('.', ',')}
                                                                         {' cada'}
 
                                                                     </span>
