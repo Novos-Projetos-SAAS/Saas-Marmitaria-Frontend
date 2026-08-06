@@ -3,7 +3,7 @@ import api from "./api";
 /**
  * Inicia a conexão com o software QZ Tray rodando na máquina local.
  */
-const QZ_CERTIFICATE =`-----BEGIN CERTIFICATE-----
+const QZ_CERTIFICATE = `-----BEGIN CERTIFICATE-----
 MIIECzCCAvOgAwIBAgIGAZ/VMIXyMA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG
 EwJVUzELMAkGA1UECAwCTlkxEjAQBgNVBAcMCUNhbmFzdG90YTEbMBkGA1UECgwS
 UVogSW5kdXN0cmllcywgTExDMRswGQYDVQQLDBJRWiBJbmR1c3RyaWVzLCBMTEMx
@@ -38,7 +38,7 @@ qz.security.setSignatureAlgorithm("SHA512");
 
 // 3. Pede para o Backend carimbar a requisição usando a chave privada
 qz.security.setSignaturePromise((toSign) => {
-    return function(resolve, reject) {
+    return function (resolve, reject) {
         // 👇 Bate exatamente na rota que acabamos de criar no Backend
         api.post('/qz/assinar', { request: toSign })
             .then(response => {
@@ -80,35 +80,63 @@ export const desconectarQZ = async () => {
  */
 export const imprimirCupom = async (conteudoHTML, nomeImpressora) => {
     try {
-        // 1. Garante que o QZ Tray está conectado
         await conectarQZ();
 
-        // 2. Busca a impressora exata pelo nome que você salvou nas configurações
+        if (!conteudoHTML) {
+            throw new Error('Conteúdo do cupom não informado.');
+        }
+
+        if (!nomeImpressora) {
+            throw new Error('Nome da impressora não informado.');
+        }
+
         const impressora = await qz.printers.find(nomeImpressora);
-        
-        // 3. Configura a página (Sem margens para bobina térmica)
+
+        if (!impressora) {
+            throw new Error(`Impressora "${nomeImpressora}" não encontrada.`);
+        }
+
         const config = qz.configs.create(impressora, {
-            margins: { top: 0, bottom: 0, left: 0, right: 0 },
-            // Evita que o Windows tente redimensionar e borrar o texto
-            scaleContent: false 
+            units: 'mm',
+            margins: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            },
+            orientation: 'portrait',
+            scaleContent: false
         });
 
-        // 4. Monta o pacote de dados dizendo que é um HTML
+        const documentoHTML = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="UTF-8">
+                </head>
+
+                <body style="width:58mm;margin:0;padding:0;background:#ffffff;">
+                    ${conteudoHTML}
+                </body>
+            </html>
+        `;
+
         const data = [
             {
-                type: 'html',
-                format: 'plain',
-                data: conteudoHTML
+                type: 'pixel',
+                format: 'html',
+                flavor: 'plain',
+                data: documentoHTML
             }
         ];
 
-        // 5. Dispara a impressão!
         await qz.print(config, data);
+
         console.log(`🖨️ Impressão enviada com sucesso para: ${impressora}`);
-        
+
         return true;
     } catch (error) {
-        console.error("❌ Erro na impressão automática:", error);
+        console.error('❌ Erro na impressão automática:', error);
         throw error;
     }
 };
