@@ -1,13 +1,52 @@
+/**
+ * O cupom fica invisível durante o uso normal do sistema.
+ */
 .printOnly {
     display: none;
 }
 
 
+/* ============================================================
+   IMPRESSÃO TÉRMICA — 58 MM
+   ============================================================ */
+
 @media print {
 
+    /**
+     * Esconde todos os elementos da página.
+     */
+    body * {
+        visibility: hidden !important;
+    }
+
+
+    /**
+     * Exibe somente o cupom e seus filhos.
+     */
     .printOnly,
     .printOnly * {
         visibility: visible !important;
+    }
+
+    .printOnly,
+    .printOnly p,
+    .itemCaixa,
+    .alimentoLista li {
+        max-width: 100%;
+
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+
+    html,
+    body {
+        width: 58mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: #ffffff !important;
     }
 
 
@@ -19,29 +58,269 @@
         top: 0;
         left: 0;
 
-        width: 80mm;
+        width: 58mm !important;
+        height: auto !important;
+        min-height: 0 !important;
 
-        margin: 0;
+        /*
+     * Bobina física: 58 mm
+     *
+     * Margem esquerda: 4 mm
+     * Área útil: 50 mm
+     * Margem direita: 4 mm
+     */
+        padding:
+            1mm 8mm 1mm 8mm !important;
 
-        padding: 5mm;
+        margin: 0 !important;
+
+        box-sizing: border-box;
+
+        overflow: visible !important;
+
+        background: #ffffff !important;
+        color: #000000 !important;
 
         font-family:
-            'Courier New',
-            Courier,
-            monospace;
+            Arial,
+            Helvetica,
+            sans-serif !important;
 
-        color: #000;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
 
-        background: #fff;
+        text-rendering: optimizeLegibility;
 
-        font-size: 13px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 
-        line-height: 1.2;
+
+    /**
+     * Remove espaçamento extra depois do último elemento.
+     */
+    .printOnly> :last-child {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
 
 
     @page {
+        size: 58mm auto;
         margin: 0;
-        size: 80mm auto;
     }
+}
+
+
+/* ============================================================
+   CABEÇALHO
+   ============================================================ */
+
+.cabecalho {
+    width: 100%;
+
+    text-align: center;
+
+    margin: 0 0 7px 0;
+    padding: 0;
+}
+
+
+.nomeLoja {
+    margin: 0 0 6px 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    line-height: 1.15;
+
+    text-align: center;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.3px;
+}
+
+
+.cabecalho p {
+    margin: 3px 0;
+
+    font-size: 13.5px;
+
+    font-weight: 700;
+
+    line-height: 1.25;
+}
+
+
+/* ============================================================
+   DIVISORES
+   ============================================================ */
+
+.divisor {
+    width: 100%;
+
+    margin: 6px 0;
+
+    border-top: 2px dashed #000000;
+}
+
+
+/* ============================================================
+   TEXTOS GERAIS
+   ============================================================ */
+
+.printOnly p {
+    margin: 3px 0;
+
+    font-size: 13.5px;
+
+    font-weight: 600;
+
+    line-height: 1.3;
+}
+
+
+.printOnly strong,
+.printOnly b {
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   ITENS DO PEDIDO
+   ============================================================ */
+
+.itemCaixa {
+    width: 100%;
+
+    margin: 0 0 8px 0;
+    padding: 0;
+
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+.itemCaixa>b {
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    line-height: 1.25;
+}
+
+
+.alimentoLista {
+    margin: 3px 0 0 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+
+.alimentoLista li {
+    margin: 2px 0;
+    padding: 0;
+
+    font-size: 13.5px;
+
+    font-weight: 700;
+
+    line-height: 1.25;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   OBSERVAÇÕES
+   ============================================================ */
+
+.observacaoItem {
+    display: block;
+
+    margin: 5px 0 3px 0;
+    padding: 4px;
+
+    border: 2px solid #000000;
+
+    font-size: 13.5px;
+
+    font-weight: 900;
+
+    line-height: 1.25;
+
+    text-transform: uppercase;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   COMPLEMENTOS
+   ============================================================ */
+
+.tituloSecao {
+    margin: 5px 0;
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    text-align: center;
+
+    text-transform: uppercase;
+}
+
+
+/* ============================================================
+   TOTAL
+   ============================================================ */
+
+.totalPedido {
+    display: block;
+
+    margin: 7px 0 4px 0;
+
+    font-size: 16px;
+
+    font-weight: 900;
+
+    line-height: 1.2;
+
+    text-align: left;
+}
+
+
+/* ============================================================
+   RODAPÉ
+   ============================================================ */
+
+.rodape {
+    width: 100%;
+
+    margin-top: 7px;
+
+    text-align: center;
+}
+
+
+.rodape p {
+    margin: 3px 0;
+
+    font-size: 12.5px;
+
+    font-weight: 700;
 }
