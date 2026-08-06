@@ -1,0 +1,138 @@
+/* .formContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cardSection {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 24px;
+    background: #f8fafc;
+}
+
+.cardSection legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    background: #fff;
+    padding: 4px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+} */
+
+/* ==========================================
+   ESTRUTURA GERAL DO FORMULÁRIO
+   ========================================== */
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.cardSection {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 24px;
+    background: #f8fafc;
+}
+
+.cardSection legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    background: #fff;
+    padding: 4px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+/* ==========================================
+   ÁREA DE AÇÕES E BOTÃO DE SALVAR
+   ========================================== */
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e4e4e7; /* Cria uma linha divisória discreta */
+}
+
+.btnSave {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #ea580c; /* Laranja da marca */
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2), 0 2px 4px -1px rgba(234, 88, 12, 0.1);
+    min-width: 220px;
+}
+
+.btnSave:hover:not(:disabled) {
+    background-color: #c2410c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px -1px rgba(234, 88, 12, 0.3), 0 4px 6px -1px rgba(234, 88, 12, 0.2);
+}
+
+.btnSave:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Estado de salvamento (desabilitado) */
+.btnSave:disabled {
+    background-color: #fca5a5;
+    color: #fef2f2;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Texto de carregamento inicial */
+.loadingText {
+    color: #71717a;
+    font-size: 1rem;
+    text-align: center;
+    padding: 2rem;
+}
