@@ -35,6 +35,7 @@ export const useDadosEmpresa = () => {
             return true;
         } catch (error) {
             Swal.fire('Erro', 'Ocorreu um erro ao salvar os dados.', 'error');
+            console.error('Erro ao salvar dados da empresa:', error);
             return false;
         } finally {
             setSaving(false);
