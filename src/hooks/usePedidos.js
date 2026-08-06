@@ -175,7 +175,7 @@ import {
 
 // Importações do QZ Tray e Configurações
 import { buscarDadosEmpresa } from '@/services/dadosEmpresaService.js';
-import { imprimirCupom } from '@/utils/qzService.js';
+import { imprimirCupom } from '@/services/qzService.js';
 import CupomPedido from '@/components/CupomPedido/cupomPedido'; // Ajuste a extensão se necessário
 
 export function usePedidos() {

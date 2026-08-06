@@ -1,8 +1,49 @@
 import qz from "qz-tray";
-
+import api from "./api";
 /**
  * Inicia a conexão com o software QZ Tray rodando na máquina local.
  */
+const QZ_CERTIFICATE =`-----BEGIN CERTIFICATE-----
+MIIDCzCCAfOgAwIBAgIULHGw06BhRCFXKNkjmioDGJ8EQsAwDQYJKoZIhvcNAQEL
+BQAwFTETMBEGA1UEAwwKbG9jYWxob3N0fjAeFw0yNjA4MDYwMjM3MjZaFw0zNjA4
+MDMwMjM3MjZaMBUxEzARBgNVBAMMCmxvY2FsaG9zdH4wggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQDDzueRwGXJk0kSYco9SETqY5PSVrgz3XgngGVl1T51
+UCV97692SyDlLY0G5V8PLD9ukxnUAOYxVR8D3vOfxiQzDTIs2f9ljem8rYjj/baZ
+8uQkP9b2L6qQSH220VXS3nbc6GZD3ZSIOrsZcXvYXwxoZ7IvstL+ZPVw9xS+EAM4
+QfIroN1MN3N6EVl1ylMTAe52OhzmtBQ12nIVN5/w41B4RppefBjXNW6LH2Ggxuhy
+n1oTevj+8jYdlJNkfOuss+vlWAE8CvtVkCHTJ03O+t3jKsFy9ukgkKHWK6JPEwoo
+MAS4D6vypIDRAGwh4tWfZ4pEvm4gMnFAmuwXDNoV6S/fAgMBAAGjUzBRMB0GA1Ud
+DgQWBBTlPFZt0zfMej1RxFof6JmHg12omjAfBgNVHSMEGDAWgBTlPFZt0zfMej1R
+xFof6JmHg12omjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAC
+uyNONb0IerwV/9f9lwNWbiinjwHe9hX1IaBi7j/2CZs00Ayi29BuqDMPv+Tlp1Hm
+nNOoOnGlzGc1IyBYXYS90CSSv5yfgIWvHv/hfmgSqRm+GhWP/ZuPe14LBGi+f+eE
+BPK3bOHTSXwIfwhXmPQ2R5VimK/1uoaTqE1YAvF2rcWSOM/ec4ixK1DPeZvjT3Lq
+PClTw4ZzOqxfitSRMphqojbLvZ3shkw4TLQD79DsEYlPr/7FBBlnbGqMXLtAvKXO
+U9kUF2r7Bl9zSWNypv+8gbVdhz2/OScH7RI6f2QdapqoIhjumqWpK1oEg4pFticZ
+007iJ8MvB6ScJdKTfxyt
+-----END CERTIFICATE-----`
+
+
+// 2. Apresenta o "Crachá" (Certificado) para o QZ Tray
+qz.security.setCertificatePromise((resolve, reject) => {
+    resolve(QZ_CERTIFICATE);
+});
+
+// 3. Pede para o Backend carimbar a requisição usando a chave privada
+qz.security.setSignaturePromise((toSign) => {
+    return function(resolve, reject) {
+        // 👇 Bate exatamente na rota que acabamos de criar no Backend
+        api.post('/qz/assinar', { request: toSign })
+            .then(response => {
+                resolve(response.data); // O backend devolve a assinatura, e o QZ Tray libera!
+            })
+            .catch(err => {
+                console.error("Erro ao solicitar assinatura do Backend:", err);
+                reject(err);
+            });
+    };
+});
+
 export const conectarQZ = async () => {
     try {
         if (!qz.websocket.isActive()) {

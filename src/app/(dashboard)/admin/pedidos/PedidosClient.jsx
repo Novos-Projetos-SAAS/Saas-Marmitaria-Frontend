@@ -470,7 +470,7 @@ import { renderToString } from 'react-dom/server';
 
 import { usePedidosAdmin } from "@/hooks/usePedidosAdmin.js";
 import { buscarDadosEmpresa } from "@/services/dadosEmpresaService.js";
-import { imprimirCupom } from "@/utils/qzService.js";
+import { imprimirCupom } from "@/services/qzService.js";
 
 import FormPedidoPresencial from "@/components/forms/pedidoPresencial/pedidoPresencialForm";
 import Pagination from "@/components/ui/pagination";
