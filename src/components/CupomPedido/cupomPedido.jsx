@@ -19,11 +19,7 @@ function obterNomeAlimento(
     alimento
 ) {
 
-    if (
-        typeof alimento ===
-        'string'
-    ) {
-
+    if (typeof alimento === 'string') {
         return alimento;
     }
 
@@ -39,9 +35,7 @@ function moeda(
     valor
 ) {
 
-    return Number(
-        valor || 0
-    )
+    return Number(valor || 0)
         .toFixed(2)
         .replace(
             '.',
@@ -81,55 +75,27 @@ export default function CupomPedido({
                 CABEÇALHO
                ================================================= */}
 
-            <div
-                className={
-                    styles.cabecalho
-                }
-            >
+            <div className={styles.cabecalho}>
 
-                <h2
-                    style={{
-                        margin:
-                            '0 0 5px 0',
-
-                        fontSize:
-                            '18px'
-                    }}
-                >
-                    MARMITARIA DA CRISTINA
+                <h2 className={styles.nomeLoja}>
+                    LA CASA DA MARMITA
+                    {/* CRIE UM JEITO DE TRAZER O NOME DA LOJA */}
                 </h2>
 
 
-                <p
-                    style={{
-                        margin:
-                            0,
-
-                        fontSize:
-                            '14px'
-                    }}
-                >
-
+                <p>
                     <b>
                         Pedido #{pedido.id}
                     </b>
-
                 </p>
 
 
-                <p
-                    style={{
-                        margin:
-                            '5px 0'
-                    }}
-                >
-
+                <p>
                     <b>
                         {pedido.tipo_pedido}
                         {' - '}
                         {pedido.metodo_entrega}
                     </b>
-
                 </p>
 
             </div>
@@ -198,15 +164,7 @@ export default function CupomPedido({
             />
 
 
-            <p
-                style={{
-                    textAlign:
-                        'center',
-
-                    fontWeight:
-                        700
-                }}
-            >
+            <p className={styles.tituloSecao}>
                 ITENS DO PEDIDO
             </p>
 
@@ -226,51 +184,51 @@ export default function CupomPedido({
                 marmita => (
 
                     <div
-                        key={
-                            marmita.id
-                        }
-                        className={
-                            styles.itemCaixa
-                        }
+                        key={marmita.id}
+                        className={styles.itemCaixa}
                     >
 
                         <b>
-
                             {marmita.quantidade}x{' '}
-
                             Marmita {marmita.tamanho}
-
                         </b>
 
 
-                        <ul
-                            className={
-                                styles.alimentoLista
-                            }
-                        >
+                        <ul className={styles.alimentoLista}>
 
-                            {(marmita.alimentos || [])
-                                .map(
-                                    alimento => (
+                            {(marmita.alimentos || []).map(
+                                alimento => (
 
-                                        <li
-                                            key={
-                                                alimento?.id ||
-                                                obterNomeAlimento(
-                                                    alimento
-                                                )
-                                            }
-                                        >
-
-                                            - {obterNomeAlimento(
-                                                alimento
-                                            )}
-
-                                        </li>
-                                    )
-                                )}
+                                    <li
+                                        key={
+                                            alimento?.id ||
+                                            obterNomeAlimento(alimento)
+                                        }
+                                    >
+                                        - {obterNomeAlimento(
+                                            alimento
+                                        )}
+                                    </li>
+                                )
+                            )}
 
                         </ul>
+
+
+                        {marmita.observacao && (
+
+                            <div
+                                className={
+                                    styles.observacaoItem
+                                }
+                            >
+
+                                *** OBS: {
+                                    marmita.observacao
+                                } ***
+
+                            </div>
+                        )}
 
                     </div>
                 )
@@ -292,15 +250,7 @@ export default function CupomPedido({
                     />
 
 
-                    <p
-                        style={{
-                            margin:
-                                '4px 0',
-
-                            fontWeight:
-                                700
-                        }}
-                    >
+                    <p className={styles.tituloSecao}>
                         COMPLEMENTOS
                     </p>
 
@@ -367,14 +317,10 @@ export default function CupomPedido({
 
             <div>
 
-                <p>
-
-                    <b>Total:</b>{' '}
-
-                    R$ {moeda(
+                <p className={styles.totalPedido}>
+                    TOTAL: R$ {moeda(
                         pedido.valor_total
                     )}
-
                 </p>
 
 
@@ -425,6 +371,11 @@ export default function CupomPedido({
                 <p>
                     <b>Bom preparo!</b>
                 </p>
+                <div
+                    className={
+                        styles.divisor
+                    }
+                />
 
             </div>
 

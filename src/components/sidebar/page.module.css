@@ -1,71 +1,104 @@
-/* src/components/Sidebar/Sidebar.module.css */
+/* src/components/Sidebar/page.module.css */
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 
 .sidebar {
-    overflow-y: auto;
-
-    /* Firefox */
-    scrollbar-width: none;
-
-    /* Internet Explorer / Edge antigo */
-    -ms-overflow-style: none;
     width: 260px;
+    height: 100vh;
+    min-height: 0;
     background-color: #1f2937;
     color: #f9fafb;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     transition: transform 0.3s ease;
     z-index: 50;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Chrome, Edge, Safari */
-.sidebar::-webkit-scrollbar {
-    display: none;
-}
 
-.sidebarMenu {
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.sidebarMenu::-webkit-scrollbar {
-    display: none;
-}
+/* ============================================================
+   LOGO / CABEÇALHO
+   ============================================================ */
 
 .logoContainer {
+    flex-shrink: 0;
+    height: 70px;
+    padding: 0 18px 0 24px;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-left: 24px;
-    height: 70px;
     border-bottom: 1px solid #374151;
 }
 
 .logoContainer h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
     margin: 0;
     color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 700;
 }
 
 .btnFecharMobile {
     display: none;
+    margin-left: auto;
+    padding: 4px;
     background: none;
     border: none;
     color: #9ca3af;
-    margin-left: auto;
     cursor: pointer;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.btnFecharMobile:hover {
+    color: #ffffff;
+    background-color: #374151;
+}
+
+
+/* ============================================================
+   ÁREA CENTRAL DO MENU
+   ============================================================ */
+
+.menuWrapper {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .nav {
-    flex: 1;
+    width: 100%;
+    height: 100%;
     padding: 20px 12px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 8px;
     overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+
+    /* Firefox */
+    scrollbar-width: none;
+
+    /* IE / Edge antigo */
+    -ms-overflow-style: none;
 }
+
+/* Chrome, Edge, Opera e Safari */
+.nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+
+/* ============================================================
+   ITEM DO MENU
+   ============================================================ */
 
 .navItem {
     display: flex;
@@ -76,7 +109,7 @@
     color: #d1d5db;
     text-decoration: none;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .navItem:hover {
@@ -93,42 +126,190 @@
     background-color: #c2410c;
 }
 
-.logoutContainer {
+
+/* ============================================================
+   ÁREA DOS INDICADORES
+   ============================================================ */
+
+/**
+ * Essas áreas criam o degradê no topo ou no final do menu.
+ * pointer-events: none permite continuar utilizando o scroll
+ * normalmente sobre o degradê.
+ */
+.scrollAreaIndicator {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 58px;
+    display: flex;
+    justify-content: center;
+    z-index: 30;
+    pointer-events: none;
+}
+
+.scrollAreaTop {
+    top: 0;
+    align-items: flex-start;
+    padding-top: 7px;
+    background: linear-gradient(
+        to bottom,
+        rgba(31, 41, 55, 1) 0%,
+        rgba(31, 41, 55, 0.92) 48%,
+        rgba(31, 41, 55, 0) 100%
+    );
+}
+
+.scrollAreaBottom {
+    bottom: 0;
+    align-items: flex-end;
+    padding-bottom: 7px;
+    background: linear-gradient(
+        to top,
+        rgba(31, 41, 55, 1) 0%,
+        rgba(31, 41, 55, 0.92) 48%,
+        rgba(31, 41, 55, 0) 100%
+    );
+}
+
+
+/* ============================================================
+   BOTÕES DOS INDICADORES
+   ============================================================ */
+
+.scrollIndicator {
+    width: 36px;
+    height: 36px;
+    padding: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding-left: 12px;
+    justify-content: center;
+    background-color: #374151;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scrollIndicator:hover {
+    background-color: #ea580c;
+    box-shadow: 0 5px 16px rgba(234, 88, 12, 0.3);
+}
+
+
+/* ============================================================
+   INDICADOR SUPERIOR
+   ============================================================ */
+
+.scrollIndicatorTop {
+    animation: sidebarScrollPulseUp 1.4s ease-in-out infinite;
+}
+
+@keyframes sidebarScrollPulseUp {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.78;
+    }
+
+    50% {
+        transform: translateY(-4px) scale(1.08);
+        opacity: 1;
+    }
+}
+
+
+/* ============================================================
+   INDICADOR INFERIOR
+   ============================================================ */
+
+.scrollIndicatorBottom {
+    animation: sidebarScrollPulseDown 1.4s ease-in-out infinite;
+}
+
+@keyframes sidebarScrollPulseDown {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.78;
+    }
+
+    50% {
+        transform: translateY(4px) scale(1.08);
+        opacity: 1;
+    }
+}
+
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+
+.logoutContainer {
+    flex-shrink: 0;
     height: 70px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
     border-top: 1px solid #374151;
+    background-color: #1f2937;
 }
 
 .btnLogout {
+    width: 100%;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 100%;
-    padding: 12px 16px;
     background: transparent;
     border: none;
+    border-radius: 8px;
     color: #ef4444;
     font-size: 1rem;
     font-weight: 500;
-    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s ease;
 }
 
 .btnLogout:hover {
     background-color: rgba(239, 68, 68, 0.1);
 }
 
+
+/* ============================================================
+   ACESSIBILIDADE
+   ============================================================ */
+
+/**
+ * Usuários que solicitaram redução de movimentos no sistema
+ * não recebem a animação pulsante.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .scrollIndicatorTop,
+    .scrollIndicatorBottom {
+        animation: none;
+    }
+
+    .nav {
+        scroll-behavior: auto;
+    }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
-        height: 100vh;
+        height: 100dvh;
         transform: translateX(-100%);
+        box-shadow: 8px 0 24px rgba(0, 0, 0, 0.22);
     }
 
     .sidebarAberta {
@@ -136,6 +317,8 @@
     }
 
     .btnFecharMobile {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }

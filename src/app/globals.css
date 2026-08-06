@@ -52,6 +52,33 @@ table {
     
 }
 
+/* 
+===========================================
+
+    REMOVER SCROLLBAR
+
+===========================================
+
+ */
+
+
+/* Chrome, Edge, Opera e Safari */
+::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+}
+
+/* Firefox */
+html {
+    scrollbar-width: none !important;
+}
+
+/* IE */
+body {
+    -ms-overflow-style: none !important;
+}
+
 
 @media screen {
     .area-impressao {
