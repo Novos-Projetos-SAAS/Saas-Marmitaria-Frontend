@@ -86,10 +86,11 @@ body {
     }
 }
 
-@media print {
+/* @media print {
     body * {
         visibility: hidden;
     }
+    
     .no-print {
         display: none !important;
     }
@@ -100,10 +101,89 @@ body {
     
     .area-impressao {
         display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
+
         width: 100%;
-        padding: 20px;
+        padding: 10px;
+    }
+} */
+
+/* -----------------------------------*/
+/* @media print {
+    
+    @page {
+        size: landscape;
+        margin: 1cm; 
+    }
+    
+    body * {
+        visibility: hidden;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    .area-impressao, .area-impressao * {
+        visibility: visible;
+    }
+    
+    .area-impressao {
+        display: block !important;
+        width: 100%;
+        padding: 10px;
+    }
+} */
+/* -----------------------------------*/
+
+@media print {
+    /* 1. Orientação e margem */
+    @page {
+        size: landscape;
+        margin: 1cm;
+    }
+
+    /* 2. OPÇÃO NUCLEAR: Destrava qualquer div que esteja bloqueando a paginação */
+    *, *::before, *::after {
+        overflow: visible !important;
+        max-height: none !important;
+    }
+
+    /* 3. Força os containers principais a não usarem Flexbox (Flexbox quebra a página) */
+    html, body, #__next, #root {
+        height: auto !important;
+        display: block !important; 
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 4. Esconde o sistema */
+    .no-print {
+        display: none !important;
+    }
+    
+    /* 5. Exibe a tabela livremente */
+    .area-impressao {
+        display: block !important;
+        position: static !important;
+        width: 100%;
+    }
+
+    /* 6. Regras de quebra de tabela */
+    .tabela-impressao {
+        page-break-inside: auto;
+    }
+    
+    .tabela-impressao thead {
+        display: table-header-group;
+    }
+    
+    .tabela-impressao tfoot {
+        display: table-footer-group;
+    }
+    
+    .tabela-impressao tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
     }
 }

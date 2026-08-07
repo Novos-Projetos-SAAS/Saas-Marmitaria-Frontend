@@ -31,8 +31,19 @@ const CAMPOS_DINHEIRO = [
     "faturamento"
 ];
 
-const ehCampoDinheiro = (chave = "") =>
-    CAMPOS_DINHEIRO.some(campo => chave.includes(campo));
+// const ehCampoDinheiro = (chave = "") =>
+//     CAMPOS_DINHEIRO.some(campo => chave.includes(campo));
+
+const ehCampoDinheiro = (chave = "") => {
+    const chaveMinuscula = chave.toLowerCase();
+
+    // Se a chave for uma data, bloqueia a formatação de dinheiro imediatamente
+    if (chaveMinuscula.includes("data") || chaveMinuscula.includes("criado_em")) {
+        return false;
+    }
+
+    return CAMPOS_DINHEIRO.some(campo => chaveMinuscula.includes(campo));
+};
 
 const formatarValor = (valor, chave) => {
 
@@ -77,17 +88,22 @@ export default function RelatoriosClient() {
         try {
             const relatorioGerado = await fetchDadosRelatorio(relatorioSelecionado.id, filtros);
 
+            const relatorioComFiltros = {
+                ...relatorioGerado,
+                filtros_aplicados: filtros
+            };
+
             if (acaoSelecionada === 'excel') {
-                gerarExcel(relatorioGerado);
+                gerarExcel(relatorioComFiltros);
             } else if (acaoSelecionada === 'pdf') {
-                gerarPDF(relatorioGerado);
+                gerarPDF(relatorioComFiltros);
             } else if (acaoSelecionada === 'imprimir') {
-                setDadosImpressao(relatorioGerado);
+                setDadosImpressao(relatorioComFiltros);
                 setTimeout(() => window.print(), 800);
             }
 
             setRelatorioSelecionado(null);
-        
+
         } catch (error) {
             console.error(error);
             Swal.fire('Erro', 'Falha ao gerar o relatório. Verifique o console.', 'error');
@@ -95,7 +111,7 @@ export default function RelatoriosClient() {
     };
 
     const columns = [
-    
+
         { header: "Nome do Relatório", accessor: "nome" },
         {
             header: "Descrição",
@@ -119,21 +135,21 @@ export default function RelatoriosClient() {
                                     <FileText size={18} color="#dc2626" />
                                 </button>
 
-                                <button onClick={() => handleAbrirAcao(item, 'excel')} className={styles.actionButton} title="Gerar Excel">
+                                {/* <button onClick={() => handleAbrirAcao(item, 'excel')} className={styles.actionButton} title="Gerar Excel">
                                     <Download size={18} color="#16a34a" />
-                                </button>
-                                
+                                </button> */}
+
                                 <button onClick={() => handleAbrirAcao(item, 'imprimir')} className={styles.actionButton} title="Imprimir Relatório">
                                     <Printer size={18} color="#2563eb" />
                                 </button>
                             </Can>
                         </div>
-                        
+
                         {/* 📱 AÇÕES DE MOBILE (ActionMenu) */}
                         <div className={styles.mobileActions}>
-                        
+
                             <Can perform="relatorios.gerar">
-                        
+
                                 <ReportActionMenu isLast={isLastItems}>
                                     <button
                                         type="button"
@@ -141,11 +157,11 @@ export default function RelatoriosClient() {
                                         onClick={() => handleAbrirAcao(item, "pdf")}
                                     >
                                         <FileText size={16} color="#dc2626" />
-                        
-                                        <span>Gerar PDF</span>
-                        
-                                    </button>
 
+                                        <span>Gerar PDF</span>
+
+                                    </button>
+                                    {/* 
                                     <button
                                         type="button"
                                         className={reportActionMenuStyles.item}
@@ -153,7 +169,7 @@ export default function RelatoriosClient() {
                                     >
                                         <Download size={16} color="#16a34a" />
                                         <span>Gerar Excel</span>
-                                    </button>
+                                    </button> */}
 
                                     <button
                                         type="button"
@@ -176,7 +192,7 @@ export default function RelatoriosClient() {
         <>
             <div className="no-print">
                 <div className={styles.wrapper}>
-    
+
                     {/* BARRA DE PESQUISA (Alinhada com Usuarios) */}
                     <div className={styles.actionsBar}>
                         <div className={styles.filtersGroup}>
@@ -192,15 +208,15 @@ export default function RelatoriosClient() {
                             </div>
                         </div>
                     </div>
-    
+
                     <div className={styles.tableContainer}>
                         <Table columns={columns} data={relatoriosFiltrados} isLoading={loading} />
                     </div>
-    
+
                 </div>
-    
+
                 {relatorioSelecionado && (
-    
+
                     <ModalFiltrosRelatorio
                         relatorio={relatorioSelecionado}
                         acao={acaoSelecionada}
@@ -210,20 +226,71 @@ export default function RelatoriosClient() {
                     />
                 )}
             </div>
-            
-            {/* TABELA DE IMPRESSÃO */}
+
             {dadosImpressao && (
-            
-                <div className={styles.printOnly}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '20px', fontFamily: 'sans-serif' }}>
-                        {dadosImpressao.nome}
-                    </h2>
-                
-                    <table className="tabela-impressao" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', fontFamily: 'sans-serif' }}>
+                <div className="area-impressao">
+
+                    <div style={{ marginBottom: '20px', fontFamily: 'Helvetica, Arial, sans-serif' }}>
+                        <h2 style={{ textAlign: 'left', margin: '0 0 8px 0', fontSize: '24px', color: '#111827' }}>
+                            {dadosImpressao.nome}
+                        </h2>
+
+                        {/* Exibe os filtros se eles existirem */}
+                        {dadosImpressao.filtros_aplicados && (
+                            <div style={{ fontSize: '14px', color: '#4b5563' }}>
+
+                                {/* Linha do Período */}
+                                {(dadosImpressao.filtros_aplicados.data_inicio || dadosImpressao.filtros_aplicados.data_fim) && (
+                                    <p style={{ margin: '0 0 4px 0' }}>
+                                        <strong>Período: </strong>
+                                        {dadosImpressao.filtros_aplicados.data_inicio
+                                            ? dadosImpressao.filtros_aplicados.data_inicio.split('-').reverse().join('/')
+                                            : 'Início dos registros'
+                                        }
+                                        {' até '}
+                                        {dadosImpressao.filtros_aplicados.data_fim
+                                            ? dadosImpressao.filtros_aplicados.data_fim.split('-').reverse().join('/')
+                                            : 'Hoje'
+                                        }
+                                    </p>
+                                )}
+
+                                {/* Loop DINÂMICO para o restante dos filtros */}
+                                {Object.entries(dadosImpressao.filtros_aplicados).map(([chave, valor]) => {
+                                    // Pula as datas (já exibidas) e valores em branco
+                                    if (chave === 'data_inicio' || chave === 'data_fim' || !valor) return null;
+
+                                    // Limpa a chave (ex: "tipo_entrega" vira "Tipo Entrega")
+                                    const labelFormatada = chave.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                                    return (
+                                        <p key={chave} style={{ margin: '0 0 4px 0' }}>
+                                            <strong>{labelFormatada}: </strong>
+                                            <span style={{ textTransform: 'capitalize' }}>
+                                                {String(valor)}
+                                            </span>
+                                        </p>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <table className="tabela-impressao" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: 'Helvetica, Arial, sans-serif' }}>
                         <thead>
                             <tr>
                                 {dadosImpressao.colunas.map((c, i) => (
-                                    <th key={i} style={{ border: '1px solid #000', padding: '6px', textAlign: 'left', background: '#f4f4f5' }}>
+                                    <th key={i} style={{
+                                        border: '1px solid #d1d5db',
+                                        padding: '10px 8px',
+                                        textAlign: 'left',
+                                        background: '#1f2937', // Fundo escuro igual PDF
+                                        color: '#ffffff', // Texto branco igual PDF
+                                        fontWeight: 'bold',
+                                        boxShadow: 'inset 0 0 0 1000px #1f2937',
+                                        WebkitPrintColorAdjust: 'exact',
+                                        printColorAdjust: 'exact'
+                                    }}>
                                         {c.label}
                                     </th>
                                 ))}
@@ -231,24 +298,34 @@ export default function RelatoriosClient() {
                         </thead>
                         <tbody>
                             {dadosImpressao.dados.length > 0 ? (
-                                dadosImpressao.dados.map((linha, i) => (
-                                    <tr key={i}>
-                                        {dadosImpressao.colunas.map((col, j) => (
-                                            <td key={j} style={{ border: "1px solid #000", padding: "6px" }}>
-                                                {formatarValor(linha[col.chave], col.chave)}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))
+                                dadosImpressao.dados.map((linha, i) => {
+                                    // Alternar a cor da linha (zebra) como no PDF
+                                    const bgColor = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+
+                                    return (
+                                        <tr key={i} style={{
+                                            background: bgColor,
+                                            boxShadow: `inset 0 0 0 1000px ${bgColor}`,
+                                            WebkitPrintColorAdjust: 'exact',
+                                            printColorAdjust: 'exact'
+                                        }}>
+                                            {dadosImpressao.colunas.map((col, j) => (
+                                                <td key={j} style={{ border: "1px solid #d1d5db", padding: "8px", color: "#374151" }}>
+                                                    {formatarValor(linha[col.chave], col.chave)}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
-                                    <td colSpan={dadosImpressao.colunas.length} style={{ border: "1px solid #000", padding: "10px", textAlign: "center" }}>
+                                    <td colSpan={dadosImpressao.colunas.length} style={{ border: "1px solid #d1d5db", padding: "10px", textAlign: "center" }}>
                                         Nenhum registro encontrado.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
-                
+
                         {dadosImpressao.dados.length > 0 && (
                             <tfoot>
                                 <tr id="linha-total-print">
@@ -275,12 +352,12 @@ export default function RelatoriosClient() {
 }
 
 const tdTotalStyle = {
-    border: '1px solid #000',
-    padding: '8px 6px',
+    border: '1px solid #9ca3af',
+    padding: '10px 8px',
     fontWeight: 'bold',
-    background: '#ea580c',
-    color: '#ffffff',
-    boxShadow: 'inset 0 0 0 1000px #ea580c',
+    background: '#e5e7eb',
+    color: '#111827',
+    boxShadow: 'inset 0 0 0 1000px #e5e7eb',
     WebkitPrintColorAdjust: 'exact',
     printColorAdjust: 'exact'
 };

@@ -16,7 +16,7 @@ export default function RelatoriosPage() {
         // Envolvemos a página inteira com a permissão exigida
         <Can perform="relatorios.visualizar" fallback={<AccessDenied />}>
             <div className={styles.container}>
-                <h1 className={styles.title}>Painel de Relatórios</h1>   
+                <h1 className={`${styles.title} no-print`}>Painel de Relatórios</h1>   
                 <RelatoriosClient />
             </div>
         </Can>
