@@ -14,6 +14,7 @@ export default function ModalFiltrosRelatorio({ relatorio, acao, onClose, onConf
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         onConfirm(filtrosSelecionados);
     };
 
