@@ -68,6 +68,24 @@ export default function RelatoriosClient() {
         fetchRelatorios();
     }, [fetchRelatorios]);
 
+    useEffect(() => {
+        if (dadosImpressao) {
+            // Dá tempo para o navegador pintar a tabela no DOM
+            const timer = setTimeout(() => {
+                window.print();
+            }, 500);
+
+            // Limpa os dados da memória quando o usuário fechar a tela de impressão
+            const onAfterPrint = () => setDadosImpressao(null);
+            window.addEventListener('afterprint', onAfterPrint);
+
+            return () => {
+                clearTimeout(timer);
+                window.removeEventListener('afterprint', onAfterPrint);
+            };
+        }
+    }, [dadosImpressao]);
+
     const relatoriosFiltrados = useMemo(() => {
 
         if (!inputValue) return relatorios;
@@ -99,7 +117,6 @@ export default function RelatoriosClient() {
                 gerarPDF(relatorioComFiltros);
             } else if (acaoSelecionada === 'imprimir') {
                 setDadosImpressao(relatorioComFiltros);
-                setTimeout(() => window.print(), 800);
             }
 
             setRelatorioSelecionado(null);
@@ -229,6 +246,29 @@ export default function RelatoriosClient() {
 
             {dadosImpressao && (
                 <div className="area-impressao">
+
+                    <style media="print">
+                        {`
+                            @page { size: landscape; margin: 1cm; }
+                            html, body, #__next, #root, main { 
+                                height: auto !important; 
+                                overflow: visible !important;
+                                display: block !important; 
+                            }
+                            .no-print { display: none !important; }
+                            .area-impressao { 
+                                display: block !important; 
+                                position: static !important; 
+                                width: 100% !important;
+                                visibility: visible !important;
+                            }
+                            .area-impressao * { visibility: visible !important; }
+                            .tabela-impressao { page-break-inside: auto; }
+                            .tabela-impressao thead { display: table-header-group; }
+                            .tabela-impressao tfoot { display: table-footer-group; }
+                            .tabela-impressao tr { page-break-inside: avoid; page-break-after: auto; }
+                        `}
+                    </style>
 
                     <div style={{ marginBottom: '20px', fontFamily: 'Helvetica, Arial, sans-serif' }}>
                         <h2 style={{ textAlign: 'left', margin: '0 0 8px 0', fontSize: '24px', color: '#111827' }}>
