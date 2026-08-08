@@ -1,8 +1,249 @@
+// 'use client'
+
+// import { useState, useEffect } from "react";
+// import { usePedidos } from "@/hooks/usePedidos"; 
+// import { useMetodosPagamento } from "@/hooks/useMetodosPagamento"; 
+
+// // 🚀 1. Importando o Modal que você criou
+// import ModalMontarMarmita from "@/components/modals/montarMarmitaModal"; // Ajuste o caminho se necessário
+
+// import { Save, X, ShoppingBag, User, MapPin, CreditCard } from "lucide-react";
+// import toast from "react-hot-toast";
+// import styles from "./pedidoPresencialForm.module.css";
+
+// export default function FormPedidoPresencial({ voltarParaLista }) {
+//     const { finalizarPedidoNoBanco, enviando } = usePedidos();
+//     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
+
+//     // 🚀 2. Estado para controlar a abertura/fechamento do Modal
+//     const [modalAberto, setModalAberto] = useState(false);
+
+//     const [formData, setFormData] = useState({
+//         nome_cliente: '',
+//         telefone_cliente: '',
+//         endereco_cliente: '',
+//         tipo_pedido: 'Presencial',
+//         metodo_entrega:'Entrega',
+//         metodo_pagamento_id: '',
+//         observacoes: '',
+//         marmitas: []
+//     });
+
+//     const handleChange = (e) => {
+//         const { name, value } = e.target;
+//         setFormData(prev => ({ ...prev, [name]: value }));
+//     };
+
+//     const handleSalvarPedido = async (e) => {
+//         e.preventDefault();
+
+//         if (!formData.nome_cliente) {
+//             return toast.error("O nome do cliente é obrigatório.");
+//         }
+
+//         if (!formData.metodo_pagamento_id) {
+//             return toast.error("Selecione um método de pagamento.");
+//         }
+
+//         if (formData.marmitas.length === 0) {
+//             return toast.error("Adicione pelo menos uma marmita ao pedido.");
+//         }
+
+//         const sucesso = await finalizarPedidoNoBanco(formData);
+
+//         if (sucesso) {
+//             voltarParaLista();
+//         }
+//     };
+
+//     // 🚀 3. Função para remover um item do carrinho caso o Admin desista
+//     const removerMarmita = (index) => {
+//         const novasMarmitas = [...formData.marmitas];
+//         novasMarmitas.splice(index, 1);
+//         setFormData(prev => ({ ...prev, marmitas: novasMarmitas }));
+//     };
+
+//     // 🚀 Envolvemos o return em um Fragment <> </> para podermos renderizar o Modal por cima do Form
+//     return (
+//         <>
+//             <form onSubmit={handleSalvarPedido} className={styles.cardGeral}>
+//                 <div className={styles.header}>
+//                     <div>
+//                         <h2>Novo Pedido (PDV)</h2>
+//                         <p className={styles.textHint}>Registe um pedido feito presencialmente ou por telefone.</p>
+//                     </div>
+//                     <button type="button" className={styles.btnFechar} onClick={voltarParaLista}>
+//                         <X size={20} />
+//                     </button>
+//                 </div>
+
+//                 <div className={styles.gridForm}>
+//                     <div className={styles.coluna}>
+//                         <h3 className={styles.sectionTitle}><User size={18} /> Dados do Cliente</h3>
+
+//                         <div className={styles.inputGroup}>
+//                             <label>Nome do Cliente *</label>
+//                             <input 
+//                                 type="text" 
+//                                 name="nome_cliente"
+//                                 value={formData.nome_cliente}
+//                                 onChange={handleChange}
+//                                 placeholder="Ex: João Silva"
+//                                 required
+//                             />
+//                         </div>
+
+//                         <div className={styles.inputGroup}>
+//                             <label>Telefone / WhatsApp</label>
+//                             <input 
+//                                 type="text" 
+//                                 name="telefone_cliente"
+//                                 value={formData.telefone_cliente}
+//                                 onChange={handleChange}
+//                                 placeholder="(00) 00000-0000"
+//                             />
+//                         </div>
+
+//                         <h3 className={styles.sectionTitle}><MapPin size={18} /> Entrega e Pagamento</h3>
+
+//                         <div className={styles.rowInputs}>
+//                             <div className={styles.inputGroup}>
+//                                 <label>Tipo de Pedido</label>
+//                                 <select name="tipo_pedido" value={formData.tipo_pedido} onChange={handleChange}>
+//                                     <option value="Balcão">Retirar no Balcão</option>
+//                                     <option value="Entrega">Entrega (Delivery)</option>
+//                                 </select>
+//                             </div>
+
+//                             <div className={styles.inputGroup}>
+//                                 <label>Método Pagamento *</label>
+//                                 <select 
+//                                     name="metodo_pagamento_id" 
+//                                     value={formData.metodo_pagamento_id} 
+//                                     onChange={handleChange}
+//                                     required
+//                                 >
+//                                     <option value="" disabled>
+//                                         {loadingMetodosPagamento ? 'Carregando opções...' : 'Selecione...'}
+//                                     </option>
+//                                     {metodosPagamento && metodosPagamento.map(metodo => (
+//                                         <option key={metodo.id} value={metodo.id}>
+//                                             {metodo.nome}
+//                                         </option>
+//                                     ))}
+//                                 </select>
+//                             </div>
+//                         </div>
+
+//                         {formData.tipo_pedido === 'Entrega' && (
+//                             <div className={styles.inputGroup}>
+//                                 <label>Endereço Completo *</label>
+//                                 <input 
+//                                     type="text" 
+//                                     name="endereco_cliente"
+//                                     value={formData.endereco_cliente}
+//                                     onChange={handleChange}
+//                                     placeholder="Rua, Número, Bairro"
+//                                     required={formData.tipo_pedido === 'Entrega'}
+//                                 />
+//                             </div>
+//                         )}
+
+//                         <div className={styles.inputGroup}>
+//                             <label>Observações do Pedido</label>
+//                             <textarea 
+//                                 name="observacoes"
+//                                 value={formData.observacoes}
+//                                 onChange={handleChange}
+//                                 placeholder="Troco para R$50, entregar na portaria, etc."
+//                                 rows="2"
+//                             />
+//                         </div>
+//                     </div>
+
+//                     <div className={styles.colunaItens}>
+//                         <div className={styles.headerItens}>
+//                             <h3 className={styles.sectionTitle}><ShoppingBag size={18} /> Itens do Pedido</h3>
+//                             {/* 🚀 4. Botão agora abre o Modal */}
+//                             <button type="button" className={styles.btnAddItem} onClick={() => setModalAberto(true)}>
+//                                 + Adicionar Marmita
+//                             </button>
+//                         </div>
+
+//                         <div className={styles.listaItens}>
+//                             {formData.marmitas.length === 0 ? (
+//                                 <div className={styles.emptyCart}>
+//                                     <p>Nenhum item adicionado ainda.</p>
+//                                 </div>
+//                             ) : (
+//                                 formData.marmitas.map((item, index) => (
+//                                     <div key={index} className={styles.itemCart}>
+//                                         <div className={styles.itemCartInfo}>
+//                                             {/* 🚀 5. Lendo os dados reais que vieram do Modal */}
+//                                             <strong>{item.quantidade}x Marmita {item.tamanho_nome}</strong>
+//                                             <small>{item.alimentos.length} alimentos selecionados</small>
+//                                             <span style={{ color: '#ea580c', fontWeight: '600', marginTop: '4px' }}>
+//                                                 R$ {(item.preco_unitario * item.quantidade).toFixed(2).replace('.', ',')}
+//                                             </span>
+//                                         </div>
+//                                         <button 
+//                                             type="button" 
+//                                             className={styles.btnRemoveItem}
+//                                             onClick={() => removerMarmita(index)}
+//                                         >
+//                                             <X size={16} />
+//                                         </button>
+//                                     </div>
+//                                 ))
+//                             )}
+//                         </div>
+
+//                         {/* 🚀 Opcional: Mostra o Total do Pedido em baixo */}
+//                         {formData.marmitas.length > 0 && (
+//                             <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px dashed #e4e4e7', display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
+//                                 <strong>Total:</strong>
+//                                 <strong style={{ color: '#ea580c' }}>
+//                                     R$ {formData.marmitas.reduce((acc, item) => acc + (item.preco_unitario * item.quantidade), 0).toFixed(2).replace('.', ',')}
+//                                 </strong>
+//                             </div>
+//                         )}
+//                     </div>
+//                 </div>
+
+//                 <div className={styles.footerAcoes}>
+//                     <button type="button" className={styles.btnCancelar} onClick={voltarParaLista}>
+//                         Cancelar
+//                     </button>
+//                     <button type="submit" className={styles.btnSalvar} disabled={enviando}>
+//                         {enviando ? "A registar..." : <><Save size={18} /> Confirmar Pedido</>}
+//                     </button>
+//                 </div>
+//             </form>
+
+//             {/* 🚀 6. O componente do Modal renderizado condicionalmente */}
+//             {modalAberto && (
+//                 <ModalMontarMarmita 
+//                     onClose={() => setModalAberto(false)}
+//                     onAdicionar={(novaMarmita) => {
+//                         // Recebe o pacote do modal e adiciona ao estado
+//                         setFormData(prev => ({
+//                             ...prev,
+//                             marmitas: [...prev.marmitas, novaMarmita]
+//                         }));
+//                         toast.success("Marmita adicionada ao pedido!");
+//                     }}
+//                 />
+//             )}
+//         </>
+//     );
+// }
+
 'use client'
 
 import { useState, useEffect } from "react";
 import { usePedidos } from "@/hooks/usePedidos";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
+import { useProdutosCardapio } from "@/hooks/useProdutosCardapio";
 
 import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal";
 import TelefoneInput from "@/components/ui/inputMask";
@@ -14,9 +255,12 @@ import styles from "./pedidoPresencialForm.module.css";
 export default function FormPedidoPresencial({ voltarParaLista }) {
     const { finalizarPedidoNoBanco, enviando } = usePedidos();
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
+    const { categoriasProdutos, loading: loadingProdutos } = useProdutosCardapio();
 
     const [modalAberto, setModalAberto] = useState(false);
+    const [produtoSelecionado, setProdutoSelecionado] = useState('');
 
+    // Estado atualizado com os campos de endereço separados
     const [formData, setFormData] = useState({
         nome_cliente: '',
         telefone_cliente: '',
@@ -28,26 +272,13 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         metodo_pagamento_id: '',
         observacoes: '',
         marmitas: [],
-        precisa_troco: false, // <-- Adicionado
-        troco_para: ''        // <-- Adicionado
+        produtos: []
     });
 
-    // Identifica se o método selecionado é Dinheiro
-    const isPagamentoDinheiro = metodosPagamento
-        .find(m => String(m.id) === String(formData.metodo_pagamento_id))
-        ?.nome.toLowerCase().includes('dinheiro');
-
-    // Calcula o total atual do pedido para usar nas validações e na UI
-    const totalDoPedido = formData.marmitas.reduce((acc, item) => acc + (item.preco_unitario * item.quantidade), 0);
-
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        
+        const { name, value } = e.target;
         setFormData(prev => {
-            const newState = { 
-                ...prev, 
-                [name]: type === 'checkbox' ? checked : value 
-            };
+            const newState = { ...prev, [name]: value };
 
             // Limpa os campos de endereço se mudar para Retirada
             if (name === 'metodo_entrega' && value === 'Retirada') {
@@ -55,19 +286,6 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                 newState.numero = '';
                 newState.complemento = '';
             }
-
-            // Limpa os campos de troco se a forma de pagamento mudar para algo diferente de dinheiro
-            if (name === 'metodo_pagamento_id') {
-                const isDinheiro = metodosPagamento
-                    .find(m => String(m.id) === String(value))
-                    ?.nome.toLowerCase().includes('dinheiro');
-                
-                if (!isDinheiro) {
-                    newState.precisa_troco = false;
-                    newState.troco_para = '';
-                }
-            }
-
             return newState;
         });
     };
@@ -75,72 +293,160 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
     const handleSalvarPedido = async (e) => {
         e.preventDefault();
 
+        /**
+         * Valida o nome do cliente antes de montar o payload.
+         */
         if (!formData.nome_cliente.trim()) {
             return toast.error("O nome do cliente é obrigatório.");
         }
 
-        const telefoneLimpo = String(formData.telefone_cliente || "").replace(/\D/g, "");
+        /**
+         * Remove máscara e qualquer caractere que não seja número.
+         * Exemplo:
+         * (18) 99757-0036 -> 18997570036
+         */
+        const telefoneLimpo = String(
+            formData.telefone_cliente || ""
+        ).replace(/\D/g, "");
 
+        /**
+         * O telefone é obrigatório no formulário.
+         * Também garantimos aqui que um valor válido será enviado ao backend.
+         */
         if (!telefoneLimpo) {
             return toast.error("O telefone do cliente é obrigatório.");
         }
 
-        if (telefoneLimpo.length !== 10 && telefoneLimpo.length !== 11) {
-            return toast.error("Informe um telefone válido com DDD.");
+        /**
+         * Validação básica para telefones brasileiros.
+         * Aceita telefone com DDD de 10 ou 11 dígitos.
+         */
+        if (
+            telefoneLimpo.length !== 10 &&
+            telefoneLimpo.length !== 11
+        ) {
+            return toast.error(
+                "Informe um telefone válido com DDD."
+            );
         }
 
+        /**
+         * Monta o endereço somente quando o pedido for para entrega.
+         */
         let enderecoFinal = null;
 
         if (formData.metodo_entrega === "Entrega") {
-            if (!formData.logradouro.trim() || !formData.numero.trim()) {
-                return toast.error("Preencha a Rua/Avenida e o Número para entrega.");
+            if (
+                !formData.logradouro.trim() ||
+                !formData.numero.trim()
+            ) {
+                return toast.error(
+                    "Preencha a Rua/Avenida e o Número para entrega."
+                );
             }
-            enderecoFinal = `${formData.logradouro.trim()}, ${formData.numero.trim()} - Centro (${formData.complemento.trim() || "Sem complemento"})`;
+
+            /**
+             * Monta o endereço no formato esperado pelo backend.
+             */
+            enderecoFinal =
+                `${formData.logradouro.trim()}, ` +
+                `${formData.numero.trim()} - Centro ` +
+                `(${formData.complemento.trim() || "Sem complemento"})`;
         }
 
+        /**
+         * Valida o método de pagamento.
+         */
         if (!formData.metodo_pagamento_id) {
-            return toast.error("Selecione um método de pagamento.");
+            return toast.error(
+                "Selecione um método de pagamento."
+            );
         }
 
+        /**
+         * O pedido precisa possuir pelo menos uma marmita.
+         */
         if (formData.marmitas.length === 0) {
-            return toast.error("Adicione pelo menos uma marmita ao pedido.");
+            return toast.error(
+                "Adicione pelo menos uma marmita ao pedido."
+            );
         }
 
-        // Validação do Troco
-        if (isPagamentoDinheiro && formData.precisa_troco) {
-            const valorTroco = parseFloat(String(formData.troco_para).replace(',', '.'));
-            if (isNaN(valorTroco) || valorTroco <= totalDoPedido) {
-                return toast.error(`O valor do troco deve ser maior que o total do pedido (R$ ${totalDoPedido.toFixed(2).replace('.', ',')}).`);
-            }
-        }
-
+        /**
+         * Payload final enviado para a API.
+         *
+         * O frontend envia somente os dados necessários.
+         * Valores e preços devem continuar sendo validados/calculados
+         * pelo backend.
+         */
         const payloadDoBanco = {
-            nome_cliente: formData.nome_cliente.trim(),
-            telefone_cliente: telefoneLimpo,
-            endereco_cliente: enderecoFinal,
-            tipo_pedido: formData.tipo_pedido,
-            metodo_entrega: formData.metodo_entrega,
-            metodo_pagamento_id: Number(formData.metodo_pagamento_id),
-            observacoes: formData.observacoes.trim() || null,
-            
-            // Injeção segura dos dados de troco
-            precisa_troco: isPagamentoDinheiro ? formData.precisa_troco : false,
-            troco_para: isPagamentoDinheiro && formData.precisa_troco ? parseFloat(String(formData.troco_para).replace(',', '.')) : null,
+            nome_cliente:
+                formData.nome_cliente.trim(),
 
-            marmitas: formData.marmitas.map((item) => ({
-                tamanho_id: Number(item.tamanho_id),
-                quantidade: Number(item.quantidade),
-                alimentos: item.alimentos.map(Number),
-            })),
-            
-            produtos: (formData.produtos || []).map((produto) => ({
-                produto_id: Number(produto.produto_id),
-                quantidade: Number(produto.quantidade),
-            })),
+            telefone_cliente:
+                telefoneLimpo,
+
+            endereco_cliente:
+                enderecoFinal,
+
+            tipo_pedido:
+                formData.tipo_pedido,
+
+            metodo_entrega:
+                formData.metodo_entrega,
+
+            metodo_pagamento_id:
+                Number(formData.metodo_pagamento_id),
+
+            observacoes:
+                formData.observacoes.trim() || null,
+
+            /**
+             * Envia somente tamanho, quantidade e alimentos.
+             */
+            marmitas:
+                formData.marmitas.map((item) => ({
+                    tamanho_id:
+                        Number(item.tamanho_id),
+
+                    quantidade:
+                        Number(item.quantidade),
+
+                    alimentos:
+                        item.alimentos.map(Number),
+                })),
+
+            /**
+             * Mantém suporte aos produtos adicionais,
+             * caso existam no pedido.
+             */
+            produtos:
+                (formData.produtos || []).map(
+                    (produto) => ({
+                        produto_id:
+                            Number(produto.produto_id),
+
+                        quantidade:
+                            Number(produto.quantidade),
+                    })
+                ),
         };
 
-        const resposta = await finalizarPedidoNoBanco(payloadDoBanco, { admin: true });
+        /**
+         * Finaliza o pedido utilizando o fluxo administrativo/PDV.
+         */
+        const resposta =
+            await finalizarPedidoNoBanco(
+                payloadDoBanco,
+                {
+                    admin: true,
+                }
+            );
 
+        /**
+         * Retorna para a listagem somente quando
+         * o pedido tiver sido finalizado com sucesso.
+         */
         if (resposta) {
             voltarParaLista();
         }
@@ -152,13 +458,40 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         setFormData(prev => ({ ...prev, marmitas: novasMarmitas }));
     };
 
+    const produtosDisponiveis = categoriasProdutos.flatMap(categoria => categoria.produtos || []);
+
+    const adicionarProduto = () => {
+        const produto = produtosDisponiveis.find(item => item.id === Number(produtoSelecionado));
+        if (!produto) return;
+
+        setFormData(prev => {
+            const produtoExistente = prev.produtos.find(item => item.produto_id === produto.id);
+            const produtos = produtoExistente
+                ? prev.produtos.map(item => item.produto_id === produto.id ? { ...item, quantidade: item.quantidade + 1 } : item)
+                : [...prev.produtos, { produto_id: produto.id, nome: produto.nome, preco: Number(produto.preco), quantidade: 1 }];
+
+            return { ...prev, produtos };
+        });
+
+        setProdutoSelecionado('');
+    };
+
+    const alterarQuantidadeProduto = (produtoId, valor) => {
+        setFormData(prev => ({
+            ...prev,
+            produtos: prev.produtos.map(item => item.produto_id === produtoId ? { ...item, quantidade: item.quantidade + valor } : item).filter(item => item.quantidade > 0)
+        }));
+    };
+
+    const totalPedido = formData.marmitas.reduce((total, item) => total + (item.preco_unitario * item.quantidade), 0) + formData.produtos.reduce((total, item) => total + (item.preco * item.quantidade), 0);
+
     return (
         <>
             <form onSubmit={handleSalvarPedido} className={styles.cardGeral}>
                 <div className={styles.header}>
                     <div>
                         <h2>Novo Pedido (PDV)</h2>
-                        <p className={styles.textHint}>Registre um pedido feito presencialmente ou por telefone.</p>
+                        <p className={styles.textHint}>Registe um pedido feito presencialmente ou por telefone.</p>
                     </div>
                     <button type="button" className={styles.btnFechar} onClick={voltarParaLista}>
                         <X size={20} />
@@ -182,11 +515,18 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         </div>
 
                         <div className={styles.inputGroup}>
-                            <label>Telefone / WhatsApp *</label>
+                            <label>
+                                Telefone / WhatsApp *
+                            </label>
+
                             <TelefoneInput
                                 name="telefone_cliente"
-                                value={formData.telefone_cliente}
-                                onChange={handleChange}
+                                value={
+                                    formData.telefone_cliente
+                                }
+                                onChange={
+                                    handleChange
+                                }
                                 placeholder="(00) 00000-0000"
                                 required
                             />
@@ -212,6 +552,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                             </div>
                         </div>
 
+                        {/* Bloco de Endereço Padronizado - Só aparece se for Entrega */}
                         {formData.metodo_entrega === 'Entrega' && (
                             <div style={{ marginBottom: '1rem' }}>
                                 <div className={styles.rowInputs} style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
@@ -252,6 +593,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                             </div>
                         )}
 
+                        {/* Pagamento movido para debaixo do endereço */}
                         <div className={styles.inputGroup}>
                             <label>Método Pagamento *</label>
                             <select
@@ -270,39 +612,6 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                 ))}
                             </select>
                         </div>
-
-                        {/* BLOCO DE TROCO CONDICIONAL */}
-                        {isPagamentoDinheiro && (
-                            <div style={{ padding: '12px', backgroundColor: '#f8fafc', borderRadius: '8px', marginBottom: '15px', border: '1px solid #e2e8f0' }}>
-                                <div className={styles.inputGroup} style={{ marginBottom: formData.precisa_troco ? '10px' : '0' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0 }}>
-                                        <input
-                                            type="checkbox"
-                                            name="precisa_troco"
-                                            checked={formData.precisa_troco}
-                                            onChange={handleChange}
-                                            style={{ width: '16px', height: '16px' }}
-                                        />
-                                        Precisa de troco?
-                                    </label>
-                                </div>
-
-                                {formData.precisa_troco && (
-                                    <div className={styles.inputGroup} style={{ marginBottom: 0 }}>
-                                        <label>Troco para quanto? *</label>
-                                        <input
-                                            type="number"
-                                            name="troco_para"
-                                            step="0.01"
-                                            required={formData.precisa_troco}
-                                            value={formData.troco_para}
-                                            onChange={handleChange}
-                                            placeholder={`Ex: ${Math.ceil(totalDoPedido + 20)}`}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        )}
 
                         <div className={styles.inputGroup}>
                             <label>Observações do Pedido</label>
@@ -324,40 +633,64 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                             </button>
                         </div>
 
+                        <div className={styles.rowInputs} style={{ marginTop: '1rem' }}>
+                            <div className={styles.inputGroup} style={{ marginBottom: 0 }}>
+                                <select value={produtoSelecionado} onChange={e => setProdutoSelecionado(e.target.value)} disabled={loadingProdutos || produtosDisponiveis.length === 0}>
+                                    <option value="">{loadingProdutos ? 'Carregando produtos...' : 'Selecione um produto'}</option>
+                                    {categoriasProdutos.map(categoria => (
+                                        <optgroup key={categoria.id} label={categoria.nome}>
+                                            {(categoria.produtos || []).map(produto => (
+                                                <option key={produto.id} value={produto.id}>{produto.nome} - R$ {Number(produto.preco).toFixed(2).replace('.', ',')}</option>
+                                            ))}
+                                        </optgroup>
+                                    ))}
+                                </select>
+                            </div>
+                            <button type="button" className={styles.btnAddItem} onClick={adicionarProduto} disabled={!produtoSelecionado}>
+                                + Adicionar Produto
+                            </button>
+                        </div>
+
                         <div className={styles.listaItens}>
-                            {formData.marmitas.length === 0 ? (
+                            {formData.marmitas.length === 0 && formData.produtos.length === 0 ? (
                                 <div className={styles.emptyCart}>
                                     <p>Nenhum item adicionado ainda.</p>
                                 </div>
                             ) : (
-                                formData.marmitas.map((item, index) => (
-                                    <div key={index} className={styles.itemCart}>
-                                        <div className={styles.itemCartInfo}>
-                                            <strong>{item.quantidade}x Marmita {item.tamanho_nome}</strong>
-                                            <small>{item.alimentos.length} alimentos selecionados</small>
-                                            <span style={{ color: '#ea580c', fontWeight: '600', marginTop: '4px' }}>
-                                                R$ {(item.preco_unitario * item.quantidade).toFixed(2).replace('.', ',')}
-                                            </span>
+                                <>
+                                    {formData.marmitas.map((item, index) => (
+                                        <div key={`marmita-${index}`} className={styles.itemCart}>
+                                            <div className={styles.itemCartInfo}>
+                                                <strong>{item.quantidade}x Marmita {item.tamanho_nome}</strong>
+                                                <small>{item.alimentos.length} alimentos selecionados</small>
+                                                <span style={{ color: '#ea580c', fontWeight: '600', marginTop: '4px' }}>R$ {(item.preco_unitario * item.quantidade).toFixed(2).replace('.', ',')}</span>
+                                            </div>
+                                            <button type="button" className={styles.btnRemoveItem} onClick={() => removerMarmita(index)}>
+                                                <X size={16} />
+                                            </button>
                                         </div>
-                                        <button
-                                            type="button"
-                                            className={styles.btnRemoveItem}
-                                            onClick={() => removerMarmita(index)}
-                                            title="Remover Marmita"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                ))
+                                    ))}
+
+                                    {formData.produtos.map(produto => (
+                                        <div key={`produto-${produto.produto_id}`} className={styles.itemCart}>
+                                            <div className={styles.itemCartInfo}>
+                                                <strong>{produto.quantidade}x {produto.nome}</strong>
+                                                <span style={{ color: '#ea580c', fontWeight: '600', marginTop: '4px' }}>R$ {(produto.preco * produto.quantidade).toFixed(2).replace('.', ',')}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <button type="button" className={styles.btnRemoveItem} onClick={() => alterarQuantidadeProduto(produto.produto_id, -1)}>−</button>
+                                                <button type="button" className={styles.btnRemoveItem} onClick={() => alterarQuantidadeProduto(produto.produto_id, 1)}>+</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
                             )}
                         </div>
 
-                        {formData.marmitas.length > 0 && (
+                        {(formData.marmitas.length > 0 || formData.produtos.length > 0) && (
                             <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px dashed #e4e4e7', display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
                                 <strong>Total:</strong>
-                                <strong style={{ color: '#ea580c' }}>
-                                    R$ {totalDoPedido.toFixed(2).replace('.', ',')}
-                                </strong>
+                                <strong style={{ color: '#ea580c' }}>R$ {totalPedido.toFixed(2).replace('.', ',')}</strong>
                             </div>
                         )}
                     </div>
