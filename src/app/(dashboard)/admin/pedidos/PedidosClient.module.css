@@ -1,26 +1,26 @@
 /* 
-.wrapper { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 1rem; 
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.tabs { 
-    display: flex; 
-    gap: 10px; 
-    margin-bottom: 1rem; 
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
 }
 
 .tabBtn {
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     gap: 8px;
-    padding: 10px 16px; 
-    border: none; 
+    padding: 10px 16px;
+    border: none;
     border-radius: 8px;
-    background: #f4f4f5; 
-    color: #52525b; 
-    font-weight: 600; 
+    background: #f4f4f5;
+    color: #52525b;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -29,25 +29,25 @@
     background: #e4e4e7;
 }
 
-.tabAtiva { 
-    background: #ea580c; 
-    color: white; 
+.tabAtiva {
+    background: #ea580c;
+    color: white;
 }
 
 
 .cardGeral {
-    background: white; 
+    background: white;
     border: 1px solid #e4e4e7;
-    border-radius: 12px; 
+    border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.headerRow { 
-    display: flex; 
-    justify-content: space-between; 
+.headerRow {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem; 
+    margin-bottom: 1.5rem;
 }
 
 .headerRow h2 {
@@ -56,15 +56,15 @@
     color: #18181b;
 }
 
-.btnAtualizar { 
-    display: flex; 
-    gap: 6px; 
-    align-items: center; 
-    border: 1px solid #d4d4d8; 
-    background: #ffffff; 
-    padding: 8px 12px; 
-    border-radius: 6px; 
-    cursor: pointer; 
+.btnAtualizar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    border: 1px solid #d4d4d8;
+    background: #ffffff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
     font-weight: 600;
     color: #3f3f46;
     transition: 0.2s;
@@ -74,199 +74,491 @@
     background: #f4f4f5;
 }
 
-.tableContainer { 
-    overflow-x: auto; 
+.tableContainer {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    text-align: left; 
-}
-
-.table th { 
-    padding: 12px; 
-    background: #f4f4f5; 
-    color: #3f3f46; 
-    font-size: 0.9rem; 
-    border-radius: 6px 6px 0 0;
-}
-
-.table td { 
-    padding: 16px 12px; 
-    border-bottom: 1px solid #e4e4e7; 
-    vertical-align: middle; 
-    color: #3f3f46;
-}
-
-.empty { 
-    text-align: center; 
-    color: #71717a; 
-    padding: 3rem !important; 
-}
-
-
-.selectStatus {
-    padding: 6px 10px; 
-    border-radius: 6px; 
-    font-weight: 600; 
-    border: 1px solid transparent; 
-    cursor: pointer; 
-    outline: none;
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
     font-size: 0.9rem;
 }
 
-.status_Pendente { background: #fef3c7; color: #92400e; border-color: #fde68a; }
-.status_EmPreparo { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
-.status_ProntoparaRetirada { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
-.status_SaiuparaEntrega { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
-.status_Entregue { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-.status_Cancelado { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.table th {
+    background: #f9fafb;
+    color: #71717a;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 14px 16px;
+    font-weight: 600;
+    border-bottom: 1px solid #e4e4e7;
+}
 
-.btnVer { 
-    background: none; 
-    border: 1px solid #d4d4d8; 
-    padding: 6px 12px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    display: flex; 
-    gap: 6px; 
-    align-items: center; 
+.table tbody tr {
+    border-bottom: 1px solid #e4e4e7;
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table td {
+    padding: 16px;
+    vertical-align: middle;
     color: #3f3f46;
+}
+
+.empty {
+    text-align: center;
+    color: #71717a;
+    padding: 3rem !important;
+    font-weight: 500;
+}
+
+
+.clienteInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.clienteNome {
+    font-weight: 600;
+    color: #18181b;
+}
+
+.clienteTelefone {
+    font-size: 0.85rem;
+    color: #71717a;
+}
+
+.selectStatus {
+
+    padding: 6px 30px 6px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    outline: none;
+    font-size: 0.85rem;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2352525b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+
+    background-size: 14px;
+    width: 60%;
+    text-align: left;
+}
+
+.status_Pendente {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.status_EmPreparo {
+    background: #e0f2fe;
+    color: #075985;
+    border-color: #bae6fd;
+}
+
+.status_ProntoparaRetirada {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border-color: #e9d5ff;
+}
+
+.status_SaiuparaEntrega {
+    background: #ffedd5;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.status_Entregue {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.status_Cancelado {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.btnVer {
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: #2563eb;
     font-weight: 500;
     transition: 0.2s;
 }
 
-.btnVer:hover { 
-    background: #f4f4f5; 
+.btnVer:hover {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.selectFiltro {
+    border: none;
+    background-color: transparent;
+    outline: none;
+    font-weight: 500;
+    color: #3f3f46;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 24px 0 4px;
+
+    appearance: none;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
 }
 
 
-.modalOverlay { 
-    position: fixed; 
-    top: 0; left: 0; right: 0; bottom: 0; 
-    background: rgba(0,0,0,0.6); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    z-index: 50; 
+.selectFiltro:hover {
+    color: #18181b;
+}
+
+
+.btnImprimirGrid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    background-color: #f4f4f5;
+    color: #52525b;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnImprimirGrid:hover {
+    background-color: #e4e4e7;
+    color: #ea580c;
+}
+
+
+.btnImprimirModal {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background-color: #ea580c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnImprimirModal:hover {
+    background-color: #c2410c;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
     padding: 20px;
 }
 
-.modalContent { 
-    background: white; 
-    width: 100%; 
-    max-width: 550px; 
-    border-radius: 12px; 
-    padding: 2rem; 
-    max-height: 90vh; 
-    overflow-y: auto; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+.modalContent {
+    background: white;
+    width: 100%;
+    max-width: 550px;
+    border-radius: 12px;
+    padding: 2rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.2s ease-out;
 }
 
-.modalHeader { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-bottom: 1px solid #e4e4e7; 
-    padding-bottom: 1rem; 
-    margin-bottom: 1.5rem; 
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e4e4e7;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.modalHeader h2 { 
-    margin: 0; 
-    color: #18181b; 
+.modalHeader h2 {
+    margin: 0;
+    color: #18181b;
 }
 
-.modalHeader button { 
-    background: #f4f4f5; 
-    border: none; 
-    cursor: pointer; 
-    color: #71717a; 
+.modalHeader button {
+    background: #f4f4f5;
+    border: none;
+    cursor: pointer;
+    color: #71717a;
     padding: 6px;
     border-radius: 6px;
     display: flex;
     transition: 0.2s;
 }
 
-.modalHeader button:hover { 
-    background: #fee2e2; 
-    color: #ef4444; 
+.modalHeader button:hover {
+    background: #fee2e2;
+    color: #ef4444;
 }
 
-.modalBody p { 
-    margin: 0 0 10px 0; 
-    color: #3f3f46; 
+.modalBody p {
+    margin: 0 0 10px 0;
+    color: #3f3f46;
 }
 
-.modalBody hr { 
-    border: 0; 
-    border-top: 1px dashed #d4d4d8; 
-    margin: 1.5rem 0; 
+.modalBody hr {
+    border: 0;
+    border-top: 1px dashed #d4d4d8;
+    margin: 1.5rem 0;
 }
 
-.modalBody h3 { 
-    margin: 0 0 1rem 0; 
-    color: #18181b; 
-}
-
-
-.marmitasGrid { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
-}
-
-.marmitaCard { 
-    background: #fafafa; 
-    border: 1px solid #e4e4e7; 
-    padding: 1.25rem; 
-    border-radius: 8px; 
-}
-
-.marmitaHeader { 
-    display: flex; 
-    justify-content: space-between; 
-    font-weight: 600; 
-    border-bottom: 1px solid #e4e4e7; 
-    padding-bottom: 10px; 
-    margin-bottom: 10px; 
+.modalBody h3 {
+    margin: 0 0 1rem 0;
     color: #18181b;
 }
 
-.alimentosList { 
-    list-style: none; 
-    padding: 0; 
-    margin: 0; 
-    color: #52525b; 
-    font-size: 0.95rem; 
+.marmitasGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.marmitaCard {
+    background: #fafafa;
+    border: 1px solid #e4e4e7;
+    padding: 1.25rem;
+    border-radius: 8px;
+}
+
+.marmitaHeader {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    border-bottom: 1px solid #e4e4e7;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    color: #18181b;
+}
+
+.alimentosList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #52525b;
+    font-size: 0.95rem;
     line-height: 1.6;
 }
 
-
-.loading { 
-    display: flex; 
-    align-items: center; 
+.loading {
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 10px; 
-    padding: 3rem; 
-    color: #71717a; 
+    gap: 10px;
+    padding: 3rem;
+    color: #71717a;
     font-weight: 500;
 }
 
-.spin { 
-    animation: spin 1s linear infinite; 
+.spin {
+    animation: spin 1s linear infinite;
     color: #ea580c;
 }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } */
+
+.modalHeader {
+    flex-wrap: wrap;
+    gap: 1rem;
+}
 
 
-/* =========================================
-   ESTRUTURA GERAL E ABAS
-========================================= */
+.marmitaHeader {
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+
+@media (max-width: 768px) {
+
+    .modalOverlay {
+        padding: 10px;
+        align-items: flex-end;
+    }
+
+
+    .modalContent {
+        max-width: none;
+        max-height: 92dvh;
+
+        padding: 1.25rem;
+
+        border-radius:
+            12px 12px 0 0;
+    }
+
+
+    .modalHeader {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+
+    .btnImprimirModal {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+
+    .marmitaHeader {
+        align-items: flex-start;
+    }
+
+
+    .marmitaCard {
+        padding: 1rem;
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .headerRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .modalContent {
+        padding: 1.5rem;
+    }
+
+    .tableContainer {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+
+    .table tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e4e4e7;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+        border-bottom: 1px dashed #f4f4f5;
+
+        padding-bottom: 10px;
+        text-align: right;
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #a1a1aa;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-right: 1rem;
+    }
+
+
+    .clienteInfo {
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .selectStatus {
+        max-width: 160px;
+        
+        font-size: 0.8rem;
+    }
+} */
+
+
+
+/* ----------------------------------*/
+
 .wrapper {
     display: flex;
     flex-direction: column;
@@ -400,7 +692,6 @@
     font-weight: 500;
 }
 
-/* Informações do Cliente na Grid */
 .clienteInfo {
     display: flex;
     flex-direction: column;
@@ -421,7 +712,6 @@
    SELECT DE STATUS E BOTÕES DE AÇÃO
 ========================================= */
 .selectStatus {
-    /* padding: 6px 12px;  */
     padding: 6px 30px 6px 14px;
     border-radius: 999px;
     font-weight: 600;
@@ -429,51 +719,20 @@
     cursor: pointer;
     outline: none;
     font-size: 0.85rem;
-    /* appearance: none; */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2352525b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
-    /* Posiciona a seta à direita e centralizada verticalmente */
     background-size: 14px;
     width: 60%;
     text-align: left;
 }
 
-.status_Pendente {
-    background: #fef3c7;
-    color: #92400e;
-    border-color: #fde68a;
-}
-
-.status_EmPreparo {
-    background: #e0f2fe;
-    color: #075985;
-    border-color: #bae6fd;
-}
-
-.status_ProntoparaRetirada {
-    background: #f3e8ff;
-    color: #6b21a8;
-    border-color: #e9d5ff;
-}
-
-.status_SaiuparaEntrega {
-    background: #ffedd5;
-    color: #c2410c;
-    border-color: #fed7aa;
-}
-
-.status_Entregue {
-    background: #dcfce7;
-    color: #166534;
-    border-color: #bbf7d0;
-}
-
-.status_Cancelado {
-    background: #fee2e2;
-    color: #991b1b;
-    border-color: #fecaca;
-}
+.status_Pendente { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.status_EmPreparo { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+.status_ProntoparaRetirada { background: #f3e8ff; color: #6b21a8; border-color: #e9d5ff; }
+.status_SaiuparaEntrega { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+.status_Entregue { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+.status_Cancelado { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
 
 .btnVer {
     background: none;
@@ -506,17 +765,12 @@
     cursor: pointer;
     font-size: 0.9rem;
     padding: 0 24px 0 4px;
-    /* O 24px na direita é o espaço para a nossa seta */
     appearance: none;
-    /* Remove a seta feia do Windows/Mac */
-
-    /* Injeta uma setinha minimalista cinza */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right center;
 }
 
-/* Um hover subtil para mostrar que é clicável */
 .selectFiltro:hover {
     color: #18181b;
 }
@@ -524,8 +778,6 @@
 /* ==========================
    BOTÕES DE IMPRESSÃO
 ========================== */
-
-/* Ícone na Grid */
 .btnImprimirGrid {
     display: flex;
     align-items: center;
@@ -544,7 +796,6 @@
     color: #ea580c;
 }
 
-/* Botão Laranja no Modal */
 .btnImprimirModal {
     display: flex;
     align-items: center;
@@ -600,6 +851,8 @@
     border-bottom: 1px solid #e4e4e7;
     padding-bottom: 1rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .modalHeader h2 {
@@ -660,6 +913,8 @@
     padding-bottom: 10px;
     margin-bottom: 10px;
     color: #18181b;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .alimentosList {
@@ -671,107 +926,65 @@
     line-height: 1.6;
 }
 
+.itemObservacao {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed #e4e4e7;
+    color: #ea580c;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
 /* =========================================
    ANIMAÇÕES E LOADING
 ========================================= */
-.loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 3rem;
-    color: #71717a;
-    font-weight: 500;
-}
-
 .spin {
     animation: spin 1s linear infinite;
-    color: #ea580c;
 }
 
-
-/* ============================================================
-   AJUSTES DO NOVO RESUMO DE PEDIDOS
-   ============================================================ */
-
-.modalHeader {
-    flex-wrap: wrap;
-    gap: 1rem;
+@keyframes spin {
+    100% { transform: rotate(360deg); }
 }
 
-
-.marmitaHeader {
-    gap: 12px;
-    flex-wrap: wrap;
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-
+/* =========================================
+   RESPONSIVIDADE (MOBILE - CARD VIEW)
+========================================= */
 @media (max-width: 768px) {
-
     .modalOverlay {
         padding: 10px;
         align-items: flex-end;
     }
 
-
     .modalContent {
         max-width: none;
         max-height: 92dvh;
-
         padding: 1.25rem;
-
-        border-radius:
-            12px 12px 0 0;
+        border-radius: 12px 12px 0 0;
     }
-
 
     .modalHeader {
         flex-direction: column;
         align-items: stretch !important;
     }
 
-
     .btnImprimirModal {
         width: 100%;
-
         justify-content: center;
     }
-
 
     .marmitaHeader {
         align-items: flex-start;
     }
 
-
     .marmitaCard {
         padding: 1rem;
     }
-}
 
-@keyframes spin {
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-
-
-/* =========================================
-   RESPONSIVIDADE (MOBILE - CARD VIEW)
-========================================= */
-@media (max-width: 768px) {
     .headerRow {
         flex-direction: column;
         align-items: flex-start;
@@ -782,11 +995,7 @@
         flex-direction: column;
     }
 
-    .modalContent {
-        padding: 1.5rem;
-    }
-
-    /* 1. Remove o fundo do container da tabela para usar os cards isolados */
+    /* Transformação da Tabela em Cards no Mobile */
     .tableContainer {
         border: none;
         background: transparent;
@@ -795,12 +1004,10 @@
         overflow-x: hidden;
     }
 
-    /* 2. Esconde o cabeçalho original da tabela */
     .table thead {
         display: none;
     }
 
-    /* 3. Transforma cada linha (TR) num "Card" com bordas arredondadas e sombra */
     .table tbody tr {
         display: flex;
         flex-direction: column;
@@ -817,14 +1024,12 @@
         margin-bottom: 0;
     }
 
-    /* 4. Alinha as células em flexbox (Label na esquerda, Valor na direita) */
     .table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 0;
         border-bottom: 1px dashed #f4f4f5;
-        /* Linha tracejada sutil separando as infos */
         padding-bottom: 10px;
         text-align: right;
     }
@@ -834,7 +1039,6 @@
         padding-bottom: 0;
     }
 
-    /* 5. Usa o 'data-label' do HTML para criar os minitítulos dinamicamente */
     .table td::before {
         content: attr(data-label);
         font-weight: 600;
@@ -845,16 +1049,13 @@
         margin-right: 1rem;
     }
 
-    /* 6. Ajustes de alinhamento visual para não esmagar no telemóvel */
     .clienteInfo {
         align-items: flex-end;
-        /* Alinha o texto do cliente à direita */
         text-align: right;
     }
 
     .selectStatus {
         max-width: 160px;
-        /* Impede o select de empurrar o título para fora */
         font-size: 0.8rem;
     }
 }

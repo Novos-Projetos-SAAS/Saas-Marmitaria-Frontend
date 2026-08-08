@@ -1,3 +1,308 @@
+/* .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100dvh;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btnVoltar {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    font-family: inherit;
+}
+
+.btnVoltar:hover {
+    background: #e9ecef;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    color: #1a1a1a;
+}
+
+.buscaForm {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.inputBusca {
+    flex: 1;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    font-family: inherit; 
+}
+
+.inputBusca:focus {
+    border-color: #ea580c;
+}
+
+.btnBuscar {
+    background-color: #ea580c;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    font-family: inherit; 
+}
+
+.btnBuscar:hover:not(:disabled) {
+    background-color: #c2410c;
+}
+
+.btnBuscar:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.erro {
+    color: #dc2626;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    margin-top: 40px;
+}
+
+.listaPedidos {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; 
+    margin-top: 10px;
+}
+
+.cardRastreio {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.cardHeader h2 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.cardHeader span {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.badgeStatus {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.badgePendente {
+    background-color: #fff3ed;
+    color: #ea580c; 
+}
+
+.badgePreparo {
+    background-color: #fef08a;
+    color: #854d0e; 
+}
+
+.badgeRetirada {
+    background-color: #e0e7ff;
+    color: #4338ca; 
+}
+
+.badgeEntrega {
+    background-color: #dcfce7;
+    color: #15803d; 
+}
+
+.badgeEntregue {
+    background-color: #22c55e;
+    color: #ffffff; 
+}
+
+.badgeCancelado {
+    background-color: #fee2e2;
+    color: #b91c1c; 
+}
+
+.badgeDefault {
+    background-color: #f4f4f5;
+    color: #52525b; 
+}
+
+.timeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.etapa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+    z-index: 2;
+    flex: 1;
+}
+
+.etapa span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.iconeWrap {
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.etapaAtiva {
+    color: #ea580c;
+}
+
+.etapaAtiva .iconeWrap {
+    border-color: #ea580c;
+    background: #ea580c;
+    color: white;
+}
+
+.linha {
+    flex: 1;
+    height: 3px;
+    background: #eee;
+    margin-top: 22px; 
+    z-index: 1;
+    transition: background 0.3s ease;
+}
+
+.linhaAtiva {
+    background: #ea580c;
+}
+
+.alertaCancelado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 30px 0;
+    color: #dc2626;
+    background-color: #fef2f2;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.itensResumo {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.itensResumo h3 {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.itemMarmita {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+}
+
+.itemMarmita:last-child {
+    margin-bottom: 24px; 
+}
+
+.itemMarmita strong {
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.itemMarmita span {
+    color: #71717a; 
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: #18181b;
+} */
+
 .container {
     max-width: 600px;
     margin: 0 auto;
@@ -294,6 +599,13 @@
     color: #71717a; 
     font-size: 0.85rem;
     line-height: 1.4;
+}
+
+/* Nova classe da observação na marmita */
+.itemObservacao {
+    color: #ea580c !important;
+    font-style: italic;
+    margin-top: 4px;
 }
 
 .cardFooter {

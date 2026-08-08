@@ -1,4 +1,4 @@
-/* src/app/(dashboard)/admin/pedidos/formPedidoPresencial.module.css */
+/* 
 
 .cardGeral {
     background: white; 
@@ -34,7 +34,6 @@
 }
 .btnFechar:hover { background: #fee2e2; color: #ef4444; }
 
-/* Estrutura Principal */
 .gridForm {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
@@ -53,7 +52,7 @@
 }
 .sectionTitle:first-child { margin-top: 0; }
 
-/* Inputs */
+
 .inputGroup {
     display: flex;
     flex-direction: column;
@@ -70,8 +69,8 @@
 .inputGroup input,
 .inputGroup select,
 .inputGroup textarea {
-    width: 100%; /* Garante que ocupa o espaço certinho */
-    box-sizing: border-box; /* 🚀 O segredo para não estourar a borda! */
+    width: 100%;
+    box-sizing: border-box;
     padding: 10px 12px;
     border: 1px solid #d4d4d8;
     border-radius: 8px;
@@ -95,7 +94,7 @@
     gap: 1rem;
 }
 
-/* Área de Itens (PDV) */
+
 .colunaItens {
     background: #fafafa;
     border: 1px solid #e4e4e7;
@@ -170,7 +169,7 @@
 }
 .btnRemoveItem:hover { color: #ef4444; }
 
-/* Footer / Botões */
+
 .footerAcoes {
     display: flex;
     justify-content: flex-end;
@@ -206,6 +205,307 @@
 }
 .btnSalvar:hover:not(:disabled) { background: #c2410c; }
 .btnSalvar:disabled { opacity: 0.7; cursor: not-allowed; }
+
+
+@media (max-width: 900px) {
+    .gridForm { grid-template-columns: 1fr; }
+    .footerAcoes { flex-direction: column-reverse; }
+    .btnSalvar, .btnCancelar { width: 100%; justify-content: center; }
+}
+
+.grupoCategoria {
+    margin-bottom: 1.2rem;
+}
+
+.tituloCategoria {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e4e4e7;
+    padding-bottom: 4px;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+    color: #ea580c;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+.emptyCardapio {
+    color: #ef4444;
+    font-size: 0.95rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border-radius: 8px;
+    text-align: center;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } } */
+
+.cardGeral {
+    background: white; 
+    border: 1px solid #e4e4e7;
+    border-radius: 12px; 
+    padding: 2rem;
+    animation: fadeIn 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #e4e4e7;
+    padding-bottom: 1rem;
+}
+
+.header h2 { 
+    margin: 0 0 6px 0; 
+    color: #18181b; 
+}
+
+.textHint { 
+    color: #71717a; 
+    font-size: 0.95rem; 
+    margin: 0; 
+}
+
+.btnFechar {
+    background: #f4f4f5;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #71717a;
+    transition: 0.2s;
+}
+
+.btnFechar:hover { 
+    background: #fee2e2; 
+    color: #ef4444; 
+}
+
+/* Estrutura Principal */
+.gridForm {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2.5rem;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.05rem;
+    color: #27272a;
+    margin: 1.5rem 0 1rem 0;
+    border-bottom: 2px solid #f4f4f5;
+    padding-bottom: 8px;
+}
+
+.sectionTitle:first-child { 
+    margin-top: 0; 
+}
+
+/* Inputs */
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+
+.inputGroup label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #3f3f46;
+}
+
+.inputGroup input,
+.inputGroup select,
+.inputGroup textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #d4d4d8;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #ffffff;
+    color: #18181b;
+    font-family: inherit;
+}
+
+.inputGroup textarea {
+    resize: vertical;
+}
+
+.inputGroup input:focus,
+.inputGroup select:focus,
+.inputGroup textarea:focus {
+    border-color: #ea580c;
+}
+
+.rowInputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Área de Itens (PDV) */
+.colunaItens {
+    background: #fafafa;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.headerItens {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerItens .sectionTitle { 
+    border: none; 
+    margin: 0; 
+    padding: 0; 
+}
+
+.btnAddItem {
+    background: #18181b;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btnAddItem:hover { 
+    background: #27272a; 
+}
+
+.listaItens {
+    margin-top: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.emptyCart {
+    text-align: center;
+    color: #a1a1aa;
+    padding: 2rem 0;
+    font-size: 0.95rem;
+    border: 2px dashed #e4e4e7;
+    border-radius: 8px;
+}
+
+.itemCart {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 12px;
+    border: 1px solid #d4d4d8;
+    border-radius: 8px;
+}
+
+.itemCartInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.itemCartInfo strong { 
+    color: #18181b; 
+    font-size: 0.95rem; 
+}
+
+.itemCartInfo small { 
+    color: #71717a; 
+    font-size: 0.85rem; 
+}
+
+.btnRemoveItem {
+    background: none;
+    border: none;
+    color: #a1a1aa;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btnRemoveItem:hover { 
+    color: #ef4444; 
+}
+
+/* Footer / Botões */
+.footerAcoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e4e4e7;
+}
+
+.btnCancelar {
+    background: white;
+    border: 1px solid #d4d4d8;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #3f3f46;
+    cursor: pointer;
+}
+
+.btnCancelar:hover { 
+    background: #f4f4f5; 
+}
+
+.btnSalvar {
+    background: #ea580c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.btnSalvar:hover:not(:disabled) { 
+    background: #c2410c; 
+}
+
+.btnSalvar:disabled { 
+    opacity: 0.7; 
+    cursor: not-allowed; 
+}
 
 /* Responsividade */
 @media (max-width: 900px) {
@@ -253,4 +553,11 @@
     text-align: center;
 }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes spin { 
+    100% { transform: rotate(360deg); } 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

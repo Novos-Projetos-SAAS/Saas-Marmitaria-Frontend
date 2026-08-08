@@ -1,5 +1,52 @@
+/* 
+.printOnly {
+    display: none;
+}
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    .printOnly,
+    .printOnly * {
+        visibility: visible !important;
+    }
+
+    html,
+    body {
+        width: 58mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    .printOnly {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 58mm !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+    }
+
+    .printOnly > :last-child {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    @page {
+        size: 58mm auto;
+        margin: 0;
+    }
+} */
+
+
 /**
- * Durante o uso normal do sistema, o cupom permanece invisível.
+ * Durante o uso normal do sistema, o cupom permanece invisível na tela.
  */
 .printOnly {
     display: none;
