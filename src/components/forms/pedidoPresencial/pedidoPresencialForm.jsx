@@ -243,7 +243,6 @@
 import { useState, useEffect } from "react";
 import { usePedidos } from "@/hooks/usePedidos";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
-import { useProdutosCardapio } from "@/hooks/useProdutosCardapio";
 
 import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal";
 import TelefoneInput from "@/components/ui/inputMask";
@@ -255,10 +254,8 @@ import styles from "./pedidoPresencialForm.module.css";
 export default function FormPedidoPresencial({ voltarParaLista }) {
     const { finalizarPedidoNoBanco, enviando } = usePedidos();
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
-    const { categoriasProdutos, loading: loadingProdutos } = useProdutosCardapio();
 
     const [modalAberto, setModalAberto] = useState(false);
-    const [produtoSelecionado, setProdutoSelecionado] = useState('');
 
     // Estado atualizado com os campos de endereço separados
     const [formData, setFormData] = useState({
@@ -458,32 +455,11 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         setFormData(prev => ({ ...prev, marmitas: novasMarmitas }));
     };
 
-    const produtosDisponiveis = categoriasProdutos.flatMap(categoria => categoria.produtos || []);
-
-    const adicionarProduto = () => {
-        const produto = produtosDisponiveis.find(item => item.id === Number(produtoSelecionado));
-        if (!produto) return;
-
-        setFormData(prev => {
-            const produtoExistente = prev.produtos.find(item => item.produto_id === produto.id);
-            const produtos = produtoExistente
-                ? prev.produtos.map(item => item.produto_id === produto.id ? { ...item, quantidade: item.quantidade + 1 } : item)
-                : [...prev.produtos, { produto_id: produto.id, nome: produto.nome, preco: Number(produto.preco), quantidade: 1 }];
-
-            return { ...prev, produtos };
-        });
-
-        setProdutoSelecionado('');
+    const removerProduto = (produtoId) => {
+        setFormData(prev => ({ ...prev, produtos: prev.produtos.filter(produto => produto.produto_id !== produtoId) }));
     };
 
-    const alterarQuantidadeProduto = (produtoId, valor) => {
-        setFormData(prev => ({
-            ...prev,
-            produtos: prev.produtos.map(item => item.produto_id === produtoId ? { ...item, quantidade: item.quantidade + valor } : item).filter(item => item.quantidade > 0)
-        }));
-    };
-
-    const totalPedido = formData.marmitas.reduce((total, item) => total + (item.preco_unitario * item.quantidade), 0) + formData.produtos.reduce((total, item) => total + (item.preco * item.quantidade), 0);
+    const totalPedido = formData.marmitas.reduce((acc, item) => acc + (item.preco_unitario * item.quantidade), 0) + formData.produtos.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
 
     return (
         <>
@@ -633,24 +609,6 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                             </button>
                         </div>
 
-                        <div className={styles.rowInputs} style={{ marginTop: '1rem' }}>
-                            <div className={styles.inputGroup} style={{ marginBottom: 0 }}>
-                                <select value={produtoSelecionado} onChange={e => setProdutoSelecionado(e.target.value)} disabled={loadingProdutos || produtosDisponiveis.length === 0}>
-                                    <option value="">{loadingProdutos ? 'Carregando produtos...' : 'Selecione um produto'}</option>
-                                    {categoriasProdutos.map(categoria => (
-                                        <optgroup key={categoria.id} label={categoria.nome}>
-                                            {(categoria.produtos || []).map(produto => (
-                                                <option key={produto.id} value={produto.id}>{produto.nome} - R$ {Number(produto.preco).toFixed(2).replace('.', ',')}</option>
-                                            ))}
-                                        </optgroup>
-                                    ))}
-                                </select>
-                            </div>
-                            <button type="button" className={styles.btnAddItem} onClick={adicionarProduto} disabled={!produtoSelecionado}>
-                                + Adicionar Produto
-                            </button>
-                        </div>
-
                         <div className={styles.listaItens}>
                             {formData.marmitas.length === 0 && formData.produtos.length === 0 ? (
                                 <div className={styles.emptyCart}>
@@ -665,22 +623,17 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                                 <small>{item.alimentos.length} alimentos selecionados</small>
                                                 <span style={{ color: '#ea580c', fontWeight: '600', marginTop: '4px' }}>R$ {(item.preco_unitario * item.quantidade).toFixed(2).replace('.', ',')}</span>
                                             </div>
-                                            <button type="button" className={styles.btnRemoveItem} onClick={() => removerMarmita(index)}>
-                                                <X size={16} />
-                                            </button>
+                                            <button type="button" className={styles.btnRemoveItem} onClick={() => removerMarmita(index)}><X size={16} /></button>
                                         </div>
                                     ))}
-
                                     {formData.produtos.map(produto => (
                                         <div key={`produto-${produto.produto_id}`} className={styles.itemCart}>
                                             <div className={styles.itemCartInfo}>
                                                 <strong>{produto.quantidade}x {produto.nome}</strong>
+                                                <small>{produto.categoria_nome}</small>
                                                 <span style={{ color: '#ea580c', fontWeight: '600', marginTop: '4px' }}>R$ {(produto.preco * produto.quantidade).toFixed(2).replace('.', ',')}</span>
                                             </div>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <button type="button" className={styles.btnRemoveItem} onClick={() => alterarQuantidadeProduto(produto.produto_id, -1)}>−</button>
-                                                <button type="button" className={styles.btnRemoveItem} onClick={() => alterarQuantidadeProduto(produto.produto_id, 1)}>+</button>
-                                            </div>
+                                            <button type="button" className={styles.btnRemoveItem} onClick={() => removerProduto(produto.produto_id)}><X size={16} /></button>
                                         </div>
                                     ))}
                                 </>
@@ -709,12 +662,17 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
             {modalAberto && (
                 <ModalMontarMarmita
                     onClose={() => setModalAberto(false)}
-                    onAdicionar={(novaMarmita) => {
-                        setFormData(prev => ({
-                            ...prev,
-                            marmitas: [...prev.marmitas, novaMarmita]
-                        }));
-                        toast.success("Marmita adicionada ao pedido!");
+                    onAdicionar={(novaMarmita, novosProdutos = []) => {
+                        setFormData(prev => {
+                            const produtos = prev.produtos.map(produto => ({ ...produto }));
+                            novosProdutos.forEach(produto => {
+                                const existente = produtos.find(item => item.produto_id === produto.produto_id);
+                                if (existente) existente.quantidade += produto.quantidade;
+                                else produtos.push(produto);
+                            });
+                            return { ...prev, marmitas: [...prev.marmitas, novaMarmita], produtos };
+                        });
+                        toast.success("Itens adicionados ao pedido!");
                     }}
                 />
             )}
