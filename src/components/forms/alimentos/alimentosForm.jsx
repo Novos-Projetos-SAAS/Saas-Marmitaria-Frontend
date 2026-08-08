@@ -24,7 +24,7 @@ export default function AlimentoForm({ initialData, mode = 'create', onSave, onC
         id: data?.id || null,
         nome: data?.nome || "",
         descricao: data?.descricao || "",
-        categoria_alimento_id: data?.categoria_alimento_id || data?.categoria_alimento_id || "",
+        categoria_id: data?.categoria_id || data?.categoria_alimento_id || "",
         disponivel_hoje: data ? (data.disponivel_hoje === 1 || data.disponivel_hoje === true) : true,
     });
 
@@ -34,7 +34,7 @@ export default function AlimentoForm({ initialData, mode = 'create', onSave, onC
             id: data.id || null,
             nome: data.nome || "",
             descricao: data.descricao || "",
-            categoria_alimento_id: data.categoria_alimento_id || data.categoria_alimento_id || "",
+            categoria_id: data.categoria_id || data.categoria_alimento_id || "",
             disponivel_hoje: data.disponivel_hoje === 1 || data.disponivel_hoje === true,
         });
         setIsEditable(mode === 'create' || mode === 'edit');
@@ -59,8 +59,8 @@ export default function AlimentoForm({ initialData, mode = 'create', onSave, onC
         if (!formData.nome || formData.nome.trim().length < 2) {
             newErrors.nome = "O nome deve ter pelo menos 2 caracteres.";
         }
-        if (!formData.categoria_alimento_id) {
-            newErrors.categoria_alimento_id = "Selecione uma categoria.";
+        if (!formData.categoria_id) {
+            newErrors.categoria_id = "Selecione uma categoria.";
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -75,7 +75,7 @@ export default function AlimentoForm({ initialData, mode = 'create', onSave, onC
         const payload = {
             nome: formData.nome,
             descricao: formData.descricao,
-            categoria_alimento_id: Number(formData.categoria_alimento_id),
+            categoria_id: Number(formData.categoria_id),
             // Garante que o valor enviado seja estritamente booleano para o BD
             disponivel_hoje: formData.disponivel_hoje === 'true' || formData.disponivel_hoje === true
         };
@@ -97,7 +97,7 @@ export default function AlimentoForm({ initialData, mode = 'create', onSave, onC
                 id: data?.id || null,
                 nome: data?.nome || "",
                 descricao: data?.descricao || "",
-                categoria_alimento_id: data?.categoria_alimento_id || data?.categoria_alimento_id || "",
+                categoria_id: data?.categoria_id || data?.categoria_alimento_id || "",
                 disponivel_hoje: data ? (data.disponivel_hoje === 1 || data.disponivel_hoje === true) : true,
             });
             setErrors({});
@@ -145,14 +145,14 @@ export default function AlimentoForm({ initialData, mode = 'create', onSave, onC
 
             <SelectForm
                 label="Categoria"
-                name="categoria_alimento_id"
+                name="categoria_id"
                 options={opcoesCategoria}
-                value={formData.categoria_alimento_id}
+                value={formData.categoria_id}
                 onChange={handleChange}
                 disabled={!isEditable}
                 isLoading={loadingCategorias}
                 loadingText="Carregando categorias..."
-                error={errors.categoria_alimento_id}
+                error={errors.categoria_id}
             />
 
             <InputForm
