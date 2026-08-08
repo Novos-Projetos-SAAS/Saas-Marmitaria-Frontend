@@ -46,10 +46,10 @@ export default function PedidosClient() {
 
             if (config?.imprimir_automaticamente && config?.nome_impressora) {
                 toast.loading("Enviando para a impressora térmica...", { id: "printQZ" });
-                
+
                 const htmlDoCupom = renderToString(<CupomPedido pedido={pedido} />);
                 await imprimirCupom(htmlDoCupom, config.nome_impressora);
-                
+
                 toast.success("Cupom impresso com sucesso!", { id: "printQZ" });
             } else {
                 // Plano B: Fluxo antigo (Navegador) caso o QZ Tray não esteja configurado
@@ -59,7 +59,7 @@ export default function PedidosClient() {
         } catch (error) {
             console.error("Erro ao imprimir via QZ Tray:", error);
             toast.error("Falha ao usar QZ Tray. Abrindo tela padrão.", { id: "printQZ" });
-            
+
             // Se o QZ falhar, ainda garante a impressão via navegador
             setPedidoParaImprimir(pedido);
             setTimeout(() => window.print(), 1000);
@@ -88,7 +88,7 @@ export default function PedidosClient() {
         <>
             <div className="no-print">
                 <div className={styles.wrapper}>
-                    
+
                     {/* ABAS */}
                     <div className={styles.tabs}>
                         <button className={`${styles.tabBtn} ${abaAtiva === 'lista' ? styles.tabAtiva : ''}`} onClick={() => setAbaAtiva('lista')}>
@@ -96,7 +96,7 @@ export default function PedidosClient() {
                         </button>
 
                         <Can perform="pedidos.criar">
-                            <button 
+                            <button
                                 className={`${styles.tabBtn} ${abaAtiva === 'novo' ? styles.tabAtiva : ''}`}
                                 onClick={() => setAbaAtiva('novo')}
                             >
@@ -177,7 +177,7 @@ export default function PedidosClient() {
                                                         R$ {Number(pedido.valor_total).toFixed(2).replace('.', ',')}
                                                     </td>
                                                     <td data-label="Status">
-                                                        <Can 
+                                                        <Can
                                                             perform="pedidos.status"
                                                             fallback={<span className={`${styles.selectStatus} ${styles[`status_${pedido.status.replace(/\s+/g, '')}`]}`}>{pedido.status}</span>}
                                                         >
@@ -230,11 +230,23 @@ export default function PedidosClient() {
                         <div className={styles.modalOverlay} onClick={() => setPedidoSelecionado(null)}>
                             <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                                 <div className={styles.modalHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <h2 style={{ margin: 0 }}>Pedido #{pedidoSelecionado.id}</h2>
+                                        <span style={{ fontSize: '0.95rem', color: '#52525b' }}>
+                                            <b>Cliente:</b> {pedidoSelecionado.nome_cliente} &nbsp;|&nbsp;
+                                            <b>Pagamento:</b> {pedidoSelecionado.metodo_pagamento_nome || 'A verificar'}
+                                        </span>
+                                    </div> */}
+
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                         <h2 style={{ margin: 0 }}>Pedido #{pedidoSelecionado.id}</h2>
                                         <span style={{ fontSize: '0.95rem', color: '#52525b' }}>
                                             <b>Cliente:</b> {pedidoSelecionado.nome_cliente} &nbsp;|&nbsp;
                                             <b>Pagamento:</b> {pedidoSelecionado.metodo_pagamento_nome || 'A verificar'}
+                                        </span>
+                                        {/* 👇 Data e Hora adicionadas aqui */}
+                                        <span style={{ fontSize: '0.85rem', color: '#71717a' }}>
+                                            <b>Realizado em:</b> {new Date(pedidoSelecionado.criado_em).toLocaleString('pt-BR')}
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -246,11 +258,11 @@ export default function PedidosClient() {
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <div className={styles.modalBody}>
                                     <p><b>Endereço:</b> {pedidoSelecionado.endereco_cliente || 'Retirada no Balcão'}</p>
                                     <p><b>Obs:</b> {pedidoSelecionado.observacoes || 'Nenhuma'}</p>
-                                    
+
                                     {/* 👇 NOVO BLOCO DO TROCO EXIBIDO NO MODAL */}
                                     {pedidoSelecionado.precisa_troco && (
                                         <p>
@@ -302,7 +314,7 @@ export default function PedidosClient() {
                     )}
                 </div>
             </div>
-            
+
             {/* O Cupom continuará sendo renderizado invisível caso seja necessário acionar o print nativo do navegador */}
             <CupomPedido pedido={pedidoParaImprimir} />
         </>
