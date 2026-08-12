@@ -168,18 +168,18 @@ export default function Home() {
                         Ver cardápio
                     </button>
 
-                    <button
+                    {/* <button
                         type="button"
                         className={styles.secondaryButton}
                         onClick={abrirWhatsApp}
                     >
                         <MessageCircle size={20} />
                         WhatsApp
-                    </button>
+                    </button> */}
 
                     <button
                         type="button"
-                        className={styles.linkButton}
+                        className={styles.secondaryButton}
                         onClick={() => router.push('/acompanhar')}
                     >
                         <ClipboardList size={19} />

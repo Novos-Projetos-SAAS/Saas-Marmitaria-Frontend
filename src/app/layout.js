@@ -17,9 +17,93 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+/** @type {import("next").Metadata} */
 export const metadata = {
-    title: 'Marmitaria',
-    description: 'Monte sua marmita quentinha e receba em casa!',
+    metadataBase: new URL(SITE_URL),
+
+    title: {
+        default: 'Marmitaria | Marmitas Caseiras e Delivery',
+        template: '%s | Marmitaria'
+    },
+
+    description: 'Monte sua marmita do seu jeito com comida caseira, ingredientes frescos e muito sabor. Faça seu pedido online para entrega ou retirada.',
+
+    applicationName: 'Marmitaria',
+
+    keywords: [
+        'marmitaria',
+        'marmita',
+        'marmitas',
+        'marmita delivery',
+        'delivery de marmita',
+        'comida caseira',
+        'comida brasileira',
+        'almoço',
+        'marmita personalizada',
+        'montar marmita',
+        'pedido online',
+        'entrega de comida',
+        'retirada de marmita'
+    ],
+
+    authors: [
+        {
+            name: 'Marmitaria'
+        }
+    ],
+
+    creator: 'Marmitaria',
+    publisher: 'Marmitaria',
+    category: 'food',
+
+    alternates: {
+        canonical: '/'
+    },
+
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+            'max-video-preview': -1
+        }
+    },
+
+    openGraph: {
+        type: 'website',
+        locale: 'pt_BR',
+        url: '/',
+        siteName: 'Marmitaria',
+        title: 'Marmitaria | Marmitas Caseiras e Delivery',
+        description: 'Monte sua marmita do seu jeito com comida caseira, ingredientes frescos e muito sabor. Peça online para entrega ou retirada.',
+        images: [
+            {
+                url: '/logo.png',
+                width: 1200,
+                height: 630,
+                alt: 'Marmitaria - Marmitas Caseiras e Delivery',
+                type: 'image/jpeg'
+            }
+        ]
+    },
+
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Marmitaria | Marmitas Caseiras e Delivery',
+        description: 'Monte sua marmita do seu jeito e faça seu pedido online para entrega ou retirada.',
+        images: ['/logo.png']
+    },
+
+    formatDetection: {
+        email: false,
+        address: false,
+        telephone: false
+    }
 };
 
 export default function RootLayout({ children }) {
