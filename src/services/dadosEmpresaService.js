@@ -1,21 +1,16 @@
-import api from "./api";
+import api from './api.js';
+
+export const buscarDadosEmpresaPublicos = async () => {
+    const response = await api.get('/configuracoes/empresa/publico');
+    return response.data;
+};
 
 export const buscarDadosEmpresa = async () => {
-    try {
-        const response = await api.get('/configuracoes/empresa');
-        return response.data;
-    } catch (error) {
-        console.error("Erro ao buscar dados da empresa:", error);
-        throw error;
-    }
+    const response = await api.get('/configuracoes/empresa');
+    return response.data;
 };
 
 export const atualizarDadosEmpresa = async (payload) => {
-    try {
-        const response = await api.put('/configuracoes/empresa', payload);
-        return response.data;
-    } catch (error) {
-        console.error("Erro ao atualizar dados da empresa:", error);
-        throw error;
-    }
+    const response = await api.put('/configuracoes/empresa', payload);
+    return response.data;
 };

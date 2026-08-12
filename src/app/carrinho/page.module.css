@@ -238,11 +238,15 @@
 .inputGroup input,
 .inputGroup textarea,
 .inputGroup select {
-    padding: 12px;
+    padding: 0 12px;
     border: 1px solid #D4D4D8;
     border-radius: 6px;
     font-size: 1rem;
     background-color: #FFFFFF;
+}
+
+.inputGroup select {
+    field-sizing: content;
 }
 
 .inputGroup input:focus {
@@ -416,4 +420,142 @@
         gap: 0.5rem;
         /* Reduz o espaço ao meio para dar mais largura aos inputs */
     }
+}
+
+/* NOVO LAYOUT DO CHECKOUT */
+/* .container {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 20px 14px 40px;
+    background: #f7f7f7;
+    min-height: 100dvh;
+} */
+
+.header {
+    margin-bottom: 16px;
+}
+
+.btnLink {
+    color: #a54b3c;
+    text-transform: none;
+}
+
+.header h1 {
+    color: #3f3f3f;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.resumo,
+.form {
+    background: #ffffff;
+    border: 1px solid #e6e6e6;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.025);
+}
+
+.secaoTitulo {
+    border: none;
+    padding: 0;
+    color: #505050;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.itemCarrinho {
+    padding: 14px 0;
+}
+
+.itemQuantidade {
+    color: #a54b3c;
+}
+
+.itemInfo h3 {
+    color: #444444;
+    font-weight: 500;
+}
+
+.itemPreco {
+    color: #333333;
+}
+
+.btnAdicionarComplemento {
+    color: #a54b3c;
+}
+
+.totalBox {
+    border-top: 1px solid #dddddd;
+    padding-top: 16px;
+}
+
+.totalBox strong {
+    color: #a54b3c;
+    font-size: 1.2rem;
+}
+
+.form {
+    gap: 17px;
+}
+
+.inputGroup label {
+    color: #555555;
+    font-weight: 500;
+}
+
+.inputGroup input,
+.inputGroup select,
+.inputGroup textarea,
+.inputCustom {
+    min-height: 48px;
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.inputGroup input:focus,
+.inputGroup select:focus,
+.inputGroup textarea:focus {
+    outline: none;
+    border-color: #a54b3c;
+    box-shadow: 0 0 0 3px rgba(165, 75, 60, 0.08);
+}
+
+.enderecoBox {
+    background: #fafafa;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.btnFinalizar {
+    min-height: 52px;
+    border-radius: 12px;
+    background: #a54b3c;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.labelObservacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.labelObservacao label {
+    margin: 0;
+}
+
+.labelObservacao span {
+    color: #a1a1aa;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }

@@ -318,6 +318,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                 name="observacoes"
                                 value={formData.observacoes}
                                 onChange={handleChange}
+                                maxLength={60}
                                 placeholder="Entregar na portaria, etc."
                                 rows="2"
                             />

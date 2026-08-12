@@ -6,7 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { alterarProduto, buscarProdutoPorId } from "@/services/produtosService.js";
+import {
+    alterarProduto,
+    buscarProdutoPorId
+} from "@/services/produtosService.js";
 
 import ProdutosForm from "@/components/forms/produtos/produtosForm.jsx";
 import Can from "@/components/ui/can/index.jsx";
@@ -23,15 +26,17 @@ function ProdutoContent({ id }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function carregar() {
+        const carregar = async () => {
             try {
                 const dados = await buscarProdutoPorId(id);
                 setProduto(dados);
             } catch (error) {
+                const message = error.response?.data?.message || "Produto não encontrado.";
+
                 await Swal.fire({
                     icon: "error",
                     title: "Erro",
-                    text: "Produto não encontrado.",
+                    text: message,
                     confirmButtonColor: "#ea580c"
                 });
 
@@ -39,9 +44,11 @@ function ProdutoContent({ id }) {
             } finally {
                 setLoading(false);
             }
-        }
+        };
 
-        carregar();
+        if (id) {
+            carregar();
+        }
     }, [id, router]);
 
     const handleUpdate = async (payload) => {
@@ -57,15 +64,19 @@ function ProdutoContent({ id }) {
             });
 
             router.push("/admin/produtos");
+            return true;
         } catch (error) {
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || "Falha ao atualizar o produto.";
+
             await Swal.fire({
-                icon: "error",
-                title: "Erro",
-                text: error?.response?.data?.message || "Falha ao atualizar o produto.",
+                icon: statusCode === 409 ? "warning" : "error",
+                title: statusCode === 409 ? "Produto já cadastrado" : "Erro",
+                text: message,
                 confirmButtonColor: "#ea580c"
             });
 
-            throw error;
+            return false;
         }
     };
 
@@ -101,7 +112,9 @@ function ProdutoContent({ id }) {
         );
     }
 
-    const permissao = mode === "edit" ? "produtos.editar" : "produtos.visualizar";
+    const permissao = mode === "edit"
+        ? "produtos.editar"
+        : "produtos.visualizar";
 
     return (
         <Can perform={permissao} fallback={<AccessDenied />}>
@@ -113,7 +126,9 @@ function ProdutoContent({ id }) {
                     </Link>
 
                     <h1 className={styles.title}>
-                        {mode === "edit" ? "Editar Produto" : "Detalhes do Produto"}
+                        {mode === "edit"
+                            ? "Editar Produto"
+                            : "Detalhes do Produto"}
                     </h1>
                 </div>
 
@@ -136,8 +151,18 @@ export default function ProdutoPage({ params }) {
     return (
         <Suspense
             fallback={
-                <div style={{ display: "flex", justifyContent: "center", padding: "50px" }}>
-                    <RefreshCw color="#ea580c" size={30} />
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        padding: "50px"
+                    }}
+                >
+                    <RefreshCw
+                        className="animate-spin"
+                        color="#ea580c"
+                        size={30}
+                    />
                 </div>
             }
         >

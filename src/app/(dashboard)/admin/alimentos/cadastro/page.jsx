@@ -16,25 +16,81 @@ import styles from './page.module.css';
 export default function CadastroAlimentoPage() {
     const router = useRouter();
 
-    const handleSave = async (payload) => {
+    // const handleSave = async (payload) => {
+    //     try {
+    //         await criarAlimento(payload);
+    //         Swal.fire({
+    //             icon: 'success',
+    //             title: 'Sucesso',
+    //             text: 'Novo alimento cadastrado com sucesso!',
+    //             timer: 2000,
+    //             showConfirmButton: false,
+    //         });
+    //         router.push("/admin/alimentos");
+    //     } catch (error) {
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Erro',
+    //             text: error.response?.data?.message || 'Ocorreu um erro ao cadastrar o alimento.',
+    //             confirmButtonColor: '#ea580c'
+    //         });
+    //         return false;
+    //     }
+    // };
+
+    // const handleSave = async (payload) => {
+    //     try {
+    //         await criarAlimento(payload);
+
+    //         await Swal.fire({
+    //             icon: 'success',
+    //             title: 'Sucesso',
+    //             text: 'Novo alimento cadastrado com sucesso!',
+    //             timer: 2000,
+    //             showConfirmButton: false
+    //         });
+
+    //         router.push("/admin/alimentos");
+    //     } catch (error) {
+    //         const statusCode = error.response?.status;
+    //         const message = error.response?.data?.message || 'Ocorreu um erro ao cadastrar o alimento.';
+
+    //         await Swal.fire({
+    //             icon: statusCode === 409 ? 'warning' : 'error',
+    //             title: statusCode === 409 ? 'Alimento já cadastrado' : 'Erro',
+    //             text: message,
+    //             confirmButtonColor: '#ea580c'
+    //         });
+
+    //         return false;
+    //     }
+    // };
+
+    const handleSave = async (data) => {
         try {
-            await criarAlimento(payload);
-            Swal.fire({
+            await criarAlimento(data);
+
+            await Swal.fire({
                 icon: 'success',
-                title: 'Sucesso',
-                text: 'Novo alimento cadastrado com sucesso!',
-                timer: 2000,
-                showConfirmButton: false,
+                title: 'Alimento cadastrado!',
+                text: 'O alimento foi cadastrado com sucesso.',
+                confirmButtonColor: '#16a34a'
             });
-            router.push("/admin/alimentos");
+
+            router.push('/admin/alimentos');
+            return true;
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Falha ao cadastrar o alimento.',
-                confirmButtonColor: '#ea580c'
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || 'Não foi possível cadastrar o alimento.';
+
+            await Swal.fire({
+                icon: statusCode === 409 ? 'warning' : 'error',
+                title: statusCode === 409 ? 'Alimento já cadastrado' : 'Erro ao cadastrar',
+                text: message,
+                confirmButtonColor: statusCode === 409 ? '#f59e0b' : '#dc2626'
             });
-            throw error;
+
+            return false;
         }
     };
 
@@ -44,15 +100,15 @@ export default function CadastroAlimentoPage() {
             text: 'Os dados preenchidos serão perdidos.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f59e0b', 
-            cancelButtonColor: '#71717a',  
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#71717a',
             confirmButtonText: 'Sim, quero cancelar',
             cancelButtonText: 'Não, continuar preenchendo',
-            reverseButtons: true 
+            reverseButtons: true
         });
 
         if (result.isConfirmed) {
-            router.push("/admin/alimentos"); 
+            router.push("/admin/alimentos");
         }
     };
 
@@ -65,13 +121,13 @@ export default function CadastroAlimentoPage() {
                         <span>Voltar para Lista</span>
                     </Link>
                     <h1 className={styles.title}>
-                        Cadastrar Novo Alimento 
+                        Cadastrar Novo Alimento
                     </h1>
                 </div>
 
                 <AlimentoForm
                     initialData={null}
-                    mode="create" 
+                    mode="create"
                     onSave={handleSave}
                     onCancel={handleCancel}
                 />

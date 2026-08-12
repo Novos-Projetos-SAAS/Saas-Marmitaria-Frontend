@@ -14,12 +14,12 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import Swal from "sweetalert2";
 
 // Reaproveitando o CSS padrão que criamos para as telas de detalhes
-import styles from './page.module.css'; 
+import styles from './page.module.css';
 
 function DetalhesAlimentoContent({ id }) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     const alimentoId = id;
     const modeUrl = searchParams.get('mode') || 'view'; // 'view' ou 'edit'
 
@@ -52,24 +52,29 @@ function DetalhesAlimentoContent({ id }) {
     const handleUpdate = async (data) => {
         try {
             await alterarAlimento(alimentoId, data);
-            
-            Swal.fire({
+
+            await Swal.fire({
                 icon: 'success',
                 title: 'Sucesso',
                 text: 'Alimento atualizado com sucesso!',
                 timer: 2000,
-                showConfirmButton: false,
+                showConfirmButton: false
             });
-            
+
             router.push("/admin/alimentos");
+            return true;
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Falha ao atualizar o alimento!',
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || 'Falha ao atualizar o alimento.';
+
+            await Swal.fire({
+                icon: statusCode === 409 ? 'warning' : 'error',
+                title: statusCode === 409 ? 'Alimento já cadastrado' : 'Erro',
+                text: message,
                 confirmButtonColor: '#ea580c'
             });
-            throw error; 
+
+            return false;
         }
     };
 
@@ -83,15 +88,15 @@ function DetalhesAlimentoContent({ id }) {
             text: 'Todas as alterações não salvas serão perdidas.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f59e0b', 
-            cancelButtonColor: '#71717a',  
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#71717a',
             confirmButtonText: 'Sim, quero cancelar',
             cancelButtonText: 'Não, continuar editando',
-            reverseButtons: true 
+            reverseButtons: true
         });
 
         if (result.isConfirmed) {
-            router.push("/admin/alimentos"); 
+            router.push("/admin/alimentos");
         }
     };
 
@@ -122,7 +127,7 @@ function DetalhesAlimentoContent({ id }) {
                 {alimento && (
                     <AlimentoForm
                         initialData={alimento}
-                        mode={modeUrl} 
+                        mode={modeUrl}
                         onSave={handleUpdate}
                         onCancel={handleCancel}
                     />

@@ -1,5 +1,11 @@
-import { useState, useCallback } from 'react';
-import { buscarDadosEmpresa, atualizarDadosEmpresa } from '@/services/dadosEmpresaService.js';
+'use client';
+
+import { useState, useCallback, useEffect } from 'react';
+import {
+    buscarDadosEmpresa,
+    atualizarDadosEmpresa
+} from '@/services/dadosEmpresaService.js';
+
 import Swal from 'sweetalert2';
 
 export const useDadosEmpresa = () => {
@@ -9,33 +15,59 @@ export const useDadosEmpresa = () => {
 
     const carregarDados = useCallback(async () => {
         setLoadingDados(true);
+
         try {
-            const res = await buscarDadosEmpresa();
-            if (res?.data) {
-                setDados(res.data);
-            }
+            const response = await buscarDadosEmpresa();
+
+            const empresa =
+                response?.data?.data ??
+                response?.data ??
+                response ??
+                null;
+
+            setDados(empresa);
         } catch (error) {
-            Swal.fire('Erro', 'Não foi possível carregar as configurações da empresa.', 'error');
+            setDados(null);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Não foi possível carregar as configurações da empresa.',
+                confirmButtonColor: '#a54b3c'
+            });
         } finally {
             setLoadingDados(false);
         }
     }, []);
 
+    useEffect(() => {
+        carregarDados();
+    }, [carregarDados]);
+
     const salvarDados = async (payload) => {
         setSaving(true);
+
         try {
             await atualizarDadosEmpresa(payload);
-            Swal.fire({
+
+            await Swal.fire({
                 title: 'Sucesso!',
                 text: 'Configurações da empresa salvas.',
                 icon: 'success',
                 confirmButtonColor: '#16a34a'
             });
-            await carregarDados(); // Recarrega para garantir sincronia
+
+            await carregarDados();
+
             return true;
         } catch (error) {
-            Swal.fire('Erro', 'Ocorreu um erro ao salvar os dados.', 'error');
-            console.error('Erro ao salvar dados da empresa:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Ocorreu um erro ao salvar os dados.',
+                confirmButtonColor: '#a54b3c'
+            });
+
             return false;
         } finally {
             setSaving(false);

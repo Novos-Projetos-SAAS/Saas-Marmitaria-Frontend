@@ -80,7 +80,7 @@
 //                 const isDinheiro = metodosPagamento
 //                     .find(m => String(m.id) === String(value))
 //                     ?.nome.toLowerCase().includes('dinheiro');
-                
+
 //                 if (!isDinheiro) {
 //                     novoEstado.precisa_troco = false;
 //                     novoEstado.troco_para = '';
@@ -134,7 +134,7 @@
 //             metodo_pagamento_id: Number(form.metodo_pagamento_id),
 //             tipo_pedido: form.tipo_pedido,
 //             observacoes: form.observacoes,
-            
+
 //             // Novos campos de troco sendo enviados
 //             precisa_troco: isPagamentoDinheiro ? form.precisa_troco : false,
 //             troco_para: isPagamentoDinheiro && form.precisa_troco ? parseFloat(form.troco_para.replace(',', '.')) : null,
@@ -495,8 +495,8 @@ export default function Carrinho() {
         metodo_pagamento_id: '',
         tipo_pedido: 'Remoto',
         observacoes: '',
-        precisa_troco: false, 
-        troco_para: ''        
+        precisa_troco: false,
+        troco_para: ''
     });
 
     // Identifica se o método de pagamento selecionado é Dinheiro
@@ -526,7 +526,7 @@ export default function Carrinho() {
                 const isDinheiro = metodosPagamento
                     .find(m => String(m.id) === String(value))
                     ?.nome.toLowerCase().includes('dinheiro');
-                
+
                 if (!isDinheiro) {
                     novoEstado.precisa_troco = false;
                     novoEstado.troco_para = '';
@@ -580,7 +580,7 @@ export default function Carrinho() {
             metodo_pagamento_id: Number(form.metodo_pagamento_id),
             tipo_pedido: form.tipo_pedido,
             observacoes: form.observacoes, // Obs geral do pedido
-            
+
             precisa_troco: isPagamentoDinheiro ? form.precisa_troco : false,
             troco_para: isPagamentoDinheiro && form.precisa_troco ? parseFloat(form.troco_para.replace(',', '.')) : null,
 
@@ -848,6 +848,7 @@ export default function Carrinho() {
                                     checked={form.precisa_troco}
                                     onChange={handleChange}
                                     style={{ width: '18px', height: '18px' }}
+
                                 />
                                 Precisa de troco?
                             </label>
@@ -857,13 +858,21 @@ export default function Carrinho() {
                             <div className={styles.inputGroup} style={{ marginBottom: 0 }}>
                                 <label>Troco para quanto? *</label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="decimal"
                                     name="troco_para"
-                                    step="0.01"
                                     required={form.precisa_troco}
                                     value={form.troco_para}
-                                    onChange={handleChange}
-                                    onWheel={(e) => e.target.blur()}
+                                    onChange={(e) => {
+                                        let valor = e.target.value.replace(/[^0-9,.]/g, '');
+
+                                        if (valor.replace(/\D/g, '').length > 8) return;
+
+                                        setForm((anterior) => ({
+                                            ...anterior,
+                                            troco_para: valor
+                                        }));
+                                    }}
                                     placeholder={`Ex: ${Math.ceil(totalGeral + 10)}`}
                                 />
                             </div>
@@ -872,12 +881,17 @@ export default function Carrinho() {
                 )}
 
                 <div className={styles.inputGroup}>
-                    <label>Observações do Pedido (Opcional)</label>
+                    <div className={styles.labelObservacao}>
+                        <label>Observações do Pedido (Opcional)</label>
+                        <span>{form.observacoes.length}/60</span>
+                    </div>
+
                     <textarea
                         name="observacoes"
                         value={form.observacoes}
                         onChange={handleChange}
                         className={styles.textarea}
+                        maxLength={60}
                         placeholder="Ex: Tocar a campainha, alergia a amendoim..."
                         rows="2"
                     />

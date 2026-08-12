@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -19,22 +19,29 @@ export default function CadastroCategoriaPage() {
     const handleSave = async (payload) => {
         try {
             await criarCategoria(payload);
-            Swal.fire({
+
+            await Swal.fire({
                 icon: 'success',
                 title: 'Sucesso',
                 text: 'Nova categoria cadastrada com sucesso!',
                 timer: 2000,
-                showConfirmButton: false,
+                showConfirmButton: false
             });
+
             router.push("/admin/categorias-alimentos");
+            return true;
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Falha ao cadastrar a categoria.',
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || 'Falha ao cadastrar a categoria.';
+
+            await Swal.fire({
+                icon: statusCode === 409 ? 'warning' : 'error',
+                title: statusCode === 409 ? 'Categoria já cadastrada' : 'Erro',
+                text: message,
                 confirmButtonColor: '#ea580c'
             });
-            throw error;
+
+            return false;
         }
     };
 
@@ -44,15 +51,15 @@ export default function CadastroCategoriaPage() {
             text: 'Os dados preenchidos serão perdidos.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f59e0b', 
-            cancelButtonColor: '#71717a',  
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#71717a',
             confirmButtonText: 'Sim, quero cancelar',
             cancelButtonText: 'Não, continuar preenchendo',
-            reverseButtons: true 
+            reverseButtons: true
         });
 
         if (result.isConfirmed) {
-            router.push("/admin/categorias-alimentos"); 
+            router.push("/admin/categorias-alimentos");
         }
     };
 
@@ -64,14 +71,13 @@ export default function CadastroCategoriaPage() {
                         <ArrowLeft size={18} />
                         <span>Voltar para Lista</span>
                     </Link>
-                    <h1 className={styles.title}>
-                        Cadastrar Nova Categoria
-                    </h1>
+
+                    <h1 className={styles.title}>Cadastrar Nova Categoria</h1>
                 </div>
 
                 <CategoriaAlimentosForm
                     initialData={null}
-                    mode="create" 
+                    mode="create"
                     onSave={handleSave}
                     onCancel={handleCancel}
                 />

@@ -29,14 +29,37 @@ export default function CadastroCategoriaProdutoPage() {
             });
 
             router.push("/admin/categorias-produtos");
+            return true;
         } catch (error) {
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || "Falha ao cadastrar a categoria.";
+
             await Swal.fire({
-                icon: "error",
-                title: "Erro",
-                text: error?.response?.data?.message || "Falha ao cadastrar a categoria."
+                icon: statusCode === 409 ? "warning" : "error",
+                title: statusCode === 409 ? "Categoria já cadastrada" : "Erro",
+                text: message,
+                confirmButtonColor: "#ea580c"
             });
 
-            throw error;
+            return false;
+        }
+    };
+
+    const handleCancel = async () => {
+        const result = await Swal.fire({
+            title: "Deseja realmente cancelar?",
+            text: "Os dados preenchidos serão perdidos.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#f59e0b",
+            cancelButtonColor: "#71717a",
+            confirmButtonText: "Sim, quero cancelar",
+            cancelButtonText: "Não, continuar preenchendo",
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
+            router.push("/admin/categorias-produtos");
         }
     };
 
@@ -46,16 +69,19 @@ export default function CadastroCategoriaProdutoPage() {
                 <div className={styles.header}>
                     <Link href="/admin/categorias-produtos" className={styles.btnVoltar}>
                         <ArrowLeft size={18} />
-                        Voltar para Lista
+                        <span>Voltar para Lista</span>
                     </Link>
 
-                    <h1 className={styles.title}>Cadastrar Categoria de Produto</h1>
+                    <h1 className={styles.title}>
+                        Cadastrar Categoria de Produto
+                    </h1>
                 </div>
 
                 <CategoriasProdutosForm
+                    initialData={null}
                     mode="create"
                     onSave={handleSave}
-                    onCancel={() => router.push("/admin/categorias-produtos")}
+                    onCancel={handleCancel}
                 />
             </div>
         </Can>

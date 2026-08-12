@@ -1,10 +1,13 @@
-'use client'
+'use client';
 
-import { useRouter, useParams, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { use, Suspense, useState, useEffect } from 'react'
+import { use, Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
-import { buscarTamanhoPorId, alterarTamanhoMarmita } from '@/services/tamanhosMarmitasService.js';
+import {
+    buscarTamanhoPorId,
+    alterarTamanhoMarmita
+} from '@/services/tamanhosMarmitasService.js';
 
 import TamanhoForm from '@/components/forms/tamanhosMarmitas/tamanhosMarmitasForm.jsx';
 import Can from '@/components/ui/can/index.jsx';
@@ -15,31 +18,31 @@ import Swal from "sweetalert2";
 
 import styles from './page.module.css';
 
-function DetalhesTamanhoContent() {
+function DetalhesTamanhoContent({ id }) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const params = useParams();
-    
-    const tamanhoId = params.id;
-    const modeUrl = searchParams.get('mode') || 'view'; // 'view' ou 'edit'
+
+    const tamanhoId = id;
+    const modeUrl = searchParams.get('mode') || 'view';
 
     const [tamanho, setTamanho] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Busca os dados do Tamanho ao abrir a tela
     useEffect(() => {
         const fetchTamanho = async () => {
             try {
                 const data = await buscarTamanhoPorId(tamanhoId);
                 setTamanho(data);
             } catch (error) {
-                console.error(error);
-                Swal.fire({
+                const message = error.response?.data?.message || 'Tamanho não encontrado ou removido.';
+
+                await Swal.fire({
                     icon: 'error',
                     title: 'Erro',
-                    text: 'Tamanho não encontrado ou removido.',
+                    text: message,
                     confirmButtonColor: '#ea580c'
                 });
+
                 router.push("/admin/tamanhos-marmitas");
             } finally {
                 setLoading(false);
@@ -55,47 +58,50 @@ function DetalhesTamanhoContent() {
         try {
             await alterarTamanhoMarmita(tamanhoId, data);
 
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Sucesso',
                 text: 'Tamanho atualizado com sucesso!',
                 timer: 2000,
-                showConfirmButton: false,
+                showConfirmButton: false
             });
 
             router.push("/admin/tamanhos-marmitas");
+            return true;
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Falha ao atualizar o tamanho!',
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || 'Falha ao atualizar o tamanho.';
+
+            await Swal.fire({
+                icon: statusCode === 409 ? 'warning' : 'error',
+                title: statusCode === 409 ? 'Tamanho já cadastrado' : 'Erro',
+                text: message,
                 confirmButtonColor: '#ea580c'
             });
-            throw error; // Repassa o erro para o form parar o loading interno
+
+            return false;
         }
     };
 
     const handleCancel = async () => {
-        // Se estiver apenas visualizando e clicar em voltar
         if (modeUrl === 'view') {
             return router.push("/admin/tamanhos-marmitas");
         }
 
-        // Se estiver editando, pede confirmação
         const result = await Swal.fire({
             title: 'Deseja realmente cancelar?',
             text: 'Todas as alterações não salvas serão perdidas.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f59e0b', 
-            cancelButtonColor: '#71717a',  
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#71717a',
             confirmButtonText: 'Sim, quero cancelar',
             cancelButtonText: 'Não, continuar editando',
-            reverseButtons: true 
+            reverseButtons: true
         });
 
         if (result.isConfirmed) {
-            router.push("/admin/tamanhos-marmitas"); 
+            router.push("/admin/tamanhos-marmitas");
         }
     };
 
@@ -108,47 +114,64 @@ function DetalhesTamanhoContent() {
         );
     }
 
-    const permissaoNecessaria = modeUrl === "edit" ? "tamanhos_marmitas.editar" : "tamanhos_marmitas.visualizar";
+    const permissaoNecessaria = modeUrl === "edit"
+        ? "tamanhos_marmitas.editar"
+        : "tamanhos_marmitas.visualizar";
 
     return (
         <Can perform={permissaoNecessaria} fallback={<AccessDenied />}>
             <div className={styles.wrapper}>
-
                 <div className={styles.header}>
-                    <Link href="/admin/tamanhos-marmitas" className={styles.btnVoltar}>
+                    <Link
+                        href="/admin/tamanhos-marmitas"
+                        className={styles.btnVoltar}
+                    >
                         <ArrowLeft size={18} />
                         <span>Voltar para Lista</span>
                     </Link>
+
                     <h1 className={styles.title}>
-                        {modeUrl === "edit" ? "Editar Tamanho" : "Detalhes do Tamanho"}
+                        {modeUrl === "edit"
+                            ? "Editar Tamanho"
+                            : "Detalhes do Tamanho"}
                     </h1>
                 </div>
 
                 {tamanho && (
                     <TamanhoForm
                         initialData={tamanho}
-                        mode={modeUrl} 
+                        mode={modeUrl}
                         onSave={handleUpdate}
                         onCancel={handleCancel}
                     />
                 )}
-
             </div>
         </Can>
     );
 }
 
 export default function EditTamanhoPage({ params: paramsPromise }) {
-    // Padrão Next.js 15+ para lidar com params em Server/Client components
     const params = use(paramsPromise);
     const { id } = params;
 
     return (
-        <Suspense fallback={
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
-                <RefreshCw className="animate-spin" color="#ea580c" size={30} />
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        padding: '50px'
+                    }}
+                >
+                    <RefreshCw
+                        className="animate-spin"
+                        color="#ea580c"
+                        size={30}
+                    />
+                </div>
+            }
+        >
             <DetalhesTamanhoContent id={id} />
         </Suspense>
     );

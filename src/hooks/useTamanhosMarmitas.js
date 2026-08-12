@@ -1,72 +1,70 @@
-'use client'
+'use client';
 
 import { useState, useEffect, useCallback } from "react";
-
-import {
-    buscarTamanhosMarmitasAdmin
-} from "../services/tamanhosMarmitasService.js";
-
-import Swal from "sweetalert2";
+import { buscarTamanhosMarmitasAdmin } from "../services/tamanhosMarmitasService.js";
 
 export function useTamanhosMarmitas() {
     const [tamanhos, setTamanhos] = useState([]);
     const [loading, setLoading] = useState(false);
-
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [statusFilter, setStatusFilter] = useState("false"); // "false" = apenas ativos por padrão
-    const [sortColumn, setSortColumn] = useState('preco_base'); // Ordena por preço por padrão
+    const [statusFilter, setStatusFilter] = useState("false");
+    const [sortColumn, setSortColumn] = useState('preco_base');
     const [sortDirection, setSortDirection] = useState('ASC');
     const [search, setSearch] = useState("");
 
     const carregarTamanhos = useCallback(async () => {
         setLoading(true);
-        try {
-            const response = await buscarTamanhosMarmitasAdmin(search, page, statusFilter, sortColumn, sortDirection);
-            setTamanhos(response.data || []);
 
+        try {
+            const response = await buscarTamanhosMarmitasAdmin(
+                search,
+                page,
+                statusFilter,
+                sortColumn,
+                sortDirection
+            );
+
+            setTamanhos(response?.data || []);
             setTotalPages(response?.pagination?.lastPage || 1);
             setPage(response?.pagination?.page || 1);
-
-
-        } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: extrairMensagemErro(error, 'Não foi possível carregar os tamanhos.'),
-                confirmButtonColor: '#ea580c'
-            });
+        } catch {
+            setTamanhos([]);
+            setTotalPages(1);
         } finally {
             setLoading(false);
         }
-    }, [search, page, statusFilter, sortColumn, sortDirection]);
+    }, [
+        search,
+        page,
+        statusFilter,
+        sortColumn,
+        sortDirection
+    ]);
 
     useEffect(() => {
-        let isMounted = true;
-
-        const iniciarBusca = async () => {
-            // Microtask para permitir que o React termine de renderizar a tela antes de travar no loading
-            await Promise.resolve();
-
-            if (isMounted) {
-                carregarTamanhos();
-            }
-        };
-
-        iniciarBusca();
-
-        return () => {
-            isMounted = false;
-        };
+        carregarTamanhos();
     }, [carregarTamanhos]);
 
     const handleSort = (column) => {
         const isSameColumn = sortColumn === column;
-        const newDirection = isSameColumn && sortDirection === "ASC" ? "DESC" : "ASC";
+        const newDirection = isSameColumn && sortDirection === "ASC"
+            ? "DESC"
+            : "ASC";
+
         setSortColumn(column);
         setSortDirection(newDirection);
-        setPage(1); // Reseta para a primeira página ao ordenar
+        setPage(1);
+    };
+
+    const alterarBusca = (valor) => {
+        setSearch(valor);
+        setPage(1);
+    };
+
+    const alterarStatus = (status) => {
+        setStatusFilter(status);
+        setPage(1);
     };
 
     return {
@@ -78,8 +76,9 @@ export function useTamanhosMarmitas() {
         sortColumn,
         sortDirection,
         statusFilter,
-        setStatusFilter,
-        setSearch, // Expõe para a barra de pesquisa do Client
+        setStatusFilter: alterarStatus,
+        search,
+        setSearch: alterarBusca,
         handleSort,
         refrescarLista: carregarTamanhos
     };

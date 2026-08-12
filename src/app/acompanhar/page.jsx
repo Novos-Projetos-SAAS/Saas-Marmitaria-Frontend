@@ -1,11 +1,8 @@
 // 'use client'
 
 // import { useRouter } from 'next/navigation';
-
 // import { useState, useEffect } from 'react';
-
 // import { usePedidos } from '@/hooks/usePedidos';
-
 // import { Clock, ChefHat, Bike, CheckCircle2, Search, ArrowLeft, Package, Store, XCircle } from 'lucide-react';
 
 // import styles from './page.module.css';
@@ -13,25 +10,23 @@
 // export default function AcompanharPedido() {
 //     const router = useRouter();
 //     const [telefone, setTelefone] = useState('');
-
-//     // 👇 Mudamos para um Array vazio ao invés de null
 //     const [pedidos, setPedidos] = useState([]);
 //     const [erro, setErro] = useState('');
 
 //     const { buscarPedidoPorTelefoneUsuario, buscando } = usePedidos();
 
-//     const fazerBusca = async (telefone) => {
+//     const fazerBusca = async (telefoneBusca) => {
 //         setErro('');
-//         const response = await buscarPedidoPorTelefoneUsuario(telefone);
+//         const response = await buscarPedidoPorTelefoneUsuario(telefoneBusca);
 
 //         if (response && response.status === 'success' && response.data.length > 0) {
-//             // 👇 Agora salvamos TODOS os pedidos retornados na lista
 //             setPedidos(response.data);
 //         } else {
 //             setPedidos([]);
 //             setErro('Nenhum pedido encontrado para este telefone.');
 //         }
 //     };
+
 //     useEffect(() => {
 //         setTimeout(() => {
 //             const telefoneSalvo = localStorage.getItem('marmitaria_telefone_cliente');
@@ -40,9 +35,7 @@
 //                 fazerBusca(telefoneSalvo);
 //             }
 //         }, 0);
-
 //     }, []);
-
 
 //     const handleBusca = (e) => {
 //         e.preventDefault();
@@ -55,15 +48,12 @@
 
 //         if (s === 'pendente') return 0;
 //         if (s === 'em preparo') return 1;
-//         // O passo 2 pode ser tanto entrega quanto retirada
 //         if (s === 'saiu para entrega' || s === 'pronto para retirada') return 2;
 //         if (s === 'entregue') return 3;
 
-//         // Cancelado não tem índice na linha do tempo normal
 //         return -1;
 //     };
 
-//     // Função para definir a cor da etiqueta (badge) baseado no status
 //     const getBadgeClass = (statusAtual) => {
 //         if (!statusAtual) return styles.badgeDefault;
 //         const s = statusAtual.toLowerCase();
@@ -116,14 +106,13 @@
 //                 <div className={styles.listaPedidos}>
 //                     {pedidos.map((pedido) => (
 //                         <div key={pedido.id} className={styles.cardRastreio}>
-
+                            
 //                             {/* CABEÇALHO DO CARD */}
 //                             <div className={styles.cardHeader}>
 //                                 <div>
 //                                     <h2>Pedido #{pedido.id}</h2>
 //                                     <span>{formatarData(pedido.criado_em)} às {formatarHora(pedido.criado_em)}</span>
 //                                 </div>
-//                                 {/* Badge colorida dinâmica */}
 //                                 <div className={`${styles.badgeStatus} ${getBadgeClass(pedido.status)}`}>
 //                                     {pedido.status}
 //                                 </div>
@@ -144,23 +133,8 @@
 //                                     <div className={`${styles.linha} ${getStatusIndex(pedido.status) >= 2 ? styles.linhaAtiva : ''}`} />
 
 //                                     <EtapaTimeline
-//                                         icone={
-//                                             pedido.metodo_entrega ===
-//                                                 'Retirada'
-
-//                                                 ? <Store />
-
-//                                                 : <Bike />
-//                                         }
-
-//                                         titulo={
-//                                             pedido.metodo_entrega ===
-//                                                 'Retirada'
-
-//                                                 ? 'Pronto para Retirada'
-
-//                                                 : 'Saiu para Entrega'
-//                                         }
+//                                         icone={pedido.metodo_entrega === 'Retirada' ? <Store /> : <Bike />}
+//                                         titulo={pedido.metodo_entrega === 'Retirada' ? 'Pronto para Retirada' : 'Saiu para Entrega'}
 //                                         ativo={getStatusIndex(pedido.status) >= 2}
 //                                     />
 //                                     <div className={`${styles.linha} ${getStatusIndex(pedido.status) >= 3 ? styles.linhaAtiva : ''}`} />
@@ -170,125 +144,38 @@
 //                             )}
 
 //                             {/* RESUMO DOS ITENS */}
-//                             <div
-//                                 className={
-//                                     styles.itensResumo
-//                                 }
-//                             >
+//                             <div className={styles.itensResumo}>
+//                                 <h3>Resumo do Pedido</h3>
 
-//                                 <h3>
-//                                     Resumo do Pedido
-//                                 </h3>
+//                                 {/* MARMITAS */}
+//                                 {(pedido.marmitas || []).map((marmita) => (
+//                                     <div key={marmita.id} className={styles.itemMarmita}>
+//                                         <strong>{marmita.quantidade}x Marmita {marmita.tamanho}</strong>
+//                                         <span>
+//                                             {(marmita.alimentos || [])
+//                                                 .map((alimento) => typeof alimento === 'string' ? alimento : alimento.nome)
+//                                                 .join(', ')}
+//                                         </span>
+//                                         {/* 👇 ADICIONADO AQUI: Observação da Marmita */}
+//                                         {marmita.observacao && (
+//                                             <span className={styles.itemObservacao}>
+//                                                 * Obs: {marmita.observacao}
+//                                             </span>
+//                                         )}
+//                                     </div>
+//                                 ))}
 
-
-//                                 {/* ========================================================
-//         MARMITAS
-//        ======================================================== */}
-
-//                                 {(pedido.marmitas || [])
-//                                     .map(
-//                                         (
-//                                             marmita
-//                                         ) => (
-
-//                                             <div
-//                                                 key={
-//                                                     marmita.id
-//                                                 }
-//                                                 className={
-//                                                     styles.itemMarmita
-//                                                 }
-//                                             >
-
-//                                                 <strong>
-
-//                                                     {marmita.quantidade}x{' '}
-
-//                                                     Marmita {marmita.tamanho}
-
-//                                                 </strong>
-
-
-//                                                 <span>
-
-//                                                     {(marmita.alimentos || [])
-
-//                                                         .map(
-//                                                             (
-//                                                                 alimento
-//                                                             ) =>
-
-//                                                                 typeof alimento ===
-//                                                                     'string'
-
-//                                                                     ? alimento
-
-//                                                                     : alimento.nome
-//                                                         )
-
-//                                                         .join(
-//                                                             ', '
-//                                                         )}
-
-//                                                 </span>
-
-//                                             </div>
-//                                         )
-//                                     )}
-
-
-//                                 {/* ========================================================
-//         PRODUTOS
-//        ======================================================== */}
-
-//                                 {(pedido.produtos || [])
-//                                     .map(
-//                                         (
-//                                             produto
-//                                         ) => (
-
-//                                             <div
-//                                                 key={
-//                                                     produto.id
-//                                                 }
-//                                                 className={
-//                                                     styles.itemMarmita
-//                                                 }
-//                                             >
-
-//                                                 <strong>
-
-//                                                     {produto.quantidade}x{' '}
-
-//                                                     {produto.nome}
-
-//                                                 </strong>
-
-
-//                                                 <span>
-
-//                                                     {produto.categoria_nome ||
-//                                                         'Complemento'}
-
-//                                                     {' • '}
-
-//                                                     R$ {' '}
-
-//                                                     {Number(
-//                                                         produto.subtotal
-//                                                     )
-//                                                         .toFixed(2)
-//                                                         .replace(
-//                                                             '.',
-//                                                             ','
-//                                                         )}
-
-//                                                 </span>
-
-//                                             </div>
-//                                         )
-//                                     )}
-
+//                                 {/* PRODUTOS */}
+//                                 {(pedido.produtos || []).map((produto) => (
+//                                     <div key={produto.id} className={styles.itemMarmita}>
+//                                         <strong>{produto.quantidade}x {produto.nome}</strong>
+//                                         <span>
+//                                             {produto.categoria_nome || 'Complemento'}
+//                                             {' • '}
+//                                             R$ {Number(produto.subtotal).toFixed(2).replace('.', ',')}
+//                                         </span>
+//                                     </div>
+//                                 ))}
 //                             </div>
 
 //                             {/* RODAPÉ COM TOTAL */}
@@ -305,7 +192,6 @@
 //     );
 // }
 
-// // Lembre-se de manter este componente aqui no final do arquivo, fora da função principal!
 // const EtapaTimeline = ({ icone, titulo, ativo }) => (
 //     <div className={`${styles.etapa} ${ativo ? styles.etapaAtiva : ''}`}>
 //         <div className={styles.iconeWrap}>{icone}</div>

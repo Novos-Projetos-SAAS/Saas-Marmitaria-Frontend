@@ -1107,37 +1107,39 @@ export function PedidoProvider({ children }) {
      * Mantém a regra atual de limite por categoria.
      */
     const alternarAlimento = useCallback((alimento, limiteRecebido) => {
-        const limite = limiteRecebido || alimento.limite_escolhas || 1;
+    const limite = Number(limiteRecebido || alimento.limite_escolhas || 1);
 
-        setMarmitaAtual((anterior) => {
-            const jaSelecionado = anterior.itens.some((item) => item.id === alimento.id);
+    const jaSelecionado = marmitaAtual.itens.some(
+        (item) => Number(item.id) === Number(alimento.id)
+    );
 
-            // Se já estiver selecionado, apenas remove.
-            if (jaSelecionado) {
-                return {
-                    ...anterior,
-                    itens: anterior.itens.filter((item) => item.id !== alimento.id)
-                };
-            }
+    // Se o alimento já está selecionado, apenas remove.
+    // Não verifica limite ao desmarcar.
+    if (jaSelecionado) {
+        setMarmitaAtual((anterior) => ({
+            ...anterior,
+            itens: anterior.itens.filter(
+                (item) => Number(item.id) !== Number(alimento.id)
+            )
+        }));
+        return;
+    }
 
-            // Quantidade já selecionada dentro da categoria.
-            const qtdNestaCategoria = anterior.itens.filter(
-                (item) => item.categoria_nome === alimento.categoria_nome
-            ).length;
+    // O limite só é verificado quando estamos ADICIONANDO um novo alimento.
+    const qtdNestaCategoria = marmitaAtual.itens.filter(
+        (item) => item.categoria_nome === alimento.categoria_nome
+    ).length;
 
-            if (qtdNestaCategoria >= limite) {
-                setTimeout(() => {
-                    toast.error(`Limite atingido! A categoria ${alimento.categoria_nome} permite ${limite} opção(ões).`);
-                }, 10);
-                return anterior;
-            }
+    if (qtdNestaCategoria >= limite) {
+        toast.error(`Limite atingido! A categoria ${alimento.categoria_nome} permite ${limite} opção(ões).`);
+        return;
+    }
 
-            return {
-                ...anterior,
-                itens: [...anterior.itens, alimento]
-            };
-        });
-    }, []);
+    setMarmitaAtual((anterior) => ({
+        ...anterior,
+        itens: [...anterior.itens, alimento]
+    }));
+}, [marmitaAtual.itens]);
 
     /**
      * ============================================================

@@ -1,229 +1,196 @@
-
 .mainContainer {
-  min-height: 100dvh;
-  /* height: 100%; */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background-color: #FAFAFA;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #18181B;
-  box-sizing: border-box;
+    min-height: 100dvh;
+    background: #f3f3f3;
+    display: flex;
+    justify-content: center;
+    color: #4b4b4b;
 }
 
 .appCard {
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+    width: 100%;
+    max-width: 460px;
+    height: 100dvh;
+    background: #ffffff;
+    position: relative;
+    padding-bottom: 40px;
+    /* overflow: hidden; */
+    box-sizing: border-box;
 }
 
-/* Cabeçalho */
-.header {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.capa {
+    width: 100%;
+    height: 165px;
+    position: relative;
+    overflow: hidden;
+    background: #ff982e;
 }
 
-.logoBox {
-  font-size: 2.5rem;
-  margin-bottom: 24px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 80px;
-  height: 80px;
-  background-color: #FFFFFF;
-  border: 1px solid #E4E4E7;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+.capaImagem {
+    object-fit: cover;
 }
 
-.titulo {
-  font-size: 1.5rem;
-  color: #18181B;
-  margin: 0 0 6px 0;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+.infoLoja {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 0 18px 24px;
+    margin-top: -38px;
+    position: relative;
+    z-index: 2;
 }
 
-.subtitulo {
-  font-size: 0.95rem;
-  color: #71717A;
-  margin: 0;
-  font-weight: 400;
+.logoWrap {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 4px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Badges de Status - Design mais técnico e reto */
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 24px;
+.logoImagem {
+    object-fit: cover;
+}
+
+.dadosLoja {
+    padding-top: 44px;
+    min-width: 0;
+}
+
+.dadosLoja h1 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #343434;
+}
+
+.endereco {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0 0 10px;
+    color: #666666;
+    font-size: 0.83rem;
+    line-height: 1.35;
+}
+
+.endereco svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .aberto {
-  background-color: #ECFDF5;
-  color: #065F46;
-  border: 1px solid #A7F3D0;
+    background: #ecfdf3;
+    color: #16803c;
 }
 
 .fechado {
-  background-color: #FEF2F2;
-  color: #991B1B;
-  border: 1px solid #FECACA;
+    background: #fff1f0;
+    color: #b42318;
 }
 
-.bolaPulsante {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
+.actions {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-/* Área de Ação */
-.actionArea {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.primaryButton,
+.secondaryButton {
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.btnPrimary, .btnSecondary {
-  width: 100%;
-  padding: 16px; 
-  border-radius: 6px; /* Canto mais agudo = mais sério */
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.2s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
+.primaryButton {
+    background: #a54b3c;
+    color: #ffffff;
+    box-shadow: 0 3px 0 #7f382e;
 }
 
-/* Efeito tátil mais seco e realista */
-.btnPrimary:active, .btnSecondary:active {
-  transform: scale(0.99); 
+.primaryButton:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
 
-.btnPrimary {
-  background-color: #18181B; /* Preto moderno */
-  color: #FFFFFF;
-  border: 1px solid #18181B;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+.primaryButton:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 #7f382e;
 }
 
-.btnPrimary:hover {
-  background-color: #27272A;
+.secondaryButton {
+    background: #ffffff;
+    color: #a54b3c;
+    border: 1px solid #e3e3e3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-.btnSecondary {
-  background-color: #FFFFFF;
-  color: #18181B;
-  border: 1px solid #D4D4D8;
+.linkButton {
+    height: 44px;
+    border: none;
+    background: transparent;
+    color: #a54b3c;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
 }
 
-.btnSecondary:hover {
-  background-color: #F4F4F5;
+.carrinhoFlutuante {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    width: calc(100% - 32px);
+    max-width: 428px;
+    transform: translateX(-50%);
+    z-index: 50;
 }
 
-/* Box Fechado parecendo um alerta de sistema */
-.boxFechado {
-  background-color: #F4F4F5;
-  padding: 16px;
-  border-radius: 6px;
-  border-left: 4px solid #DC2626;
-  text-align: left;
-  color: #3F3F46;
+.carrinhoFlutuante button {
+    width: 100%;
+    background: #a54b3c;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(83, 39, 32, 0.22);
 }
 
-.boxFechado p {
-  margin: 4px 0;
-  font-size: 0.9rem;
+.carrinhoInfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* BARRA FLUTUANTE DO CARRINHO */
-.barraCarrinho {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #FFFFFF;
-  border-top: 1px solid #E4E4E7;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
-  z-index: 100;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-sizing: border-box;
-}
-
-.btnCarrinho {
-  width: 100%;
-  max-width: 400px;
-  background-color: #EA580C; /* O Accent Color brilha aqui para converter a venda */
-  color: #FFFFFF;
-  border: none;
-  border-radius: 6px;
-  padding: 16px 20px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: transform 0.1s ease;
-}
-
-.btnCarrinho:active {
-  transform: scale(0.98);
-}
-
-.infoCarrinho {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.qtdBadge {
-  background-color: #FFFFFF;
-  color: #EA580C;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.totalCarrinho {
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.95rem;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+@media (min-width: 600px) {
+    .appCard {
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+    }
 }

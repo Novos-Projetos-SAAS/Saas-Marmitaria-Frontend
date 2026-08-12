@@ -218,46 +218,7 @@ export default function ProdutosClient() {
         /**
          * Coluna 4 também fica oculta no mobile.
          */
-        {
-            header: "Disponibilidade",
-            accessor: "disponivel_hoje",
-            render: (_, item) => {
-                const disponivel = item.disponivel_hoje === true;
-
-                const badge = (
-                    <span
-                        style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            padding: "4px 8px",
-                            borderRadius: "12px",
-                            fontSize: "0.75rem",
-                            fontWeight: 700,
-                            backgroundColor: disponivel ? "#dcfce7" : "#f4f4f5",
-                            color: disponivel ? "#166534" : "#71717a",
-                            border: "1px solid #e4e4e7"
-                        }}
-                    >
-                        {disponivel ? "Disponível" : "Indisponível"}
-                    </span>
-                );
-
-                if (item.deletado_em || !item.ativo) return badge;
-
-                return (
-                    <Can perform="produtos.disponibilidade" fallback={badge}>
-                        <button
-                            type="button"
-                            onClick={() => handleDisponibilidade(item)}
-                            style={{ border: "none", background: "none", padding: 0, cursor: "pointer" }}
-                            title="Alterar disponibilidade"
-                        >
-                            {badge}
-                        </button>
-                    </Can>
-                );
-            }
-        },
+       
 
         /**
          * Mantemos Preço como coluna 5 para
@@ -412,27 +373,6 @@ export default function ProdutosClient() {
                         />
                     </div>
 
-                    {/* <div className={styles.selectWrapper}>
-                        <Filter size={16} className={styles.filterIcon} />
-
-                        <select
-                            className={styles.statusSelect}
-                            value={categoriaFilter}
-                            onChange={(event) => {
-                                setCategoriaFilter(event.target.value);
-                                setPage(1);
-                            }}
-                        >
-                            <option value="">Todas Categorias</option>
-
-                            {categorias.map((categoria) => (
-                                <option key={categoria.id} value={categoria.id}>
-                                    {categoria.nome}
-                                </option>
-                            ))}
-                        </select>
-                    </div> */}
-
                     <div className={styles.selectWrapper}>
                         <Filter size={16} className={styles.filterIcon} />
 
@@ -450,23 +390,6 @@ export default function ProdutosClient() {
                             <option value="todos">Todos</option>
                         </select>
                     </div>
-
-                    {/* <div className={styles.selectWrapper}>
-                        <Filter size={16} className={styles.filterIcon} />
-
-                        <select
-                            className={styles.statusSelect}
-                            value={disponibilidadeFilter}
-                            onChange={(event) => {
-                                setDisponibilidadeFilter(event.target.value);
-                                setPage(1);
-                            }}
-                        >
-                            <option value="todos">Disponibilidade</option>
-                            <option value="disponivel">Disponíveis</option>
-                            <option value="indisponivel">Indisponíveis</option>
-                        </select>
-                    </div> */}
                 </div>
 
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>

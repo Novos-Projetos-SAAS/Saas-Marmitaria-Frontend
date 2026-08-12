@@ -9,47 +9,20 @@ import ProdutosClient from "./ProdutosClient";
  */
 import styles from "../alimentos/page.module.css";
 
-
 export const metadata = {
-
-    title:
-        "Marmitaria | Produtos",
-
-    description:
-        "Gerenciamento de produtos da Marmitaria"
+    title: "Marmitaria | Produtos",
+    description: "Gerenciamento de produtos da Marmitaria"
 };
 
-
 export default function ProdutosPage() {
-
     return (
-
-        <Can
-            perform="produtos.listar"
-            fallback={
-                <AccessDenied />
-            }
-        >
-
-            <div
-                className={
-                    styles.container
-                }
-            >
-
-                <h1
-                    className={
-                        styles.title
-                    }
-                >
+        <Can perform="produtos.listar" fallback={<AccessDenied />}>
+            <div className={styles.container}>
+                <h1 className={styles.title}>
                     Produtos
                 </h1>
-
-
                 <ProdutosClient />
-
             </div>
-
         </Can>
     );
 }

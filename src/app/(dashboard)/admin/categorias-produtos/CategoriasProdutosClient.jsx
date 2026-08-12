@@ -110,10 +110,6 @@ export default function CategoriasProdutosClient() {
             </span>)
         },
         {
-            header: "Ordem",
-            accessor: "ordem_exibicao"
-        },
-        {
             header: "Status",
             accessor: "ativo",
             render: (_, item) => {
@@ -143,9 +139,7 @@ export default function CategoriasProdutosClient() {
                     fontWeight: "bold",
                     border: "1px solid #e5e7eb"
                 }}>
-
                     {label}
-
                 </span>);
             }
         },
@@ -163,104 +157,68 @@ export default function CategoriasProdutosClient() {
                 return (<>
 
                     <div className={styles.desktopActions}>
-
                         <Can perform="categorias_produtos.listar">
-
                             <Link href={`/admin/categorias-produtos/${item.id}?mode=view`} title="Visualizar" style={{
                                 color: "#2563eb",
                                 display: "flex"
                             }}>
-
                                 <Eye size={18} />
-
                             </Link>
-
                         </Can>
 
 
                         {!arquivado && (<Can perform="categorias_produtos.editar">
-
                             <Link href={`/admin/categorias-produtos/${item.id}?mode=edit`} title="Editar" style={{
                                 color: "#2563eb",
                                 display: "flex"
                             }}>
-
                                 <Edit size={18} />
-
                             </Link>
-
                         </Can>)}
 
 
                         {!arquivado ? (<Can perform="categorias_produtos.deletar">
-
                             <button type="button" onClick={() => handleArchive(item.id, item.nome)} style={{
                                 color: "#ef4444",
                                 border: 0,
                                 background: "none",
                                 cursor: "pointer"
                             }}>
-
                                 <Trash2 size={18} />
-
                             </button>
 
                         </Can>) : (<Can perform="categorias_produtos.restaurar">
-
                             <button type="button" onClick={() => handleReactivate(item.id, item.nome)} style={{
                                 color: "#16a34a",
                                 border: 0,
                                 background: "none",
                                 cursor: "pointer"
                             }}>
-
                                 <RotateCcw size={18} />
-
                             </button>
-
                         </Can>)}
-
                     </div>
-
 
                     <div className={styles.mobileActions}>
-
-                        <ActionMenu item={mobileItem} basePath="/admin/categorias-produtos" permissionPrefix="categorias_produtos" viewPermission="categorias_produtos.listar" reactivatePermission="categorias_produtos.restaurar" onArchive={handleArchive} onReactivate={handleReactivate} isLast={index >=
-                            categorias.length -
-                            2} />
-
+                        <ActionMenu item={mobileItem} basePath="/admin/categorias-produtos" permissionPrefix="categorias_produtos" viewPermission="categorias_produtos.listar" reactivatePermission="categorias_produtos.restaurar" onArchive={handleArchive} onReactivate={handleReactivate} isLast={index >= categorias.length - 2} />
                     </div>
-
                 </>);
             }
         }
     ];
     return (<div className={styles.wrapper}>
-
         <div className={styles.actionsBar}>
-
             <div className={styles.filtersGroup}>
-
                 <div className={styles.searchWrapper}>
-
                     <Search size={20} className={styles.searchIcon} />
-
-
                     <input type="text" placeholder="Buscar categorias..." className={styles.searchInput} value={inputValue} onChange={(event) => setInputValue(event.target.value)} />
-
                 </div>
-
-
                 <div className={styles.selectWrapper}>
-
                     <Filter size={16} className={styles.filterIcon} />
-
-
                     <select className={styles.statusSelect} value={statusFilter} onChange={(event) => {
                         setStatusFilter(event.target.value);
                         setPage(1);
                     }}>
-
                         <option value="ativo">
                             Ativas
                         </option>
@@ -276,41 +234,25 @@ export default function CategoriasProdutosClient() {
                         <option value="todos">
                             Todas
                         </option>
-
                     </select>
-
                 </div>
-
             </div>
 
-
             <Can perform="categorias_produtos.criar">
-
                 <Link href="/admin/categorias-produtos/cadastro" className={styles.newButton}>
-
                     <Plus size={20} />
-
                     <span>
                         Nova Categoria
                     </span>
-
                 </Link>
-
             </Can>
-
         </div>
-
 
         <div className={styles.tableContainer}>
-
             <Table columns={columns} data={categorias} isLoading={loading} onSort={handleSort} sortColumn={sortColumn} sortDirection={sortDirection} />
-
         </div>
 
-
-        {!loading &&
-            categorias.length > 0 &&
-            totalPages > 1 && (<Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />)}
+        {!loading && categorias.length > 0 && totalPages > 1 && (<Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />)}
 
     </div>);
 }

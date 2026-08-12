@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { useRouter, useParams, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { use, Suspense, useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { use, Suspense, useState, useEffect } from 'react';
 
 import { buscarCategoriaPorId, alterarCategoria } from '@/services/categoriasAlimentosService.js';
 
@@ -18,7 +18,7 @@ import styles from './page.module.css';
 function DetalhesCategoriaContent({ id }) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     const categoriaId = id;
     const modeUrl = searchParams.get('mode') || 'view';
 
@@ -31,41 +31,52 @@ function DetalhesCategoriaContent({ id }) {
                 const data = await buscarCategoriaPorId(categoriaId);
                 setCategoria(data);
             } catch (error) {
-                console.error(error);
-                Swal.fire({
+                const message = error.response?.data?.message || 'Categoria não encontrada ou removida.';
+
+                await Swal.fire({
                     icon: 'error',
                     title: 'Erro',
-                    text: 'Categoria não encontrada ou removida.',
+                    text: message,
                     confirmButtonColor: '#ea580c'
                 });
+
                 router.push("/admin/categorias-alimentos");
             } finally {
                 setLoading(false);
             }
         };
 
-        if (categoriaId) fetchCategoria();
+        if (categoriaId) {
+            fetchCategoria();
+        }
     }, [categoriaId, router]);
 
     const handleUpdate = async (data) => {
         try {
             await alterarCategoria(categoriaId, data);
-            Swal.fire({
+
+            await Swal.fire({
                 icon: 'success',
                 title: 'Sucesso',
                 text: 'Categoria atualizada com sucesso!',
                 timer: 2000,
-                showConfirmButton: false,
+                showConfirmButton: false
             });
+
             router.push("/admin/categorias-alimentos");
+            return true;
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro',
-                text: 'Falha ao atualizar a categoria!',
+            const statusCode = error.response?.status;
+            const message = error.response?.data?.message || 'Falha ao atualizar a categoria.';
+
+            await Swal.fire({
+                icon: statusCode === 409 ? 'warning' : 'error',
+                title: statusCode === 409 ? 'Categoria já cadastrada' : 'Erro',
+                text: message,
                 confirmButtonColor: '#ea580c'
             });
-            throw error;
+
+            return false;
         }
     };
 
@@ -79,15 +90,15 @@ function DetalhesCategoriaContent({ id }) {
             text: 'Todas as alterações não salvas serão perdidas.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f59e0b', 
-            cancelButtonColor: '#71717a',  
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#71717a',
             confirmButtonText: 'Sim, quero cancelar',
             cancelButtonText: 'Não, continuar editando',
-            reverseButtons: true 
+            reverseButtons: true
         });
 
         if (result.isConfirmed) {
-            router.push("/admin/categorias-alimentos"); 
+            router.push("/admin/categorias-alimentos");
         }
     };
 
@@ -110,6 +121,7 @@ function DetalhesCategoriaContent({ id }) {
                         <ArrowLeft size={18} />
                         <span>Voltar para Lista</span>
                     </Link>
+
                     <h1 className={styles.title}>
                         {modeUrl === "edit" ? "Editar Categoria" : "Detalhes da Categoria"}
                     </h1>
@@ -118,7 +130,7 @@ function DetalhesCategoriaContent({ id }) {
                 {categoria && (
                     <CategoriaAlimentosForm
                         initialData={categoria}
-                        mode={modeUrl} 
+                        mode={modeUrl}
                         onSave={handleUpdate}
                         onCancel={handleCancel}
                     />
@@ -133,11 +145,13 @@ export default function EditCategoriaPage({ params: paramsPromise }) {
     const { id } = params;
 
     return (
-        <Suspense fallback={
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
-                <RefreshCw className="animate-spin" color="#ea580c" size={30} />
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
+                    <RefreshCw className="animate-spin" color="#ea580c" size={30} />
+                </div>
+            }
+        >
             <DetalhesCategoriaContent id={id} />
         </Suspense>
     );
