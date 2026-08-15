@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import { useLoja } from '@/hooks/useLoja';
+import { useLoja } from '@/hooks/useLoja.js';
 import { useDadosEmpresaPublicos } from '@/hooks/useDadosEmpresaPublicos.js';
 import { usePedido } from '@/context/PedidoContext.js';
 
@@ -22,7 +22,7 @@ import styles from './page.module.css';
 export default function Home() {
     const router = useRouter();
     const { statusLoja, loading } = useLoja();
-    const { carrinho, totalGeral, quantidadeTotalItens } = usePedido();
+    const { carrinho, totalGeral, quantidadeTotalItens, validarLojaParaAcao } = usePedido();
     const { dados, loadingDados } = useDadosEmpresaPublicos();
 
     const NOME_LOJA = dados?.nome_fantasia || 'Marmitaria';
@@ -40,17 +40,20 @@ export default function Home() {
 
     const enderecoFormatado = enderecoCompleto();
 
-    const abrirCardapio = () => {
+    const abrirCardapio = async () => {
         if (loading) return;
 
-        if (!statusLoja) {
-            toast.error(
-                'Estamos fechados no momento. Volte em nosso horário de atendimento.'
-            );
-            return;
-        }
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) return;
 
         router.push('/pedido');
+    };
+
+    const abrirCarrinho = async () => {
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) return;
+
+        router.push('/carrinho');
     };
 
     const abrirWhatsApp = () => {
@@ -202,7 +205,7 @@ export default function Home() {
                     <div className={styles.carrinhoFlutuante}>
                         <button
                             type="button"
-                            onClick={() => router.push('/carrinho')}
+                            onClick={abrirCarrinho}
                         >
                             <span className={styles.carrinhoInfo}>
                                 <ShoppingBag size={18} />

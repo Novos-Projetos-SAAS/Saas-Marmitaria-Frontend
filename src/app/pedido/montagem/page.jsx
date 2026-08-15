@@ -202,48 +202,67 @@
 
 'use client';
 
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Check, ShoppingBag, X } from "lucide-react";
-import toast from "react-hot-toast";
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, Check, ShoppingBag, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-import { useCardapioClient } from "@/hooks/useCardapioClient";
-import { usePedido } from "@/context/PedidoContext";
-import formatarNomeImagem from "@/utils/formatImages.js";
+import { useCardapioClient } from '@/hooks/useCardapioClient.js';
+import { usePedido } from '@/context/PedidoContext.js';
+import formatarNomeImagem from '@/utils/formatImages.js';
 
 import styles from './page.module.css';
 
 export default function Montagem() {
     const router = useRouter();
-
     const { alimentosAgrupados, loading: loadingCardapio } = useCardapioClient();
-    const { marmitaAtual, alternarAlimento, adicionarAoCarrinho } = usePedido();
+    const { marmitaAtual, alternarAlimento, adicionarAoCarrinho, lojaAbertaPedido, validarLojaParaAcao } = usePedido();
 
     const [modalAberto, setModalAberto] = useState(false);
     const [quantidade, setQuantidade] = useState(1);
-    const [observacao, setObservacao] = useState("");
+    const [observacao, setObservacao] = useState('');
     const [isFinalizando, setIsFinalizando] = useState(false);
 
     useEffect(() => {
+        if (lojaAbertaPedido === false) {
+            setModalAberto(false);
+            router.replace('/');
+            return;
+        }
+
         if (!marmitaAtual?.tamanho) {
             router.replace('/pedido');
         }
-    }, [marmitaAtual, router]);
+    }, [lojaAbertaPedido, marmitaAtual, router]);
 
-    const handleAvancar = () => {
+    const handleAvancar = async () => {
         if (!marmitaAtual?.itens?.length) {
-            toast.error("Selecione pelo menos um item para sua marmita.");
+            toast.error('Selecione pelo menos um item para sua marmita.');
+            return;
+        }
+
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) {
+            router.replace('/');
             return;
         }
 
         setModalAberto(true);
     };
 
-    const handleConfirmarMarmita = () => {
+    const handleConfirmarMarmita = async () => {
         if (isFinalizando) return;
 
         setIsFinalizando(true);
+
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) {
+            setModalAberto(false);
+            setIsFinalizando(false);
+            router.replace('/');
+            return;
+        }
 
         const sucesso = adicionarAoCarrinho(quantidade, observacao.trim());
 
@@ -261,14 +280,7 @@ export default function Montagem() {
 
         return (
             <div className={styles.containerFotoAlimento}>
-                <Image
-                    src={imgSrc}
-                    alt={nome || "Foto do alimento"}
-                    fill
-                    sizes="72px"
-                    className={styles.fotoAlimento}
-                    onError={() => setImgSrc('/alimentos/padrao.webp')}
-                />
+                <Image src={imgSrc} alt={nome || 'Foto do alimento'} fill sizes="72px" className={styles.fotoAlimento} onError={() => setImgSrc('/alimentos/padrao.webp')} />
             </div>
         );
     }
@@ -282,7 +294,7 @@ export default function Montagem() {
         );
     }
 
-    if (!marmitaAtual?.tamanho) {
+    if (!marmitaAtual?.tamanho || lojaAbertaPedido !== true) {
         return null;
     }
 
@@ -293,29 +305,17 @@ export default function Montagem() {
     return (
         <main className={styles.container}>
             <header className={styles.header}>
-                <button
-                    type="button"
-                    className={styles.btnVoltar}
-                    onClick={() => router.push('/pedido')}
-                >
+                <button type="button" className={styles.btnVoltar} onClick={() => router.push('/pedido')}>
                     <ArrowLeft size={17} />
                     Trocar tamanho
                 </button>
 
                 <div className={styles.headerTitulo}>
                     <div>
-                        <span className={styles.headerLegenda}>
-                            Monte do seu jeito
-                        </span>
-
-                        <h1>
-                            Marmita {marmitaAtual.tamanho.nome}
-                        </h1>
+                        <span className={styles.headerLegenda}>Monte do seu jeito</span>
+                        <h1>Marmita {marmitaAtual.tamanho.nome}</h1>
                     </div>
-
-                    <div className={styles.precoHeader}>
-                        R$ {precoBase.toFixed(2).replace('.', ',')}
-                    </div>
+                    <div className={styles.precoHeader}>R$ {precoBase.toFixed(2).replace('.', ',')}</div>
                 </div>
             </header>
 
@@ -323,68 +323,28 @@ export default function Montagem() {
                 {nomesCategorias.map((nomeCategoria) => {
                     const itensDaCategoria = alimentosAgrupados[nomeCategoria];
                     const limiteDaCategoria = itensDaCategoria[0]?.limite_escolhas || 2;
-
-                    const qtdSelecionadaNestaCat = marmitaAtual.itens.filter(
-                        item => item.categoria_nome === nomeCategoria
-                    ).length;
-
+                    const qtdSelecionadaNestaCat = marmitaAtual.itens.filter((item) => item.categoria_nome === nomeCategoria).length;
                     const limiteAtingido = qtdSelecionadaNestaCat >= limiteDaCategoria;
 
                     return (
-                        <div
-                            key={nomeCategoria}
-                            className={styles.blocoCategoria}
-                        >
+                        <div key={nomeCategoria} className={styles.blocoCategoria}>
                             <div className={styles.cabecalhoCategoria}>
                                 <div>
                                     <h2>{nomeCategoria}</h2>
-
-                                    <p>
-                                        Escolha até {limiteDaCategoria} {limiteDaCategoria === 1 ? 'opção' : 'opções'}
-                                    </p>
+                                    <p>Escolha até {limiteDaCategoria} {limiteDaCategoria === 1 ? 'opção' : 'opções'}</p>
                                 </div>
-
-                                <span
-                                    className={`${styles.contadorLimite} ${
-                                        limiteAtingido
-                                            ? styles.contadorCompleto
-                                            : ''
-                                    }`}
-                                >
-                                    {qtdSelecionadaNestaCat}/{limiteDaCategoria}
-                                </span>
+                                <span className={`${styles.contadorLimite} ${limiteAtingido ? styles.contadorCompleto : ''}`}>{qtdSelecionadaNestaCat}/{limiteDaCategoria}</span>
                             </div>
 
                             <div className={styles.gridAlimentos}>
                                 {itensDaCategoria.map((alimento) => {
-                                    const isSelecionado = marmitaAtual.itens.some(
-                                        item => item.id === alimento.id
-                                    );
+                                    const isSelecionado = marmitaAtual.itens.some((item) => item.id === alimento.id);
 
                                     return (
-                                        <button
-                                            type="button"
-                                            key={alimento.id}
-                                            className={`${styles.cardAlimento} ${
-                                                isSelecionado
-                                                    ? styles.cardSelecionado
-                                                    : ''
-                                            }`}
-                                            onClick={() => alternarAlimento(alimento, limiteDaCategoria)}
-                                        >
+                                        <button type="button" key={alimento.id} className={`${styles.cardAlimento} ${isSelecionado ? styles.cardSelecionado : ''}`} onClick={() => alternarAlimento(alimento, limiteDaCategoria)}>
                                             <FotoAlimento nome={alimento.nome} />
-
-                                            <span className={styles.nomeAlimento}>
-                                                {alimento.nome}
-                                            </span>
-
-                                            <span
-                                                className={`${styles.checkAlimento} ${
-                                                    isSelecionado
-                                                        ? styles.checkSelecionado
-                                                        : ''
-                                                }`}
-                                            >
+                                            <span className={styles.nomeAlimento}>{alimento.nome}</span>
+                                            <span className={`${styles.checkAlimento} ${isSelecionado ? styles.checkSelecionado : ''}`}>
                                                 {isSelecionado && <Check size={16} strokeWidth={3} />}
                                             </span>
                                         </button>
@@ -398,21 +358,7 @@ export default function Montagem() {
 
             <div className={styles.barraFixa}>
                 <div className={styles.conteudoBarra}>
-                    {/* <div className={styles.resumoBarra}>
-                        <span>
-                            {marmitaAtual.itens.length} selecionado{marmitaAtual.itens.length !== 1 ? 's' : ''}
-                        </span>
-
-                        <strong>
-                            R$ {precoBase.toFixed(2).replace('.', ',')}
-                        </strong>
-                    </div> */}
-
-                    <button
-                        type="button"
-                        className={styles.btnAdicionar}
-                        onClick={handleAvancar}
-                    >
+                    <button type="button" className={styles.btnAdicionar} onClick={handleAvancar}>
                         <ShoppingBag size={18} />
                         Avançar
                     </button>
@@ -420,49 +366,27 @@ export default function Montagem() {
             </div>
 
             {modalAberto && (
-                <div
-                    className={styles.modalOverlay}
-                    onMouseDown={(event) => {
-                        if (event.target === event.currentTarget) {
-                            setModalAberto(false);
-                        }
-                    }}
-                >
+                <div className={styles.modalOverlay} onMouseDown={(event) => { if (event.target === event.currentTarget) setModalAberto(false); }}>
                     <div className={styles.modalContent}>
                         <div className={styles.modalHandle} />
 
                         <div className={styles.modalHeader}>
-                            <div>
-                                
-
-                                <h2>Quase lá!</h2>
-                            </div>
-
-                            <button
-                                type="button"
-                                className={styles.closeBtn}
-                                onClick={() => setModalAberto(false)}
-                            >
+                            <div><h2>Quase lá!</h2></div>
+                            <button type="button" className={styles.closeBtn} onClick={() => setModalAberto(false)}>
                                 <X size={19} />
                             </button>
                         </div>
 
                         <div className={styles.modalBody}>
-                            <p className={styles.descricaoModal}>
-                                Confira sua marmita <strong>{marmitaAtual.tamanho.nome}</strong>.
-                            </p>
+                            <p className={styles.descricaoModal}>Confira sua marmita <strong>{marmitaAtual.tamanho.nome}</strong>.</p>
 
                             <div className={styles.resumoMarmita}>
                                 <div className={styles.resumoTitulo}>
                                     <span>Itens escolhidos</span>
-
-                                    <strong>
-                                        {marmitaAtual.itens.length}
-                                    </strong>
+                                    <strong>{marmitaAtual.itens.length}</strong>
                                 </div>
-
                                 <ul className={styles.listaResumo}>
-                                    {marmitaAtual.itens.map(item => (
+                                    {marmitaAtual.itens.map((item) => (
                                         <li key={item.id}>
                                             <span className={styles.bolinhaResumo} />
                                             {item.nome}
@@ -473,24 +397,10 @@ export default function Montagem() {
 
                             <div className={styles.inputGroup}>
                                 <div className={styles.labelObservacao}>
-                                    <label htmlFor="obs">
-                                        Alguma observação?
-                                    </label>
-
-                                    <span>
-                                        {observacao.length}/60
-                                    </span>
+                                    <label htmlFor="obs">Alguma observação?</label>
+                                    <span>{observacao.length}/60</span>
                                 </div>
-
-                                <textarea
-                                    id="obs"
-                                    placeholder="Ex: Tirar a cebola, arroz por baixo..."
-                                    value={observacao}
-                                    onChange={(event) => setObservacao(event.target.value)}
-                                    rows={3}
-                                    maxLength={60}
-                                    className={styles.textareaObs}
-                                />
+                                <textarea id="obs" placeholder="Ex: Tirar a cebola, arroz por baixo..." value={observacao} onChange={(event) => setObservacao(event.target.value)} rows={3} maxLength={60} className={styles.textareaObs} />
                             </div>
 
                             <div className={styles.controleQtdWrapper}>
@@ -498,44 +408,18 @@ export default function Montagem() {
                                     <strong>Quantidade</strong>
                                     <span>Quantas marmitas iguais?</span>
                                 </div>
-
                                 <div className={styles.controleQtd}>
-                                    <button
-                                        type="button"
-                                        onClick={() => setQuantidade(Math.max(1, quantidade - 1))}
-                                        disabled={quantidade <= 1}
-                                    >
-                                        −
-                                    </button>
-
+                                    <button type="button" onClick={() => setQuantidade(Math.max(1, quantidade - 1))} disabled={quantidade <= 1}>−</button>
                                     <span>{quantidade}</span>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => setQuantidade(quantidade + 1)}
-                                    >
-                                        +
-                                    </button>
+                                    <button type="button" onClick={() => setQuantidade(quantidade + 1)}>+</button>
                                 </div>
                             </div>
                         </div>
 
                         <div className={styles.modalFooter}>
-                            <button
-                                type="button"
-                                className={styles.btnFinalizar}
-                                onClick={handleConfirmarMarmita}
-                                disabled={isFinalizando}
-                            >
-                                <span>
-                                    {isFinalizando
-                                        ? 'Adicionando...'
-                                        : 'Adicionar ao carrinho'}
-                                </span>
-
-                                <strong>
-                                    R$ {totalParcial.toFixed(2).replace('.', ',')}
-                                </strong>
+                            <button type="button" className={styles.btnFinalizar} onClick={handleConfirmarMarmita} disabled={isFinalizando || lojaAbertaPedido !== true}>
+                                <span>{isFinalizando ? 'Adicionando...' : 'Adicionar ao carrinho'}</span>
+                                <strong>R$ {totalParcial.toFixed(2).replace('.', ',')}</strong>
                             </button>
                         </div>
                     </div>

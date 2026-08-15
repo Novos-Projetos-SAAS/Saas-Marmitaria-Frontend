@@ -11,9 +11,6 @@ import { usePedido } from '@/context/PedidoContext.js';
 
 import styles from './page.module.css';
 
-/**
- * Formatação monetária padrão brasileira.
- */
 function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString('pt-BR', {
         style: 'currency',
@@ -23,17 +20,8 @@ function formatarMoeda(valor) {
 
 export default function ComplementosPedido() {
     const router = useRouter();
-
-    const {
-        statusLoja,
-        loading: loadingLoja
-    } = useLoja();
-
-    const {
-        categoriasProdutos,
-        loading: loadingProdutos
-    } = useProdutosCardapio();
-
+    const { statusLoja, loading: loadingLoja } = useLoja();
+    const { categoriasProdutos, loading: loadingProdutos } = useProdutosCardapio();
     const {
         carrinho,
         produtosCarrinho,
@@ -41,17 +29,10 @@ export default function ComplementosPedido() {
         incrementarProduto,
         decrementarProduto,
         totalGeral,
-        quantidadeTotalItens
+        quantidadeTotalItens,
+        validarLojaParaAcao
     } = usePedido();
 
-    /**
-     * ============================================================
-     * PROTEÇÃO DA ROTA
-     * ============================================================
-     *
-     * O cliente não pode abrir /pedido/complementos diretamente
-     * e começar comprando refrigerante.
-     */
     useEffect(() => {
         if (!loadingLoja && statusLoja === false) {
             router.replace('/');
@@ -62,12 +43,31 @@ export default function ComplementosPedido() {
             toast.error('Monte uma marmita antes de escolher os complementos.');
             router.replace('/pedido');
         }
-    }, [
-        carrinho.length,
-        loadingLoja,
-        router,
-        statusLoja
-    ]);
+    }, [carrinho.length, loadingLoja, router, statusLoja]);
+
+    const quantidadeProduto = (produtoId) => {
+        return produtosCarrinho.find((item) => Number(item.id) === Number(produtoId))?.quantidade || 0;
+    };
+
+    const voltarParaMarmitas = async () => {
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) {
+            router.replace('/');
+            return;
+        }
+
+        router.push('/pedido');
+    };
+
+    const abrirCarrinho = async () => {
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) {
+            router.replace('/');
+            return;
+        }
+
+        router.push('/carrinho');
+    };
 
     if (loadingLoja || loadingProdutos) {
         return (
@@ -81,59 +81,32 @@ export default function ComplementosPedido() {
         return null;
     }
 
-    /**
-     * Retorna a quantidade daquele produto
-     * que já existe no carrinho.
-     */
-    const quantidadeProduto = (produtoId) => {
-        return produtosCarrinho.find(
-            item => Number(item.id) === Number(produtoId)
-        )?.quantidade || 0;
-    };
-
     return (
         <main className={styles.container}>
             <header className={styles.header}>
-                <button
-                    type="button"
-                    className={styles.btnVoltar}
-                    onClick={() => router.push('/pedido')}
-                >
+                <button type="button" className={styles.btnVoltar} onClick={voltarParaMarmitas}>
                     <ArrowLeft size={18} />
                     Voltar
                 </button>
 
                 <h1>Quer adicionar algo ao pedido?</h1>
-
-                <p>
-                    Escolha outros produtos. Você pode pular esta etapa se quiser.
-                </p>
+                <p>Escolha outros produtos. Você pode pular esta etapa se quiser.</p>
             </header>
 
             {categoriasProdutos.length === 0 ? (
                 <section className={styles.estadoVazio}>
                     <ShoppingBag size={30} />
-
                     <h2>Nenhum complemento disponível hoje</h2>
-
-                    <p>
-                        Sua marmita já está no carrinho e você pode continuar normalmente.
-                    </p>
+                    <p>Sua marmita já está no carrinho e você pode continuar normalmente.</p>
                 </section>
             ) : (
                 <section className={styles.listaCategorias}>
                     {categoriasProdutos.map((categoria) => (
-                        <div
-                            key={categoria.id}
-                            className={styles.blocoCategoria}
-                        >
+                        <div key={categoria.id} className={styles.blocoCategoria}>
                             <div className={styles.cabecalhoCategoria}>
                                 <div>
                                     <h2>{categoria.nome}</h2>
-
-                                    {categoria.descricao && (
-                                        <p>{categoria.descricao}</p>
-                                    )}
+                                    {categoria.descricao && <p>{categoria.descricao}</p>}
                                 </div>
                             </div>
 
@@ -142,50 +115,29 @@ export default function ComplementosPedido() {
                                     const quantidade = quantidadeProduto(produto.id);
 
                                     return (
-                                        <article
-                                            key={produto.id}
-                                            className={styles.cardProduto}
-                                        >
+                                        <article key={produto.id} className={styles.cardProduto}>
                                             <div className={styles.produtoInfo}>
                                                 <h3>{produto.nome}</h3>
-
-                                                {produto.descricao && (
-                                                    <p>{produto.descricao}</p>
-                                                )}
-
-                                                <strong>
-                                                    {formatarMoeda(produto.preco)}
-                                                </strong>
+                                                {produto.descricao && <p>{produto.descricao}</p>}
+                                                <strong>{formatarMoeda(produto.preco)}</strong>
                                             </div>
 
                                             {quantidade === 0 ? (
                                                 <button
                                                     type="button"
                                                     className={styles.btnAdicionar}
-                                                    onClick={() => adicionarProdutoAoCarrinho({
-                                                        ...produto,
-                                                        categoria_id: categoria.id,
-                                                        categoria_nome: categoria.nome
-                                                    })}
+                                                    onClick={() => adicionarProdutoAoCarrinho({ ...produto, categoria_id: categoria.id, categoria_nome: categoria.nome })}
                                                 >
                                                     <Plus size={17} />
                                                     Adicionar
                                                 </button>
                                             ) : (
                                                 <div className={styles.controleQuantidade}>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => decrementarProduto(produto.id)}
-                                                    >
+                                                    <button type="button" onClick={() => decrementarProduto(produto.id)}>
                                                         <Minus size={16} />
                                                     </button>
-
                                                     <span>{quantidade}</span>
-
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => incrementarProduto(produto.id)}
-                                                    >
+                                                    <button type="button" onClick={() => incrementarProduto(produto.id)}>
                                                         <Plus size={16} />
                                                     </button>
                                                 </div>
@@ -201,32 +153,17 @@ export default function ComplementosPedido() {
 
             <footer className={styles.barraFixa}>
                 <div className={styles.conteudoBarra}>
-                    {/* O cliente pode voltar ao começo e montar outra marmita. */}
-                    <button
-                        type="button"
-                        className={styles.btnOutraMarmita}
-                        onClick={() => router.push('/pedido')}
-                    >
+                    <button type="button" className={styles.btnOutraMarmita} onClick={voltarParaMarmitas}>
                         <Utensils size={18} />
                         Outra marmita
                     </button>
 
-                    <button
-                        type="button"
-                        className={styles.btnCarrinho}
-                        onClick={() => router.push('/carrinho')}
-                    >
+                    <button type="button" className={styles.btnCarrinho} onClick={abrirCarrinho}>
                         <span className={styles.carrinhoTexto}>
-                            <span className={styles.badgeQuantidade}>
-                                {quantidadeTotalItens}
-                            </span>
-
+                            <span className={styles.badgeQuantidade}>{quantidadeTotalItens}</span>
                             Ir ao carrinho
                         </span>
-
-                        <strong>
-                            {formatarMoeda(totalGeral)}
-                        </strong>
+                        <strong>{formatarMoeda(totalGeral)}</strong>
                     </button>
                 </div>
             </footer>

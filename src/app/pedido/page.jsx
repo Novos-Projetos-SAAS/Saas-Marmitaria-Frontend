@@ -1,58 +1,51 @@
-'use client'
-
-import { useRouter } from 'next/navigation';
+'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { useCardapioClient } from '@/hooks/useCardapioClient';
+import { useCardapioClient } from '@/hooks/useCardapioClient.js';
 import { useLoja } from '@/hooks/useLoja.js';
-
 import { usePedido } from '@/context/PedidoContext.js';
 
 import styles from './page.module.css';
 
 export default function Pedido() {
-
     const router = useRouter();
-
     const { statusLoja, loading: loadingLoja } = useLoja();
     const { tamanhos, loading: loadingCardapio } = useCardapioClient();
-
-    const {
-
-        iniciarNovaMarmita,
-
-        carrinho,
-
-        totalGeral,
-
-        quantidadeTotalItens
-
-    } = usePedido();
-
-
+    const { iniciarNovaMarmita, carrinho, totalGeral, quantidadeTotalItens, validarLojaParaAcao } = usePedido();
 
     useEffect(() => {
         if (!loadingLoja && statusLoja === false) {
-            router.replace('/')
+            router.replace('/');
         }
     }, [statusLoja, loadingLoja, router]);
 
-    // useEffect(() => {
-    //     carregarCardapio()
-    // }, [carregarCardapio])
+    const selecionarTamanho = async (tamanho) => {
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) {
+            router.replace('/');
+            return;
+        }
 
-    const selecionarTamanho = (tamanho) => {
-        iniciarNovaMarmita(tamanho)
-        router.push('/pedido/montagem');
-    }
+        const iniciou = iniciarNovaMarmita(tamanho);
+        if (iniciou) router.push('/pedido/montagem');
+    };
 
-    // Enquanto verifica o status ou o cardápio, exibe um estado neutro
+    const avancarCarrinho = async () => {
+        const lojaValida = await validarLojaParaAcao();
+        if (!lojaValida) {
+            router.replace('/');
+            return;
+        }
+
+        router.push('/pedido/complementos');
+    };
+
     if (loadingLoja || loadingCardapio) {
         return <div className={styles.containerCentral}>Sincronizando com a cozinha...</div>;
     }
 
-    // Se o status for falso, retorna null para não "piscar" o conteúdo antes do redirecionamento
     if (statusLoja !== true) {
         return null;
     }
@@ -68,47 +61,25 @@ export default function Pedido() {
             </header>
 
             <section className={styles.listaTamanhos}>
-                {tamanhos.map((t) => (
-                    <div
-                        key={t.id}
-                        className={styles.cardTamanho}
-                        onClick={() => selecionarTamanho(t)}
-                    >
+                {tamanhos.map((tamanho) => (
+                    <div key={tamanho.id} className={styles.cardTamanho} onClick={() => selecionarTamanho(tamanho)}>
                         <div className={styles.infoTamanho}>
-                            <h2>Marmita {t.nome}</h2>
-                            <span className={styles.preco}>
-                                A partir de R$ {Number(t.preco_base).toFixed(2).replace('.', ',')}
-                            </span>
+                            <h2>Marmita {tamanho.nome}</h2>
+                            <span className={styles.preco}>A partir de R$ {Number(tamanho.preco_base).toFixed(2).replace('.', ',')}</span>
                         </div>
                         <div className={styles.iconeSeta}>➔</div>
                     </div>
                 ))}
             </section>
-            {/* 👇 BARRA FLUTUANTE ADICIONADA AQUI */}
+
             {carrinho.length > 0 && (
                 <div className={styles.barraCarrinho}>
-                    <button
-                        className={styles.btnCarrinho}
-                        onClick={() =>
-                            router.push(
-                                '/pedido/complementos'
-                            )
-
-                        }
-                    >
+                    <button className={styles.btnCarrinho} onClick={avancarCarrinho}>
                         <div className={styles.infoCarrinho}>
-                            <span
-                                className={
-                                    styles.qtdBadge
-                                }
-                            >
-                                {quantidadeTotalItens}
-                            </span>
-                            <span>Avancar</span>
+                            <span className={styles.qtdBadge}>{quantidadeTotalItens}</span>
+                            <span>Avançar</span>
                         </div>
-                        <span className={styles.totalCarrinho}>
-                            R$ {totalGeral.toFixed(2).replace('.', ',')}
-                        </span>
+                        <span className={styles.totalCarrinho}>R$ {totalGeral.toFixed(2).replace('.', ',')}</span>
                     </button>
                 </div>
             )}

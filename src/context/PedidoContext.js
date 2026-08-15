@@ -1051,103 +1051,215 @@
 
 //     return context;
 // };
-
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+
+import { buscarStatusLoja } from '@/services/lojaService.js';
 
 const PedidoContext = createContext();
 
 export function PedidoProvider({ children }) {
-    /**
-     * ============================================================
-     * MARMITAS
-     * ============================================================
-     * Mantemos "carrinho" exclusivamente para marmitas.
-     * Isso preserva compatibilidade com o restante do projeto.
-     */
+    const pathname = usePathname();
+    const areaAdministrativa = pathname?.startsWith('/admin') === true;
+
     const [carrinho, setCarrinho] = useState([]);
-
-    /**
-     * ============================================================
-     * PRODUTOS
-     * ============================================================
-     * Produtos vendidos separadamente: bebidas, sobremesas, porções.
-     */
     const [produtosCarrinho, setProdutosCarrinho] = useState([]);
-
-    /**
-     * Marmita que o cliente está montando neste momento.
-     */
-    const [marmitaAtual, setMarmitaAtual] = useState({
-        tamanho: null,
-        itens: []
-    });
-
+    const [marmitaAtual, setMarmitaAtual] = useState({ tamanho: null, itens: [] });
     const [sucessoPedido, setSucessoPedido] = useState(false);
     const [finalizando, setFinalizando] = useState(false);
+    const [lojaAbertaPedido, setLojaAbertaPedido] = useState(null);
+    const [verificandoLojaPedido, setVerificandoLojaPedido] = useState(true);
+    const fechamentoNotificadoRef = useRef(false);
+    const pedidoEmAndamentoRef = useRef(false);
+
+    useEffect(() => {
+        pedidoEmAndamentoRef.current = carrinho.length > 0 || produtosCarrinho.length > 0 || Boolean(marmitaAtual?.tamanho);
+    }, [carrinho.length, produtosCarrinho.length, marmitaAtual]);
 
     /**
-     * ============================================================
-     * INICIAR MARMITA
-     * ============================================================
+     * Aplica o status confirmado pelo Backend.
+     * Quando a loja fecha, qualquer pedido em andamento é descartado.
+     */
+    const aplicarStatusLojaLocal = useCallback((estaAberta, options = {}) => {
+        const { notificarFechamento = true } = options;
+
+        if (typeof estaAberta !== 'boolean') return;
+
+        setLojaAbertaPedido(estaAberta);
+
+        if (estaAberta) {
+            fechamentoNotificadoRef.current = false;
+            return;
+        }
+
+        setCarrinho([]);
+        setProdutosCarrinho([]);
+        setMarmitaAtual({ tamanho: null, itens: [] });
+        setFinalizando(false);
+
+        if (!areaAdministrativa && notificarFechamento && !fechamentoNotificadoRef.current) {
+            toast.error(pedidoEmAndamentoRef.current
+                ? 'A loja fechou e não está recebendo novos pedidos. O carrinho foi limpo.'
+                : 'A loja fechou e não está recebendo novos pedidos.');
+        }
+
+        fechamentoNotificadoRef.current = true;
+    }, [areaAdministrativa]);
+
+    /**
+     * Consulta o status real da loja.
+     * Falha de conexão não é tratada como loja fechada.
+     */
+    const verificarLojaAgora = useCallback(async (options = {}) => {
+        const { silencioso = true, notificarFechamento = true } = options;
+
+        try {
+            if (!silencioso) setVerificandoLojaPedido(true);
+
+            const statusAtual = await buscarStatusLoja();
+
+            if (typeof statusAtual === 'boolean') {
+                aplicarStatusLojaLocal(statusAtual, { notificarFechamento });
+            }
+
+            return statusAtual;
+        } catch {
+            return null;
+        } finally {
+            if (!silencioso) setVerificandoLojaPedido(false);
+        }
+    }, [aplicarStatusLojaLocal]);
+
+    /**
+     * Validação HTTP utilizada antes das ações críticas do pedido.
+     */
+    const validarLojaParaAcao = useCallback(async () => {
+        const statusAtual = await verificarLojaAgora({ silencioso: true, notificarFechamento: false });
+
+        if (statusAtual === true) return true;
+
+        if (statusAtual === false) {
+            toast.error('A loja está fechada no momento e não está recebendo novos pedidos.');
+        } else {
+            toast.error('Não foi possível confirmar se a loja está aberta. Tente novamente.');
+        }
+
+        return false;
+    }, [verificarLojaAgora]);
+
+    /**
+     * Socket.IO realiza a atualização imediata.
+     * O polling de 60 segundos funciona somente como fallback.
+     */
+    useEffect(() => {
+        if (areaAdministrativa) {
+            setVerificandoLojaPedido(false);
+            return;
+        }
+
+        verificarLojaAgora({ silencioso: false, notificarFechamento: false });
+
+        const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333').replace(/\/$/, '');
+        const socket = io(`${apiUrl}/publico`, { withCredentials: true });
+
+        const handleStatusLojaAlterado = (dados) => {
+            aplicarStatusLojaLocal(dados?.esta_aberta, { notificarFechamento: true });
+        };
+
+        const handleConnect = () => {
+            verificarLojaAgora({ silencioso: true, notificarFechamento: true });
+        };
+
+        const handleFocus = () => {
+            verificarLojaAgora({ silencioso: true, notificarFechamento: true });
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                verificarLojaAgora({ silencioso: true, notificarFechamento: true });
+            }
+        };
+
+        const handleStatusLocal = (event) => {
+            aplicarStatusLojaLocal(event?.detail?.esta_aberta, { notificarFechamento: false });
+        };
+
+        socket.on('status_loja_alterado', handleStatusLojaAlterado);
+        socket.on('connect', handleConnect);
+
+        const intervalId = window.setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                verificarLojaAgora({ silencioso: true, notificarFechamento: true });
+            }
+        }, 60000);
+
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('marmitaria:status-loja-alterado', handleStatusLocal);
+
+        return () => {
+            socket.off('status_loja_alterado', handleStatusLojaAlterado);
+            socket.off('connect', handleConnect);
+            socket.disconnect();
+            window.clearInterval(intervalId);
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('marmitaria:status-loja-alterado', handleStatusLocal);
+        };
+    }, [areaAdministrativa, aplicarStatusLojaLocal, verificarLojaAgora]);
+
+    /**
+     * Inicia uma nova marmita somente quando a loja estiver aberta.
      */
     const iniciarNovaMarmita = useCallback((tamanho) => {
-        setMarmitaAtual({
-            tamanho,
-            itens: []
-        });
-    }, []);
+        if (lojaAbertaPedido !== true) return false;
+
+        setMarmitaAtual({ tamanho, itens: [] });
+
+        return true;
+    }, [lojaAbertaPedido]);
 
     /**
-     * ============================================================
-     * SELEÇÃO DOS ALIMENTOS
-     * ============================================================
-     * Mantém a regra atual de limite por categoria.
+     * Adiciona ou remove alimentos da marmita em montagem.
      */
     const alternarAlimento = useCallback((alimento, limiteRecebido) => {
-    const limite = Number(limiteRecebido || alimento.limite_escolhas || 1);
+        if (lojaAbertaPedido !== true) return;
 
-    const jaSelecionado = marmitaAtual.itens.some(
-        (item) => Number(item.id) === Number(alimento.id)
-    );
+        const limite = Number(limiteRecebido || alimento.limite_escolhas || 1);
+        const jaSelecionado = marmitaAtual.itens.some((item) => Number(item.id) === Number(alimento.id));
 
-    // Se o alimento já está selecionado, apenas remove.
-    // Não verifica limite ao desmarcar.
-    if (jaSelecionado) {
+        if (jaSelecionado) {
+            setMarmitaAtual((anterior) => ({
+                ...anterior,
+                itens: anterior.itens.filter((item) => Number(item.id) !== Number(alimento.id))
+            }));
+
+            return;
+        }
+
+        const qtdNestaCategoria = marmitaAtual.itens.filter((item) => item.categoria_nome === alimento.categoria_nome).length;
+
+        if (qtdNestaCategoria >= limite) {
+            toast.error(`Limite atingido! A categoria ${alimento.categoria_nome} permite ${limite} opção(ões).`);
+            return;
+        }
+
         setMarmitaAtual((anterior) => ({
             ...anterior,
-            itens: anterior.itens.filter(
-                (item) => Number(item.id) !== Number(alimento.id)
-            )
+            itens: [...anterior.itens, alimento]
         }));
-        return;
-    }
-
-    // O limite só é verificado quando estamos ADICIONANDO um novo alimento.
-    const qtdNestaCategoria = marmitaAtual.itens.filter(
-        (item) => item.categoria_nome === alimento.categoria_nome
-    ).length;
-
-    if (qtdNestaCategoria >= limite) {
-        toast.error(`Limite atingido! A categoria ${alimento.categoria_nome} permite ${limite} opção(ões).`);
-        return;
-    }
-
-    setMarmitaAtual((anterior) => ({
-        ...anterior,
-        itens: [...anterior.itens, alimento]
-    }));
-}, [marmitaAtual.itens]);
+    }, [lojaAbertaPedido, marmitaAtual.itens]);
 
     /**
-     * ============================================================
-     * ADICIONAR MARMITA AO CARRINHO
-     * ============================================================
-     * Agora recebe a observação enviada pelo Modal!
+     * Adiciona a marmita atual ao carrinho.
      */
     const adicionarAoCarrinho = useCallback((quantidade = 1, observacao = '') => {
+        if (lojaAbertaPedido !== true) return false;
+
         const quantidadeNormalizada = Number(quantidade);
 
         if (!marmitaAtual.tamanho || marmitaAtual.itens.length === 0) {
@@ -1161,34 +1273,28 @@ export function PedidoProvider({ children }) {
         }
 
         const novaMarmita = {
-            id_temp: crypto.randomUUID(), // ID temporário do Frontend
+            id_temp: crypto.randomUUID(),
             tamanho: marmitaAtual.tamanho,
             itens: marmitaAtual.itens,
             quantidade: quantidadeNormalizada,
-            observacao, // <-- Adicionamos a observação no carrinho
+            observacao,
             subtotal: Number(marmitaAtual.tamanho.preco_base) * quantidadeNormalizada
         };
 
         setCarrinho((anterior) => [...anterior, novaMarmita]);
-
-        // Limpa a marmita que estava sendo montada.
-        setMarmitaAtual({
-            tamanho: null,
-            itens: []
-        });
+        setMarmitaAtual({ tamanho: null, itens: [] });
 
         toast.success('Marmita adicionada ao pedido!');
-        return true;
 
-    }, [marmitaAtual]);
+        return true;
+    }, [lojaAbertaPedido, marmitaAtual]);
 
     /**
-     * ============================================================
-     * ADICIONAR PRODUTO
-     * ============================================================
-     * Produto somente pode ser adicionado quando já existir pelo menos uma marmita.
+     * Adiciona produtos complementares ao carrinho.
      */
     const adicionarProdutoAoCarrinho = useCallback((produto) => {
+        if (lojaAbertaPedido !== true) return false;
+
         if (carrinho.length === 0) {
             toast.error('Monte pelo menos uma marmita antes de adicionar complementos.');
             return false;
@@ -1205,8 +1311,9 @@ export function PedidoProvider({ children }) {
             if (existente) {
                 return anterior.map((item) => {
                     if (Number(item.id) !== Number(produto.id)) return item;
-                    
+
                     const novaQuantidade = item.quantidade + 1;
+
                     return {
                         ...item,
                         quantidade: novaQuantidade,
@@ -1231,75 +1338,135 @@ export function PedidoProvider({ children }) {
         });
 
         return true;
-    }, [carrinho.length]);
+    }, [carrinho.length, lojaAbertaPedido]);
 
     /**
-     * ============================================================
-     * AUMENTAR PRODUTO
-     * ============================================================
+     * Aumenta a quantidade de um produto.
      */
     const incrementarProduto = useCallback((produtoId) => {
-        setProdutosCarrinho((anterior) =>
-            anterior.map((item) => {
-                if (Number(item.id) !== Number(produtoId)) return item;
-                
-                const quantidade = item.quantidade + 1;
-                return {
-                    ...item,
-                    quantidade,
-                    subtotal: Number(item.preco) * quantidade
-                };
-            })
-        );
-    }, []);
+        if (lojaAbertaPedido !== true) return;
+
+        setProdutosCarrinho((anterior) => anterior.map((item) => {
+            if (Number(item.id) !== Number(produtoId)) return item;
+
+            const quantidade = item.quantidade + 1;
+
+            return {
+                ...item,
+                quantidade,
+                subtotal: Number(item.preco) * quantidade
+            };
+        }));
+    }, [lojaAbertaPedido]);
 
     /**
-     * ============================================================
-     * DIMINUIR PRODUTO
-     * ============================================================
+     * Diminui a quantidade de um produto.
      */
     const decrementarProduto = useCallback((produtoId) => {
-        setProdutosCarrinho((anterior) =>
-            anterior.map((item) => {
-                if (Number(item.id) !== Number(produtoId)) return item;
+        if (lojaAbertaPedido !== true) return;
 
-                const quantidade = item.quantidade - 1;
-                if (quantidade <= 0) return null;
+        setProdutosCarrinho((anterior) => anterior.map((item) => {
+            if (Number(item.id) !== Number(produtoId)) return item;
 
-                return {
-                    ...item,
-                    quantidade,
-                    subtotal: Number(item.preco) * quantidade
-                };
-            }).filter(Boolean)
-        );
-    }, []);
+            const quantidade = item.quantidade - 1;
+
+            if (quantidade <= 0) return null;
+
+            return {
+                ...item,
+                quantidade,
+                subtotal: Number(item.preco) * quantidade
+            };
+        }).filter(Boolean));
+    }, [lojaAbertaPedido]);
 
     /**
-     * Remove completamente um produto.
+     * Remove completamente um produto do carrinho.
      */
     const removerProdutoDoCarrinho = useCallback((produtoId) => {
-        setProdutosCarrinho((anterior) =>
-            anterior.filter((item) => Number(item.id) !== Number(produtoId))
-        );
+        setProdutosCarrinho((anterior) => anterior.filter((item) => Number(item.id) !== Number(produtoId)));
     }, []);
 
     /**
-     * ============================================================
-     * REMOVER MARMITA
-     * ============================================================
-     * Se o cliente remover a última marmita, produtos complementares 
-     * também precisam ser removidos.
+     * Atualiza produtos que sofreram alguma alteração enquanto permaneciam no carrinho.
+     *
+     * INDISPONIVEL:
+     * remove o produto.
+     *
+     * PRECO_ALTERADO:
+     * mantém o produto e substitui o preço antigo pelo preço atual confirmado pelo Backend.
+     */
+    const atualizarProdutosAlterados = useCallback((produtosAlterados = []) => {
+        if (!Array.isArray(produtosAlterados) || produtosAlterados.length === 0) {
+            return { removidos: 0, precosAtualizados: 0 };
+        }
+
+        const alteracoesNormalizadas = produtosAlterados.map((alteracao) => ({
+            ...alteracao,
+            id: Number(alteracao.id),
+            tipo: alteracao.tipo === 'PRECO_ALTERADO' ? 'PRECO_ALTERADO' : 'INDISPONIVEL'
+        }));
+
+        const alteracoesPorId = new Map(alteracoesNormalizadas.map((alteracao) => [alteracao.id, alteracao]));
+        const idsProdutosCarrinho = new Set(produtosCarrinho.map((produto) => Number(produto.id)));
+        const removidos = alteracoesNormalizadas.filter((alteracao) => idsProdutosCarrinho.has(alteracao.id) && alteracao.tipo === 'INDISPONIVEL').length;
+        const precosAtualizados = alteracoesNormalizadas.filter((alteracao) => idsProdutosCarrinho.has(alteracao.id) && alteracao.tipo === 'PRECO_ALTERADO' && Number.isFinite(Number(alteracao.preco_atual)) && Number(alteracao.preco_atual) >= 0).length;
+
+        setProdutosCarrinho((anterior) => anterior.map((produto) => {
+            const alteracao = alteracoesPorId.get(Number(produto.id));
+
+            if (!alteracao) return produto;
+
+            if (alteracao.tipo === 'INDISPONIVEL') {
+                return null;
+            }
+
+            const precoAtual = Number(alteracao.preco_atual);
+
+            if (!Number.isFinite(precoAtual) || precoAtual < 0) {
+                return produto;
+            }
+
+            return {
+                ...produto,
+                preco: precoAtual,
+                subtotal: Number((precoAtual * Number(produto.quantidade)).toFixed(2))
+            };
+        }).filter(Boolean));
+
+        return {
+            removidos,
+            precosAtualizados
+        };
+    }, [produtosCarrinho]);
+
+    /**
+     * Mantém compatibilidade com o fluxo anterior.
+     * Produtos recebidos aqui são tratados como indisponíveis.
+     */
+    const atualizarProdutosIndisponiveis = useCallback((produtosIndisponiveis = []) => {
+        const produtosNormalizados = Array.isArray(produtosIndisponiveis)
+            ? produtosIndisponiveis.map((produto) => ({
+                ...produto,
+                tipo: produto.tipo || 'INDISPONIVEL'
+            }))
+            : [];
+
+        return atualizarProdutosAlterados(produtosNormalizados);
+    }, [atualizarProdutosAlterados]);
+
+    /**
+     * Remove uma marmita do carrinho.
+     * Se for a última marmita, os complementos também são removidos.
      */
     const removerDoCarrinho = useCallback((indexParaRemover) => {
         const removendoUltimaMarmita = carrinho.length === 1;
 
-        setCarrinho((anterior) =>
-            anterior.filter((_, index) => index !== indexParaRemover)
-        );
+        setCarrinho((anterior) => anterior.filter((_, index) => index !== indexParaRemover));
 
         if (removendoUltimaMarmita && produtosCarrinho.length > 0) {
             setProdutosCarrinho([]);
+
             toast('Os complementos também foram removidos, pois o pedido precisa ter uma marmita.', {
                 icon: 'ℹ️'
             });
@@ -1307,84 +1474,111 @@ export function PedidoProvider({ children }) {
     }, [carrinho.length, produtosCarrinho.length]);
 
     /**
-     * ============================================================
-     * LIMPAR PEDIDO
-     * ============================================================
+     * Remove somente os alimentos que o Backend confirmou como indisponíveis.
+     * Se todos os alimentos forem removidos, exclui também a marmita.
+     */
+    const atualizarMarmitasIndisponiveis = useCallback((marmitasComProblema = []) => {
+        if (!Array.isArray(marmitasComProblema) || marmitasComProblema.length === 0) {
+            return { atualizadas: 0, removidas: 0 };
+        }
+
+        let atualizadas = 0;
+        let removidas = 0;
+
+        const novoCarrinho = carrinho.map((marmita, index) => {
+            const conflito = marmitasComProblema.find((item) => item.id_temp ? item.id_temp === marmita.id_temp : Number(item.marmita_index) === index);
+
+            if (!conflito) return marmita;
+
+            const idsIndisponiveis = new Set((conflito.alimentos || []).map((alimento) => Number(alimento.id)));
+            const itensAtualizados = marmita.itens.filter((alimento) => !idsIndisponiveis.has(Number(alimento.id)));
+
+            if (itensAtualizados.length === 0) {
+                removidas += 1;
+                return null;
+            }
+
+            if (itensAtualizados.length !== marmita.itens.length) {
+                atualizadas += 1;
+            }
+
+            return {
+                ...marmita,
+                itens: itensAtualizados
+            };
+        }).filter(Boolean);
+
+        setCarrinho(novoCarrinho);
+
+        if (novoCarrinho.length === 0 && produtosCarrinho.length > 0) {
+            setProdutosCarrinho([]);
+        }
+
+        return {
+            atualizadas,
+            removidas
+        };
+    }, [carrinho, produtosCarrinho.length]);
+
+    /**
+     * Limpa completamente o pedido.
      */
     const limparCarrinho = useCallback(() => {
         setCarrinho([]);
         setProdutosCarrinho([]);
-        setMarmitaAtual({
-            tamanho: null,
-            itens: []
-        });
+        setMarmitaAtual({ tamanho: null, itens: [] });
     }, []);
 
-    /**
-     * ============================================================
-     * SUBTOTAL DAS MARMITAS
-     * ============================================================
-     */
     const totalMarmitas = useMemo(() => {
         return carrinho.reduce((total, item) => total + Number(item.subtotal || 0), 0);
     }, [carrinho]);
 
-    /**
-     * ============================================================
-     * SUBTOTAL DOS PRODUTOS
-     * ============================================================
-     */
     const totalProdutos = useMemo(() => {
         return produtosCarrinho.reduce((total, item) => total + Number(item.subtotal || 0), 0);
     }, [produtosCarrinho]);
 
-    /**
-     * ============================================================
-     * TOTAL VISUAL
-     * ============================================================
-     */
-    const totalGeral = useMemo(() => totalMarmitas + totalProdutos, [totalMarmitas, totalProdutos]);
+    const totalGeral = useMemo(() => {
+        return totalMarmitas + totalProdutos;
+    }, [totalMarmitas, totalProdutos]);
 
-    /**
-     * Quantidade utilizada no badge do carrinho.
-     */
     const quantidadeTotalItens = useMemo(() => {
         const quantidadeMarmitas = carrinho.reduce((total, item) => total + Number(item.quantidade || 0), 0);
         const quantidadeProdutos = produtosCarrinho.reduce((total, item) => total + Number(item.quantidade || 0), 0);
-        
+
         return quantidadeMarmitas + quantidadeProdutos;
     }, [carrinho, produtosCarrinho]);
 
     return (
         <PedidoContext.Provider
             value={{
-                // Marmitas
                 carrinho,
                 marmitaAtual,
                 iniciarNovaMarmita,
                 alternarAlimento,
                 adicionarAoCarrinho,
                 removerDoCarrinho,
-
-                // Produtos
+                atualizarMarmitasIndisponiveis,
                 produtosCarrinho,
                 adicionarProdutoAoCarrinho,
                 incrementarProduto,
                 decrementarProduto,
                 removerProdutoDoCarrinho,
-
-                // Totais
+                atualizarProdutosAlterados,
+                atualizarProdutosIndisponiveis,
                 totalMarmitas,
                 totalProdutos,
                 totalGeral,
                 quantidadeTotalItens,
-
-                // Fluxo
                 limparCarrinho,
                 sucessoPedido,
                 setSucessoPedido,
                 finalizando,
-                setFinalizando
+                setFinalizando,
+                lojaAbertaPedido,
+                verificandoLojaPedido,
+                verificarLojaAgora,
+                validarLojaParaAcao,
+                aplicarStatusLojaLocal
             }}
         >
             {children}
@@ -1394,8 +1588,10 @@ export function PedidoProvider({ children }) {
 
 export const usePedido = () => {
     const context = useContext(PedidoContext);
+
     if (!context) {
         throw new Error('usePedido deve ser usado dentro de um PedidoProvider');
     }
+
     return context;
 };

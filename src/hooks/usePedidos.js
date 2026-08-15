@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { 
-    criarPedido, 
-    criarPedidoAdmin, 
-    listarPedidoPorTelefoneUsuario 
+import {
+    criarPedido,
+    criarPedidoAdmin,
+    listarPedidoPorTelefoneUsuario
 } from '@/services/pedidosService.js';
 
 export function usePedidos() {
@@ -25,9 +25,18 @@ export function usePedidos() {
             toast.success('Pedido registrado com sucesso!');
             return response;
         } catch (error) {
-            toast.error(
-                error?.response?.data?.message || 'Falha ao registrar pedido no servidor.'
-            );
+            const data = error?.response?.data;
+
+            if (data?.code === 'ALIMENTOS_INDISPONIVEIS' || data?.code === 'PRODUTOS_INDISPONIVEIS' || data?.code === 'PRODUTOS_ALTERADOS' || data?.code === 'LOJA_FECHADA') {
+                return {
+                    status: 'conflict',
+                    code: data.code,
+                    message: data.message,
+                    details: data.details || null
+                };
+            }
+
+            toast.error(data?.message || 'Falha ao registrar pedido no servidor.');
             return null;
         } finally {
             setEnviando(false);
@@ -39,8 +48,14 @@ export function usePedidos() {
      */
     const buscarPedidoPorTelefoneUsuario = async (telefone) => {
         setBuscando(true);
+
         try {
-            const numeroLimpo = telefone.replace(/\D/g, '');
+            const numeroLimpo = String(telefone || '').replace(/\D/g, '');
+
+            if (numeroLimpo.length < 10 || numeroLimpo.length > 11) {
+                return null;
+            }
+
             return await listarPedidoPorTelefoneUsuario(numeroLimpo);
         } catch (error) {
             console.error('Erro na busca:', error);

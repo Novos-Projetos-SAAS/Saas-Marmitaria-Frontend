@@ -559,3 +559,250 @@
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
+/* ============================================================
+   CONFLITO DE CARDÁPIO / FINALIZAÇÃO
+   ============================================================ */
+.observacaoMarmita {
+    margin-top: 4px;
+    color: #a54b3c;
+    font-size: 0.82rem;
+    font-style: italic;
+}
+
+.trocoBox {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+.checkboxTroco {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.checkboxTroco input {
+    width: 18px;
+    height: 18px;
+    min-height: 0;
+}
+
+.alertaIndisponibilidade {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    background: #fafafa;
+    color: #52525b;
+}
+
+.alertaIndisponibilidade svg {
+    margin-top: 2px;
+    color: #a54b3c;
+}
+
+.alertaIndisponibilidade div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.alertaIndisponibilidade strong {
+    color: #3f3f46;
+    font-size: 0.9rem;
+}
+
+.alertaIndisponibilidade span {
+    color: #71717a;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.alertaIndisponibilidade button {
+    grid-column: 2;
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #a54b3c;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btnFinalizar:disabled {
+    background: #a1a1aa;
+    color: #ffffff;
+    cursor: not-allowed;
+    opacity: 1;
+    box-shadow: none;
+}
+
+.modalIndisponibilidadeOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(24, 24, 27, 0.45);
+}
+
+.modalIndisponibilidade {
+    width: 100%;
+    max-width: 430px;
+    max-height: 88dvh;
+    overflow-y: auto;
+    border: 1px solid #e4e4e7;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
+}
+
+.modalIndisponibilidadeHeader {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: start;
+    padding: 18px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.modalIndisponibilidadeIcone {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #f6eeec;
+    color: #a54b3c;
+}
+
+.modalIndisponibilidadeHeader h2 {
+    margin: 0;
+    color: #3f3f46;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.modalIndisponibilidadeHeader p {
+    margin: 4px 0 0;
+    color: #71717a;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.btnFecharModal {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 9px;
+    background: #f4f4f5;
+    color: #52525b;
+    cursor: pointer;
+}
+
+.modalIndisponibilidadeBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+}
+
+.modalIndisponibilidadeBody > p {
+    margin: 0;
+    color: #626262;
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.marmitaIndisponivelCard {
+    padding: 13px;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+.marmitaIndisponivelCard > strong {
+    display: block;
+    margin-bottom: 9px;
+    color: #444444;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.alimentoIndisponivelItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 9px 0;
+    border-top: 1px solid #eeeeee;
+}
+
+.alimentoIndisponivelItem span {
+    color: #a54b3c;
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.alimentoIndisponivelItem small {
+    color: #71717a;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.avisoBloqueioPedido {
+    padding: 11px;
+    border-radius: 10px;
+    background: #f4f4f5;
+    color: #52525b !important;
+}
+
+.modalIndisponibilidadeAcoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 18px 18px;
+}
+
+.btnCancelarAtualizacao,
+.btnAtualizarMarmita {
+    min-height: 46px;
+    border-radius: 11px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btnCancelarAtualizacao {
+    border: 1px solid #d4d4d8;
+    background: #ffffff;
+    color: #52525b;
+}
+
+.btnAtualizarMarmita {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid #a54b3c;
+    background: #a54b3c;
+    color: #ffffff;
+}
+
+@media (max-width: 420px) {
+    .modalIndisponibilidadeAcoes {
+        grid-template-columns: 1fr;
+    }
+}
