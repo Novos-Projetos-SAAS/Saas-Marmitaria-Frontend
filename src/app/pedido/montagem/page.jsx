@@ -155,10 +155,10 @@
 //                                 <X size={20} />
 //                             </button>
 //                         </div>
-                        
+
 //                         <div className={styles.modalBody}>
 //                             <p>Confirme os detalhes da sua marmita <strong>{marmitaAtual.tamanho.nome}</strong>:</p>
-                            
+
 //                             <ul className={styles.listaResumo}>
 //                                 {marmitaAtual.itens.map(item => (
 //                                     <li key={item.id}>• {item.nome}</li>
@@ -275,12 +275,23 @@ export default function Montagem() {
     };
 
     function FotoAlimento({ nome }) {
+
         const nomeArquivo = formatarNomeImagem(nome);
-        const [imgSrc, setImgSrc] = useState(`/alimentos/${nomeArquivo}.webp`);
+
+        const urlSegura = `/alimentos/${encodeURIComponent(nomeArquivo)}.webp`;
+
+        const [imgSrc, setImgSrc] = useState(urlSegura);
+
+        // const [imgSrc, setImgSrc] = useState(`/alimentos/${nomeArquivo}.webp`);
 
         return (
             <div className={styles.containerFotoAlimento}>
-                <Image src={imgSrc} alt={nome || 'Foto do alimento'} fill sizes="72px" className={styles.fotoAlimento} onError={() => setImgSrc('/alimentos/padrao.webp')} />
+                <Image
+                    src={imgSrc}
+                    alt={nome || 'Foto do alimento'}
+                    fill sizes="72px"
+                    className={styles.fotoAlimento}
+                    onError={() => setImgSrc('/alimentos/padrao.webp')} />
             </div>
         );
     }
