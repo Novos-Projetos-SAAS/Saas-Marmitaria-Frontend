@@ -4,22 +4,26 @@
 import { useState, useEffect } from "react";
 import { buscarTamanhosMarmitasParaMontagem } from "@/services/tamanhosMarmitasService";
 import { buscarAlimentosDisponiveisHoje } from "@/services/alimentosService.js";
+import { buscarMarmitasEspeciaisPublicas } from "@/services/marmitasEspeciaisService.js";
 import toast from "react-hot-toast";
 
 export function useCardapioClient() {
     const [tamanhos, setTamanhos] = useState([]);
+    const [marmitasEspeciais, setMarmitasEspeciais] = useState([]);
     const [alimentosAgrupados, setAlimentosAgrupados] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function carregar() {
             try {
-                const [tamanhosData, alimentosData] = await Promise.all([
+                const [tamanhosData, alimentosData, marmitasEspeciaisData] = await Promise.all([
                     buscarTamanhosMarmitasParaMontagem(),
-                    buscarAlimentosDisponiveisHoje()
+                    buscarAlimentosDisponiveisHoje(),
+                    buscarMarmitasEspeciaisPublicas()
                 ]);
 
                 setTamanhos(tamanhosData || []);
+                setMarmitasEspeciais(marmitasEspeciaisData || []);
 
                 const arrayAlimentos = alimentosData || [];
                 const agrupados = arrayAlimentos.reduce((acc, alimento) => {
@@ -45,5 +49,5 @@ export function useCardapioClient() {
 
     }, []);
 
-    return { tamanhos, alimentosAgrupados, loading };
+    return { tamanhos, marmitasEspeciais, alimentosAgrupados, loading };
 }

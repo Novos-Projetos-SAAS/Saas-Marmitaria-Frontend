@@ -12,7 +12,7 @@ import styles from './page.module.css';
 export default function Pedido() {
     const router = useRouter();
     const { statusLoja, loading: loadingLoja } = useLoja();
-    const { tamanhos, loading: loadingCardapio } = useCardapioClient();
+    const { tamanhos, marmitasEspeciais, loading: loadingCardapio } = useCardapioClient();
     const { iniciarNovaMarmita, carrinho, totalGeral, quantidadeTotalItens, validarLojaParaAcao } = usePedido();
 
     useEffect(() => {
@@ -56,20 +56,63 @@ export default function Pedido() {
                 <button className={styles.btnVoltar} onClick={() => router.push('/')}>
                     ← Voltar
                 </button>
-                <h1>Qual o tamanho da sua fome?</h1>
-                <p>Selecione uma opção para começar a montar</p>
+                <h1>Escolha sua marmita</h1>
+                <p>Veja as opções especiais ou monte do seu jeito</p>
             </header>
 
-            <section className={styles.listaTamanhos}>
-                {tamanhos.map((tamanho) => (
-                    <div key={tamanho.id} className={styles.cardTamanho} onClick={() => selecionarTamanho(tamanho)}>
-                        <div className={styles.infoTamanho}>
-                            <h2>Marmita {tamanho.nome}</h2>
-                            <span className={styles.preco}>A partir de R$ {Number(tamanho.preco_base).toFixed(2).replace('.', ',')}</span>
+            {marmitasEspeciais.length > 0 && (
+                <section className={styles.secaoEspeciais}>
+                    <div className={styles.tituloSecao}>
+                        <div>
+                            <span className={styles.badgeEspecial}>Especial</span>
+                            <h2>Marmitas Especiais</h2>
                         </div>
-                        <div className={styles.iconeSeta}>➔</div>
+                        <p>Opções prontas da casa</p>
                     </div>
-                ))}
+
+                    <div className={styles.listaEspeciais}>
+                        {marmitasEspeciais.map((marmita) => (
+                            <article key={marmita.id} className={styles.cardEspecial}>
+                                <div className={styles.infoEspecial}>
+                                    <h3>{marmita.nome}</h3>
+
+                                    {marmita.descricao && (
+                                        <p>{marmita.descricao}</p>
+                                    )}
+
+                                    <span className={styles.precoEspecial}>
+                                        R$ {Number(marmita.preco).toFixed(2).replace('.', ',')}
+                                    </span>
+                                </div>
+
+                                <div className={styles.seloPronta}>
+                                    Pronta
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            <section className={styles.secaoTamanhos}>
+                <div className={styles.tituloSecao}>
+                    <div>
+                        <h2>Monte sua Marmita</h2>
+                    </div>
+                    <p>Escolha o tamanho para começar</p>
+                </div>
+
+                <div className={styles.listaTamanhos}>
+                    {tamanhos.map((tamanho) => (
+                        <div key={tamanho.id} className={styles.cardTamanho} onClick={() => selecionarTamanho(tamanho)}>
+                            <div className={styles.infoTamanho}>
+                                <h2>Marmita {tamanho.nome}</h2>
+                                <span className={styles.preco}>A partir de R$ {Number(tamanho.preco_base).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <div className={styles.iconeSeta}>➔</div>
+                        </div>
+                    ))}
+                </div>
             </section>
 
             {carrinho.length > 0 && (
