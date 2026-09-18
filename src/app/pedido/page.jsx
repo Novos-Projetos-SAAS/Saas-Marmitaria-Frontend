@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useCardapioClient } from '@/hooks/useCardapioClient.js';
@@ -9,13 +9,67 @@ import { usePedido } from '@/context/PedidoContext.js';
 
 import styles from './page.module.css';
 
+function DescricaoEspecial({ descricao }) {
+    const descricaoRef = useRef(null);
+    const [expandida, setExpandida] = useState(false);
+    const [podeExpandir, setPodeExpandir] = useState(false);
+
+    useEffect(() => {
+        if (expandida || !descricaoRef.current) return;
+
+        const elemento = descricaoRef.current;
+
+        const verificarOverflow = () => {
+            setPodeExpandir(elemento.scrollHeight > elemento.clientHeight + 1);
+        };
+
+        const frameId = window.requestAnimationFrame(verificarOverflow);
+        const observer = new ResizeObserver(verificarOverflow);
+
+        observer.observe(elemento);
+
+        return () => {
+            window.cancelAnimationFrame(frameId);
+            observer.disconnect();
+        };
+    }, [descricao, expandida]);
+
+    if (!descricao) return null;
+
+    return (
+        <div className={styles.descricaoEspecialWrapper}>
+            <p
+                ref={descricaoRef}
+                className={`${styles.descricaoEspecial} ${expandida ? styles.descricaoEspecialExpandida : ''}`}
+            >
+                {descricao}
+            </p>
+
+            {podeExpandir && (
+                <button
+                    type="button"
+                    className={styles.btnMostrarDescricao}
+                    onClick={() => setExpandida((valorAtual) => !valorAtual)}
+                >
+                    {expandida ? 'Mostrar menos' : 'Mostrar mais'}
+                </button>
+            )}
+        </div>
+    );
+}
+
 export default function Pedido() {
     const router = useRouter();
-    const [marmitaEspecialSelecionada, setMarmitaEspecialSelecionada] = useState(null);
-    const [quantidadeEspecial, setQuantidadeEspecial] = useState(1);
     const { statusLoja, loading: loadingLoja } = useLoja();
     const { tamanhos, marmitasEspeciais, loading: loadingCardapio } = useCardapioClient();
-    const { iniciarNovaMarmita, carrinho, totalGeral, quantidadeTotalItens, validarLojaParaAcao } = usePedido();
+    const {
+        iniciarNovaMarmita,
+        adicionarMarmitaEspecialAoCarrinho,
+        carrinho,
+        totalGeral,
+        quantidadeTotalItens,
+        validarLojaParaAcao
+    } = usePedido();
 
     useEffect(() => {
         if (!loadingLoja && statusLoja === false) {
@@ -23,45 +77,15 @@ export default function Pedido() {
         }
     }, [statusLoja, loadingLoja, router]);
 
-    useEffect(() => {
-        if (!marmitaEspecialSelecionada) return;
+    const adicionarEspecial = async (marmita) => {
+        const lojaValida = await validarLojaParaAcao();
 
-        const body = document.body;
-        const overflowAnterior = body.style.overflow;
+        if (!lojaValida) {
+            router.replace('/');
+            return;
+        }
 
-        body.style.overflow = 'hidden';
-
-        const handleKeyDown = (event) => {
-            if (event.key === 'Escape') {
-                setMarmitaEspecialSelecionada(null);
-                setQuantidadeEspecial(1);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            body.style.overflow = overflowAnterior;
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [marmitaEspecialSelecionada]);
-
-    const abrirMarmitaEspecial = (marmita) => {
-        setMarmitaEspecialSelecionada(marmita);
-        setQuantidadeEspecial(1);
-    };
-
-    const fecharMarmitaEspecial = () => {
-        setMarmitaEspecialSelecionada(null);
-        setQuantidadeEspecial(1);
-    };
-
-    const diminuirQuantidadeEspecial = () => {
-        setQuantidadeEspecial((quantidadeAtual) => Math.max(1, quantidadeAtual - 1));
-    };
-
-    const aumentarQuantidadeEspecial = () => {
-        setQuantidadeEspecial((quantidadeAtual) => Math.min(99, quantidadeAtual + 1));
+        adicionarMarmitaEspecialAoCarrinho(marmita);
     };
 
     const selecionarTamanho = async (tamanho) => {
@@ -118,9 +142,7 @@ export default function Pedido() {
                                 <div className={styles.infoEspecial}>
                                     <h3>{marmita.nome}</h3>
 
-                                    {marmita.descricao && (
-                                        <p>{marmita.descricao}</p>
-                                    )}
+                                    <DescricaoEspecial descricao={marmita.descricao} />
 
                                     <span className={styles.precoEspecial}>
                                         R$ {Number(marmita.preco).toFixed(2).replace('.', ',')}
@@ -130,9 +152,9 @@ export default function Pedido() {
                                 <button
                                     type="button"
                                     className={styles.btnAdicionarEspecial}
-                                    aria-label={`Adicionar ${marmita.nome}`}
-                                    title="Ver detalhes"
-                                    onClick={() => abrirMarmitaEspecial(marmita)}
+                                    aria-label={`Adicionar ${marmita.nome} ao pedido`}
+                                    title="Adicionar ao pedido"
+                                    onClick={() => adicionarEspecial(marmita)}
                                 >
                                     +
                                 </button>
@@ -162,101 +184,6 @@ export default function Pedido() {
                     ))}
                 </div>
             </section>
-
-            {marmitaEspecialSelecionada && (
-                <div
-                    className={styles.modalOverlay}
-                    onMouseDown={(event) => {
-                        if (event.target === event.currentTarget) {
-                            fecharMarmitaEspecial();
-                        }
-                    }}
-                >
-                    <div
-                        className={styles.modalEspecial}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="titulo-marmita-especial"
-                    >
-                        <div className={styles.modalHeader}>
-                            <div>
-                                <span className={styles.modalLabel}>Marmita Especial</span>
-                                <h2 id="titulo-marmita-especial">
-                                    {marmitaEspecialSelecionada.nome}
-                                </h2>
-                            </div>
-
-                            <button
-                                type="button"
-                                className={styles.btnFecharModal}
-                                onClick={fecharMarmitaEspecial}
-                                aria-label="Fechar"
-                                title="Fechar"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        {marmitaEspecialSelecionada.descricao && (
-                            <p className={styles.modalDescricao}>
-                                {marmitaEspecialSelecionada.descricao}
-                            </p>
-                        )}
-
-                        <div className={styles.modalPreco}>
-                            <span>Valor unitário</span>
-                            <strong>
-                                R$ {Number(marmitaEspecialSelecionada.preco).toFixed(2).replace('.', ',')}
-                            </strong>
-                        </div>
-
-                        <div className={styles.quantidadeArea}>
-                            <div>
-                                <strong>Quantidade</strong>
-                                <span>Escolha quantas deseja adicionar</span>
-                            </div>
-
-                            <div className={styles.controleQuantidade}>
-                                <button
-                                    type="button"
-                                    onClick={diminuirQuantidadeEspecial}
-                                    disabled={quantidadeEspecial <= 1}
-                                    aria-label="Diminuir quantidade"
-                                >
-                                    −
-                                </button>
-
-                                <span>{quantidadeEspecial}</span>
-
-                                <button
-                                    type="button"
-                                    onClick={aumentarQuantidadeEspecial}
-                                    disabled={quantidadeEspecial >= 99}
-                                    aria-label="Aumentar quantidade"
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className={styles.modalTotal}>
-                            <span>Total</span>
-                            <strong>
-                                R$ {(Number(marmitaEspecialSelecionada.preco) * quantidadeEspecial).toFixed(2).replace('.', ',')}
-                            </strong>
-                        </div>
-
-                        <button
-                            type="button"
-                            className={styles.btnAdicionarModal}
-                            disabled
-                            title="A integração com o carrinho será implementada na próxima etapa"
-                        >
-                            Adicionar ao pedido
-                        </button>
-                    </div>
-                </div>
-            )}
 
             {carrinho.length > 0 && (
                 <div className={styles.barraCarrinho}>

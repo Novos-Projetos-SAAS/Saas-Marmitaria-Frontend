@@ -1274,6 +1274,7 @@ export function PedidoProvider({ children }) {
 
         const novaMarmita = {
             id_temp: crypto.randomUUID(),
+            tipo: 'PERSONALIZADA',
             tamanho: marmitaAtual.tamanho,
             itens: marmitaAtual.itens,
             quantidade: quantidadeNormalizada,
@@ -1288,6 +1289,71 @@ export function PedidoProvider({ children }) {
 
         return true;
     }, [lojaAbertaPedido, marmitaAtual]);
+
+    /**
+     * Adiciona uma marmita especial diretamente ao carrinho.
+     * Se ela já estiver no pedido, apenas aumenta a quantidade.
+     */
+    const adicionarMarmitaEspecialAoCarrinho = useCallback((marmita) => {
+        if (lojaAbertaPedido !== true) return false;
+
+        const marmitaEspecialId = Number(marmita?.id);
+        const preco = Number(marmita?.preco);
+
+        if (!Number.isInteger(marmitaEspecialId) || marmitaEspecialId <= 0 || !marmita?.nome) {
+            toast.error('Marmita especial inválida.');
+            return false;
+        }
+
+        if (!Number.isFinite(preco) || preco <= 0) {
+            toast.error('O valor da marmita especial é inválido.');
+            return false;
+        }
+
+        setCarrinho((anterior) => {
+            const existente = anterior.find((item) => (
+                item.tipo === 'ESPECIAL' &&
+                Number(item.marmita_especial_id) === marmitaEspecialId
+            ));
+
+            if (existente) {
+                return anterior.map((item) => {
+                    if (
+                        item.tipo !== 'ESPECIAL' ||
+                        Number(item.marmita_especial_id) !== marmitaEspecialId
+                    ) {
+                        return item;
+                    }
+
+                    const novaQuantidade = Number(item.quantidade || 0) + 1;
+
+                    return {
+                        ...item,
+                        quantidade: novaQuantidade,
+                        subtotal: Number((preco * novaQuantidade).toFixed(2))
+                    };
+                });
+            }
+
+            return [
+                ...anterior,
+                {
+                    id_temp: crypto.randomUUID(),
+                    tipo: 'ESPECIAL',
+                    marmita_especial_id: marmitaEspecialId,
+                    nome: marmita.nome,
+                    descricao: marmita.descricao || null,
+                    preco,
+                    quantidade: 1,
+                    subtotal: Number(preco.toFixed(2))
+                }
+            ];
+        });
+
+        toast.success(`${marmita.nome} adicionada ao pedido!`);
+
+        return true;
+    }, [lojaAbertaPedido]);
 
     /**
      * Adiciona produtos complementares ao carrinho.
@@ -1556,6 +1622,7 @@ export function PedidoProvider({ children }) {
                 iniciarNovaMarmita,
                 alternarAlimento,
                 adicionarAoCarrinho,
+                adicionarMarmitaEspecialAoCarrinho,
                 removerDoCarrinho,
                 atualizarMarmitasIndisponiveis,
                 produtosCarrinho,
