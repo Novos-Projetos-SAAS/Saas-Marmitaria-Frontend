@@ -64,7 +64,6 @@ export default function Pedido() {
                 <section className={styles.secaoEspeciais}>
                     <div className={styles.tituloSecao}>
                         <div>
-                            <span className={styles.badgeEspecial}>Especial</span>
                             <h2>Marmitas Especiais</h2>
                         </div>
                         <p>Opções prontas da casa</p>
@@ -85,9 +84,14 @@ export default function Pedido() {
                                     </span>
                                 </div>
 
-                                <div className={styles.seloPronta}>
-                                    Pronta
-                                </div>
+                                <button
+                                    type="button"
+                                    className={styles.btnAdicionarEspecial}
+                                    aria-label={`Adicionar ${marmita.nome}`}
+                                    title="Adicionar"
+                                >
+                                    +
+                                </button>
                             </article>
                         ))}
                     </div>
