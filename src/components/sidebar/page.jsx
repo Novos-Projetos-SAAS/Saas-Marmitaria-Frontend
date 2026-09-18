@@ -22,7 +22,8 @@ import {
     LogOut,
     X,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Star
 } from 'lucide-react';
 
 import styles from './page.module.css';
@@ -43,6 +44,7 @@ export default function Sidebar({ menuAberto, fecharMenu }) {
         { label: 'Alimentos', href: '/admin/alimentos', icon: Utensils, permissao: 'alimentos.listar' },
         { label: 'Categorias Alimentos', href: '/admin/categorias-alimentos', icon: Tags, permissao: 'categorias_alimentos.listar' },
         { label: 'Tamanhos Marmitas', href: '/admin/tamanhos-marmitas', icon: Package, permissao: 'tamanhos_marmitas.listar' },
+        { label: 'Marmitas Especiais', href: '/admin/marmitas-especiais', icon: Star, permissao: 'cardapio.gerenciar' },
         { label: 'Produtos', href: '/admin/produtos', icon: Box, permissao: 'produtos.listar' },
         { label: 'Categorias Produtos', href: '/admin/categorias-produtos', icon: Tags, permissao: 'categorias_produtos.listar' },
         { label: 'Usuários', href: '/admin/usuarios', icon: Users, permissao: 'usuarios.listar' },
