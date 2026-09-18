@@ -51,15 +51,15 @@ export function useMarmitasEspeciais() {
         setPage(1);
     };
 
-    const setSearch = (valor) => {
+    const setSearch = useCallback((valor) => {
         setSearchState(valor);
         setPage(1);
-    };
+    }, []);
 
-    const setStatusFilter = (valor) => {
+    const setStatusFilter = useCallback((valor) => {
         setStatusFilterState(valor);
         setPage(1);
-    };
+    }, []);
 
     return {
         marmitas,
