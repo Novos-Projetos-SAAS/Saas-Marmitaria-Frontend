@@ -184,7 +184,9 @@ export default function MarmitasEspeciaisClient() {
                             <option value="inativos">Apenas Inativas</option>
                         </select>
 
-                        <ChevronDown size={16} className={styles.selectChevron} />
+                        <span className={styles.selectChevronBox} aria-hidden="true">
+                            <ChevronDown size={16} />
+                        </span>
                     </div>
                 </div>
 
