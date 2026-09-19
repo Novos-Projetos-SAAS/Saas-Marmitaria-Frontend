@@ -31,14 +31,14 @@
 //     alimentoItem: { fontSize: '13px', margin: '2px 0' },
 //     observacaoItem: { display: 'block', margin: '4px 0 0 0', padding: '4px 6px', border: '1px solid #000000', fontSize: '13px', fontWeight: 800 },
 //     produtoDetalhe: { fontSize: '12px', marginTop: '2px' },
-    valorDetalheCompacto: {
-        marginTop: '2px',
-        fontSize: '9px',
-        lineHeight: 1.15,
-        fontWeight: 700,
-        letterSpacing: '-0.15px',
-        whiteSpace: 'nowrap'
-    },
+// valorDetalheCompacto: {
+//     marginTop: '2px',
+//     fontSize: '9px',
+//     lineHeight: 1.15,
+//     fontWeight: 700,
+//     letterSpacing: '-0.15px',
+//     whiteSpace: 'nowrap'
+// },
 //     totalBox: { margin: '8px 0', fontSize: '16px', fontWeight: 800 },
 //     trocoBox: { marginTop: '8px', padding: '6px', border: '2px solid #000000', fontSize: '15px', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase' },
 //     rodape: { textAlign: 'center', marginTop: '10px', fontSize: '12px' },
@@ -59,14 +59,14 @@
 
 //     const marmitas = pedido.marmitas || [];
 //     const produtos = pedido.produtos || [];
-    
+
 //     // Pega as datas
 //     const dataCriacao = new Date(pedido.criado_em);
 //     const dataImpressao = new Date();
 
 //     return (
 //         <div ref={ref} className={styles.printOnly} style={cupomStyles.cupom}>
-            
+
 //             <div style={cupomStyles.cabecalho}>
 //                 <h2 style={cupomStyles.nomeLoja}>La Casa da Marmita</h2>
 //                 <p style={cupomStyles.infoDestaque}>Pedido #{pedido.id}</p>
@@ -167,7 +167,7 @@
 //                 </p>
 //                 <div style={cupomStyles.divisor} />
 //             </div>
-            
+
 //         </div>
 //     );
 // });
@@ -188,7 +188,7 @@ const cupomStyles = {
         color: '#000000',
         fontFamily: 'Arial, Helvetica, sans-serif',
         fontSize: '13px',
-        fontWeight: 600, 
+        fontWeight: 600,
         lineHeight: 1.35,
         wordBreak: 'break-word'
     },
@@ -199,7 +199,7 @@ const cupomStyles = {
     forte: { fontWeight: 800 },
     divisor: { width: '100%', borderTop: '1px dashed #000000', margin: '8px 0' },
     tituloSecao: { margin: '6px 0', fontSize: '14px', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase' },
-    
+
     // CAIXA DE OBSERVAÇÃO GERAL SUAVIZADA
     observacaoGeralBox: {
         marginTop: '4px',
@@ -211,16 +211,24 @@ const cupomStyles = {
     itemTitulo: { display: 'block', fontSize: '14px', fontWeight: 800, marginBottom: '2px' },
     alimentoLista: { margin: '0', padding: '0', listStyle: 'none' },
     alimentoItem: { fontSize: '13px', margin: '2px 0' },
-    
+
     // CAIXA DE OBSERVAÇÃO DA MARMITA SUAVIZADA
-    observacaoItem: { 
-        display: 'block', 
-        marginTop: '2px', 
-        fontSize: '12px', 
+    observacaoItem: {
+        display: 'block',
+        marginTop: '2px',
+        fontSize: '12px',
         fontStyle: 'italic'
     },
-    
+
     produtoDetalhe: { fontSize: '12px', marginTop: '2px' },
+    valorDetalheCompacto: {
+        marginTop: '2px',
+        fontSize: '12px',
+        lineHeight: 1.15,
+        fontWeight: 700,
+        letterSpacing: '-0.15px',
+        whiteSpace: 'nowrap'
+    },
     totalBox: { margin: '8px 0', fontSize: '16px', fontWeight: 800 },
     trocoBox: { marginTop: '8px', padding: '6px', border: '2px solid #000000', fontSize: '15px', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase' },
     rodape: { textAlign: 'center', marginTop: '10px', fontSize: '12px' },
@@ -241,14 +249,14 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
 
     const marmitas = pedido.marmitas || [];
     const produtos = pedido.produtos || [];
-    
+
     // Pega as datas
     const dataCriacao = new Date(pedido.criado_em);
     const dataImpressao = new Date();
 
     return (
         <div ref={ref} className={styles.printOnly} style={cupomStyles.cupom}>
-            
+
             <div style={cupomStyles.cabecalho}>
                 <h2 style={cupomStyles.nomeLoja}>La Casa da Marmita</h2>
                 <p style={cupomStyles.infoDestaque}>Pedido #{pedido.id}</p>
@@ -274,7 +282,7 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                         <span style={cupomStyles.forte}>Endereço:</span> {pedido.endereco_cliente}
                     </p>
                 )}
-                
+
                 {/* 👇 OBSERVAÇÃO GERAL SUAVE */}
                 {pedido.observacoes && (
                     <div style={cupomStyles.observacaoGeralBox}>
@@ -305,7 +313,7 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                                     </div>
                                 )}
                                 <div style={cupomStyles.valorDetalheCompacto}>
-                                    Unit. R$ {moeda(marmita.preco_unitario)} | Subtotal R$ {moeda(marmita.subtotal)}
+                                    R$ {moeda(marmita.preco_unitario)} cada
                                 </div>
                             </>
                         ) : (
@@ -325,7 +333,7 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                                 )}
 
                                 <div style={cupomStyles.valorDetalheCompacto}>
-                                    Unit. R$ {moeda(marmita.preco_unitario)} | Subtotal R$ {moeda(marmita.subtotal)}
+                                    R$ {moeda(marmita.preco_unitario)} cada
                                 </div>
                             </>
                         )}
@@ -343,7 +351,8 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                                 {produto.quantidade}x {produto.nome}
                             </span>
                             <div style={cupomStyles.valorDetalheCompacto}>
-                                {produto.categoria_nome || 'Produto'} | Unit. R$ {moeda(produto.preco_unitario)} | Subtotal R$ {moeda(produto.subtotal)}
+                                {produto.categoria_nome || 'Produto'}
+                                <p>R$ {moeda(produto.preco_unitario)} cada</p>
                             </div>
                         </div>
                     ))}
@@ -375,7 +384,7 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                 </p>
                 <div style={cupomStyles.divisor} />
             </div>
-            
+
         </div>
     );
 });
