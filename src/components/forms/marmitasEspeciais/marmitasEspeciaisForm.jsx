@@ -55,6 +55,32 @@ export default function MarmitasEspeciaisForm({
         }
     };
 
+    const handlePrecoChange = (event) => {
+        let valor = event.target.value
+            .replace(/\./g, ",")
+            .replace(/[^0-9,]/g, "");
+
+        const partes = valor.split(",");
+        const inteiro = partes[0];
+        const decimal = partes.slice(1).join("").slice(0, 2);
+
+        valor = partes.length > 1
+            ? `${inteiro},${decimal}`
+            : inteiro;
+
+        setFormData((anterior) => ({
+            ...anterior,
+            preco: valor
+        }));
+
+        if (errors.preco) {
+            setErrors((anterior) => ({
+                ...anterior,
+                preco: null
+            }));
+        }
+    };
+
     const validateForm = () => {
         const novosErros = {};
 
@@ -144,7 +170,7 @@ export default function MarmitasEspeciaisForm({
                 placeholder="Ex: 23,00"
                 inputMode="decimal"
                 value={formData.preco}
-                onChange={handleChange}
+                onChange={handlePrecoChange}
                 disabled={!isEditable}
                 error={errors.preco}
             />
