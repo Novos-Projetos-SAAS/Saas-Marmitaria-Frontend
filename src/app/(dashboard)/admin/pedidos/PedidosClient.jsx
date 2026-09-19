@@ -588,26 +588,47 @@ export default function PedidosClient() {
 
                                     <h3>Marmitas do Pedido:</h3>
                                     <div className={styles.marmitasGrid}>
-                                        {pedidoSelecionado.marmitas && pedidoSelecionado.marmitas.map((marmita, idx) => (
-                                            <div key={idx} className={styles.marmitaCard}>
-                                                <div className={styles.marmitaHeader}>
-                                                    <span><b>{marmita.quantidade}x</b> Marmita {marmita.tamanho}</span>
-                                                    <span>R$ {Number(marmita.preco_unitario).toFixed(2).replace('.', ',')}</span>
-                                                </div>
-                                                <ul className={styles.alimentosList}>
-                                                    {marmita.alimentos && marmita.alimentos.map((alimento, idxAli) => (
-                                                        <li key={alimento?.id || idxAli}>✓ {typeof alimento === 'string' ? alimento : alimento.nome}</li>
-                                                    ))}
-                                                </ul>
-                                                
-                                                {/* 👇 ADICIONADO AQUI: Mostra a observação específica dessa marmita */}
-                                                {marmita.observacao && (
-                                                    <div className={styles.itemObservacao}>
-                                                        <strong>Obs:</strong> {marmita.observacao}
+                                        {pedidoSelecionado.marmitas && pedidoSelecionado.marmitas.map((marmita, idx) => {
+                                            const especial = marmita.tipo === 'ESPECIAL';
+
+                                            return (
+                                                <div key={marmita.id || idx} className={styles.marmitaCard}>
+                                                    <div className={styles.marmitaHeader}>
+                                                        <span>
+                                                            <b>{marmita.quantidade}x</b> {especial ? marmita.nome : `Marmita ${marmita.tamanho}`}
+                                                        </span>
+                                                        <span>R$ {Number(marmita.subtotal).toFixed(2).replace('.', ',')}</span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        ))}
+
+                                                    {especial ? (
+                                                        <>
+                                                            {marmita.descricao && (
+                                                                <span style={{ color: '#71717A', fontSize: '0.85rem', lineHeight: 1.4 }}>
+                                                                    {marmita.descricao}
+                                                                </span>
+                                                            )}
+                                                            <span style={{ color: '#a54b3c', fontSize: '0.82rem', fontWeight: 600 }}>
+                                                                Marmita especial • R$ {Number(marmita.preco_unitario).toFixed(2).replace('.', ',')} cada
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <ul className={styles.alimentosList}>
+                                                                {marmita.alimentos && marmita.alimentos.map((alimento, idxAli) => (
+                                                                    <li key={alimento?.id || idxAli}>✓ {typeof alimento === 'string' ? alimento : alimento.nome}</li>
+                                                                ))}
+                                                            </ul>
+
+                                                            {marmita.observacao && (
+                                                                <div className={styles.itemObservacao}>
+                                                                    <strong>Obs:</strong> {marmita.observacao}
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
 
                                     {pedidoSelecionado.produtos && pedidoSelecionado.produtos.length > 0 && (

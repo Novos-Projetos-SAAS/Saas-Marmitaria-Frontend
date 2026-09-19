@@ -166,22 +166,40 @@ export default function AcompanharPedido() {
                                 <h3>Resumo do Pedido</h3>
 
                                 {/* MARMITAS */}
-                                {(pedido.marmitas || []).map((marmita) => (
-                                    <div key={marmita.id} className={styles.itemMarmita}>
-                                        <strong>{marmita.quantidade}x Marmita {marmita.tamanho}</strong>
-                                        <span>
-                                            {(marmita.alimentos || [])
-                                                .map((alimento) => typeof alimento === 'string' ? alimento : alimento.nome)
-                                                .join(', ')}
-                                        </span>
-                                        {/* 👇 ADICIONADO AQUI: Observação da Marmita */}
-                                        {marmita.observacao && (
-                                            <span className={styles.itemObservacao}>
-                                                * Obs: {marmita.observacao}
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
+                                {(pedido.marmitas || []).map((marmita) => {
+                                    const especial = marmita.tipo === 'ESPECIAL';
+
+                                    return (
+                                        <div key={marmita.id} className={styles.itemMarmita}>
+                                            <strong>
+                                                {marmita.quantidade}x {especial ? marmita.nome : `Marmita ${marmita.tamanho}`}
+                                            </strong>
+
+                                            {especial ? (
+                                                <>
+                                                    {marmita.descricao && <span>{marmita.descricao}</span>}
+                                                    <span>
+                                                        R$ {Number(marmita.subtotal).toFixed(2).replace('.', ',')}
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span>
+                                                        {(marmita.alimentos || [])
+                                                            .map((alimento) => typeof alimento === 'string' ? alimento : alimento.nome)
+                                                            .join(', ')}
+                                                    </span>
+
+                                                    {marmita.observacao && (
+                                                        <span className={styles.itemObservacao}>
+                                                            * Obs: {marmita.observacao}
+                                                        </span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    );
+                                })}
 
                                 {/* PRODUTOS */}
                                 {(pedido.produtos || []).map((produto) => (

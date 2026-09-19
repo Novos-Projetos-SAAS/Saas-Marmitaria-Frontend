@@ -280,27 +280,46 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
             <p style={cupomStyles.tituloSecao}>Itens do Pedido</p>
             <div style={cupomStyles.divisor} />
 
-            {marmitas.map((marmita) => (
-                <div key={marmita.id} style={cupomStyles.itemCaixa}>
-                    <span style={cupomStyles.itemTitulo}>
-                        {marmita.quantidade}x Marmita {marmita.tamanho}
-                    </span>
-                    <ul style={cupomStyles.alimentoLista}>
-                        {(marmita.alimentos || []).map((alimento) => (
-                            <li key={alimento?.id || obterNomeAlimento(alimento)} style={cupomStyles.alimentoItem}>
-                                - {obterNomeAlimento(alimento)}
-                            </li>
-                        ))}
-                    </ul>
-                    
-                    {/* 👇 OBSERVAÇÃO DA MARMITA SUAVE */}
-                    {marmita.observacao && (
-                        <div style={cupomStyles.observacaoItem}>
-                            * Obs: {marmita.observacao}
-                        </div>
-                    )}
-                </div>
-            ))}
+            {marmitas.map((marmita) => {
+                const especial = marmita.tipo === 'ESPECIAL';
+
+                return (
+                    <div key={marmita.id} style={cupomStyles.itemCaixa}>
+                        <span style={cupomStyles.itemTitulo}>
+                            {marmita.quantidade}x {especial ? marmita.nome : `Marmita ${marmita.tamanho}`}
+                        </span>
+
+                        {especial ? (
+                            <>
+                                {marmita.descricao && (
+                                    <div style={cupomStyles.produtoDetalhe}>
+                                        {marmita.descricao}
+                                    </div>
+                                )}
+                                <div style={cupomStyles.produtoDetalhe}>
+                                    R$ {moeda(marmita.preco_unitario)} cada | Subtotal R$ {moeda(marmita.subtotal)}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <ul style={cupomStyles.alimentoLista}>
+                                    {(marmita.alimentos || []).map((alimento) => (
+                                        <li key={alimento?.id || obterNomeAlimento(alimento)} style={cupomStyles.alimentoItem}>
+                                            - {obterNomeAlimento(alimento)}
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {marmita.observacao && (
+                                    <div style={cupomStyles.observacaoItem}>
+                                        * Obs: {marmita.observacao}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                );
+            })}
 
             {produtos.length > 0 && (
                 <>

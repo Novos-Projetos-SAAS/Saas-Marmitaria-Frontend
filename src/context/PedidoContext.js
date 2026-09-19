@@ -1591,6 +1591,63 @@ export function PedidoProvider({ children }) {
     }, [carrinho, produtosCarrinho.length]);
 
     /**
+     * Atualiza ou remove marmitas especiais que sofreram alteração
+     * de disponibilidade ou preço antes da finalização.
+     */
+    const atualizarMarmitasEspeciaisAlteradas = useCallback((marmitasAlteradas = []) => {
+        if (!Array.isArray(marmitasAlteradas) || marmitasAlteradas.length === 0) {
+            return { removidas: 0, precosAtualizados: 0 };
+        }
+
+        const alteracoesPorId = new Map(
+            marmitasAlteradas.map((alteracao) => [Number(alteracao.id), alteracao])
+        );
+
+        let removidas = 0;
+        let precosAtualizados = 0;
+
+        const novoCarrinho = carrinho.map((item) => {
+            if (item.tipo !== 'ESPECIAL') return item;
+
+            const alteracao = alteracoesPorId.get(Number(item.marmita_especial_id));
+
+            if (!alteracao) return item;
+
+            if (alteracao.tipo === 'INDISPONIVEL') {
+                removidas += 1;
+                return null;
+            }
+
+            const precoAtual = Number(alteracao.preco_atual);
+
+            if (!Number.isFinite(precoAtual) || precoAtual <= 0) {
+                return item;
+            }
+
+            precosAtualizados += 1;
+
+            return {
+                ...item,
+                nome: alteracao.nome || item.nome,
+                descricao: alteracao.descricao_atual ?? item.descricao,
+                preco: precoAtual,
+                subtotal: Number((precoAtual * Number(item.quantidade)).toFixed(2))
+            };
+        }).filter(Boolean);
+
+        setCarrinho(novoCarrinho);
+
+        if (novoCarrinho.length === 0 && produtosCarrinho.length > 0) {
+            setProdutosCarrinho([]);
+        }
+
+        return {
+            removidas,
+            precosAtualizados
+        };
+    }, [carrinho, produtosCarrinho.length]);
+
+    /**
      * Limpa completamente o pedido.
      */
     const limparCarrinho = useCallback(() => {
@@ -1629,6 +1686,7 @@ export function PedidoProvider({ children }) {
                 adicionarMarmitaEspecialAoCarrinho,
                 removerDoCarrinho,
                 atualizarMarmitasIndisponiveis,
+                atualizarMarmitasEspeciaisAlteradas,
                 produtosCarrinho,
                 adicionarProdutoAoCarrinho,
                 incrementarProduto,

@@ -475,6 +475,7 @@ export default function Carrinho() {
         removerDoCarrinho,
         removerProdutoDoCarrinho,
         atualizarMarmitasIndisponiveis,
+        atualizarMarmitasEspeciaisAlteradas,
         atualizarProdutosAlterados,
         atualizarProdutosIndisponiveis,
         finalizando,
@@ -503,11 +504,14 @@ export default function Carrinho() {
     const [indisponibilidade, setIndisponibilidade] = useState(null);
     const [modalIndisponibilidadeAberto, setModalIndisponibilidadeAberto] = useState(false);
 
-    const pedidoBloqueado = Boolean(indisponibilidade?.marmitas?.length || indisponibilidade?.produtos?.length);
+    const pedidoBloqueado = Boolean(
+        indisponibilidade?.marmitas?.length ||
+        indisponibilidade?.marmitas_especiais?.length ||
+        indisponibilidade?.produtos?.length
+    );
     const lojaBloqueada = lojaAbertaPedido !== true;
     const marmitasPersonalizadas = carrinho.filter((item) => item.tipo !== 'ESPECIAL');
     const marmitasEspeciais = carrinho.filter((item) => item.tipo === 'ESPECIAL');
-    const possuiMarmitaEspecial = marmitasEspeciais.length > 0;
     const isPagamentoDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(form.metodo_pagamento_id))?.nome.toLowerCase().includes('dinheiro');
 
     useEffect(() => {
@@ -582,6 +586,21 @@ export default function Carrinho() {
             };
         });
 
+        const marmitasEspeciaisAlteradas = (resposta?.details?.marmitas_especiais || []).map((conflito) => {
+            const marmitaLocal = marmitasEspeciais.find(
+                (marmita) => Number(marmita.marmita_especial_id) === Number(conflito.id)
+            );
+
+            return {
+                ...conflito,
+                id_temp: marmitaLocal?.id_temp || null,
+                nome: conflito.nome || marmitaLocal?.nome || `Marmita especial #${conflito.id}`,
+                descricao_atual: conflito.descricao_atual ?? marmitaLocal?.descricao ?? null,
+                preco_anterior: conflito.preco_anterior ?? marmitaLocal?.preco ?? null,
+                preco_atual: conflito.preco_atual ?? null
+            };
+        });
+
         const produtos = (resposta?.details?.produtos || []).map((conflito) => {
             const produtoLocal = produtosCarrinho.find(
                 (produto) => Number(produto.id) === Number(conflito.id)
@@ -599,6 +618,7 @@ export default function Carrinho() {
         setIndisponibilidade({
             message: resposta.message || 'Um ou mais itens do pedido foram alterados antes da finalização.',
             marmitas,
+            marmitas_especiais: marmitasEspeciaisAlteradas,
             produtos
         });
 
@@ -614,9 +634,10 @@ export default function Carrinho() {
         if (!indisponibilidade) return;
 
         const marmitasRestantes = (indisponibilidade.marmitas || []).filter((item) => item.id_temp !== idTemp);
+        const marmitasEspeciaisRestantes = (indisponibilidade.marmitas_especiais || []).filter((item) => item.id_temp !== idTemp);
         const produtosRestantes = removendoUltimaMarmita ? [] : (indisponibilidade.produtos || []);
 
-        if (marmitasRestantes.length === 0 && produtosRestantes.length === 0) {
+        if (marmitasRestantes.length === 0 && marmitasEspeciaisRestantes.length === 0 && produtosRestantes.length === 0) {
             setIndisponibilidade(null);
             setModalIndisponibilidadeAberto(false);
             return;
@@ -625,6 +646,7 @@ export default function Carrinho() {
         setIndisponibilidade({
             ...indisponibilidade,
             marmitas: marmitasRestantes,
+            marmitas_especiais: marmitasEspeciaisRestantes,
             produtos: produtosRestantes
         });
     };
@@ -635,11 +657,12 @@ export default function Carrinho() {
         if (!indisponibilidade) return;
 
         const marmitasRestantes = indisponibilidade.marmitas || [];
+        const marmitasEspeciaisRestantes = indisponibilidade.marmitas_especiais || [];
         const produtosRestantes = (indisponibilidade.produtos || []).filter(
             (produto) => Number(produto.id) !== Number(produtoId)
         );
 
-        if (marmitasRestantes.length === 0 && produtosRestantes.length === 0) {
+        if (marmitasRestantes.length === 0 && marmitasEspeciaisRestantes.length === 0 && produtosRestantes.length === 0) {
             setIndisponibilidade(null);
             setModalIndisponibilidadeAberto(false);
             return;
@@ -648,6 +671,7 @@ export default function Carrinho() {
         setIndisponibilidade({
             ...indisponibilidade,
             marmitas: marmitasRestantes,
+            marmitas_especiais: marmitasEspeciaisRestantes,
             produtos: produtosRestantes
         });
     };
@@ -657,6 +681,10 @@ export default function Carrinho() {
 
         if (indisponibilidade.marmitas?.length) {
             atualizarMarmitasIndisponiveis(indisponibilidade.marmitas);
+        }
+
+        if (indisponibilidade.marmitas_especiais?.length) {
+            atualizarMarmitasEspeciaisAlteradas(indisponibilidade.marmitas_especiais);
         }
 
         if (indisponibilidade.produtos?.length) {
@@ -691,10 +719,6 @@ export default function Carrinho() {
 
         if (carrinho.length === 0) {
             return toast.error('Adicione pelo menos uma marmita para finalizar o pedido.');
-        }
-
-        if (possuiMarmitaEspecial) {
-            return toast.error('A finalização de marmitas especiais será liberada na próxima etapa.');
         }
 
         if (!form.metodo_pagamento_id) {
@@ -763,7 +787,12 @@ export default function Carrinho() {
 
         if (!resposta) return;
 
-        if (resposta.code === 'ALIMENTOS_INDISPONIVEIS' || resposta.code === 'PRODUTOS_INDISPONIVEIS' || resposta.code === 'PRODUTOS_ALTERADOS') {
+        if (
+            resposta.code === 'ALIMENTOS_INDISPONIVEIS' ||
+            resposta.code === 'MARMITAS_ESPECIAIS_ALTERADAS' ||
+            resposta.code === 'PRODUTOS_INDISPONIVEIS' ||
+            resposta.code === 'PRODUTOS_ALTERADOS'
+        ) {
             registrarIndisponibilidade(resposta);
             return;
         }
@@ -1004,26 +1033,22 @@ export default function Carrinho() {
                 <button
                     type="submit"
                     className={styles.btnFinalizar}
-                    disabled={enviando || loadingMetodosPagamento || pedidoBloqueado || lojaBloqueada || possuiMarmitaEspecial}
+                    disabled={enviando || loadingMetodosPagamento || pedidoBloqueado || lojaBloqueada}
                     title={
                         pedidoBloqueado
-                            ? 'Atualize ou remova os itens indisponíveis para continuar.'
+                            ? 'Atualize ou remova os itens alterados para continuar.'
                             : lojaBloqueada
                                 ? 'A loja não está disponível para novos pedidos.'
-                                : possuiMarmitaEspecial
-                                    ? 'A finalização de marmitas especiais será habilitada na próxima etapa.'
-                                    : undefined
+                                : undefined
                     }
                 >
                     {pedidoBloqueado
                         ? 'Atualize o pedido para continuar'
                         : lojaBloqueada
                             ? 'Loja fechada'
-                            : possuiMarmitaEspecial
-                                ? 'Finalização da especial em preparação'
-                                : enviando
-                                    ? 'Processando...'
-                                    : `Confirmar Pedido • ${formatarMoeda(totalGeral)}`}
+                            : enviando
+                                ? 'Processando...'
+                                : `Confirmar Pedido • ${formatarMoeda(totalGeral)}`}
                 </button>
             </form>
 
@@ -1060,6 +1085,26 @@ export default function Carrinho() {
                                     ))}
                                 </div>
                             ))}
+
+                            {(indisponibilidade.marmitas_especiais || []).length > 0 && (
+                                <div className={styles.marmitaIndisponivelCard}>
+                                    <strong>Marmitas Especiais</strong>
+
+                                    {indisponibilidade.marmitas_especiais.map((marmita) => (
+                                        <div key={marmita.id_temp || marmita.id} className={styles.alimentoIndisponivelItem}>
+                                            <span>{marmita.nome}</span>
+
+                                            {marmita.tipo === 'PRECO_ALTERADO' ? (
+                                                <small>
+                                                    Preço alterado de {formatarMoeda(marmita.preco_anterior)} para {formatarMoeda(marmita.preco_atual)}.
+                                                </small>
+                                            ) : (
+                                                <small>{marmita.motivo}</small>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             {(indisponibilidade.produtos || []).length > 0 && (
                                 <div className={styles.marmitaIndisponivelCard}>
