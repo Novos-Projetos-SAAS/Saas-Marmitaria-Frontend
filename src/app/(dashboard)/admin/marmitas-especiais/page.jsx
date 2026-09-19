@@ -18,9 +18,6 @@ export default function MarmitasEspeciaisPage() {
         >
             <div className={styles.container}>
                 <h1 className={styles.title}>Marmitas Especiais</h1>
-                <p className={styles.subtitle}>
-                    Cadastre opções prontas com nome, descrição e valor próprios.
-                </p>
 
                 <MarmitasEspeciaisClient />
             </div>
