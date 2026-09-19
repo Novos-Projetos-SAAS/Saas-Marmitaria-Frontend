@@ -806,3 +806,30 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* MARMITA ESPECIAL NO CARRINHO */
+.itemTituloLinha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.itemTituloLinha h3 {
+    margin: 0;
+}
+
+.badgeEspecialCarrinho {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #f6eeec;
+    color: #a54b3c;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}

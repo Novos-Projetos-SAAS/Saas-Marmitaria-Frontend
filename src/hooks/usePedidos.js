@@ -27,7 +27,7 @@ export function usePedidos() {
         } catch (error) {
             const data = error?.response?.data;
 
-            if (data?.code === 'ALIMENTOS_INDISPONIVEIS' || data?.code === 'PRODUTOS_INDISPONIVEIS' || data?.code === 'PRODUTOS_ALTERADOS' || data?.code === 'LOJA_FECHADA') {
+            if (data?.code === 'ALIMENTOS_INDISPONIVEIS' || data?.code === 'PRODUTOS_INDISPONIVEIS' || data?.code === 'PRODUTOS_ALTERADOS' || data?.code === 'MARMITAS_ESPECIAIS_ALTERADAS' || data?.code === 'LOJA_FECHADA') {
                 return {
                     status: 'conflict',
                     code: data.code,

@@ -1552,19 +1552,23 @@ export function PedidoProvider({ children }) {
         let removidas = 0;
 
         const novoCarrinho = carrinho.map((marmita, index) => {
+            if (marmita.tipo === 'ESPECIAL') {
+                return marmita;
+            }
+
             const conflito = marmitasComProblema.find((item) => item.id_temp ? item.id_temp === marmita.id_temp : Number(item.marmita_index) === index);
 
             if (!conflito) return marmita;
 
             const idsIndisponiveis = new Set((conflito.alimentos || []).map((alimento) => Number(alimento.id)));
-            const itensAtualizados = marmita.itens.filter((alimento) => !idsIndisponiveis.has(Number(alimento.id)));
+            const itensAtualizados = (marmita.itens || []).filter((alimento) => !idsIndisponiveis.has(Number(alimento.id)));
 
             if (itensAtualizados.length === 0) {
                 removidas += 1;
                 return null;
             }
 
-            if (itensAtualizados.length !== marmita.itens.length) {
+            if (itensAtualizados.length !== (marmita.itens || []).length) {
                 atualizadas += 1;
             }
 

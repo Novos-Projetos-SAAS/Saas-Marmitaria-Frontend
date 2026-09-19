@@ -505,6 +505,9 @@ export default function Carrinho() {
 
     const pedidoBloqueado = Boolean(indisponibilidade?.marmitas?.length || indisponibilidade?.produtos?.length);
     const lojaBloqueada = lojaAbertaPedido !== true;
+    const marmitasPersonalizadas = carrinho.filter((item) => item.tipo !== 'ESPECIAL');
+    const marmitasEspeciais = carrinho.filter((item) => item.tipo === 'ESPECIAL');
+    const possuiMarmitaEspecial = marmitasEspeciais.length > 0;
     const isPagamentoDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(form.metodo_pagamento_id))?.nome.toLowerCase().includes('dinheiro');
 
     useEffect(() => {
@@ -562,7 +565,7 @@ export default function Carrinho() {
 
     const registrarIndisponibilidade = (resposta) => {
         const marmitas = (resposta?.details?.marmitas || []).map((conflito) => {
-            const marmitaLocal = carrinho[Number(conflito.marmita_index)];
+            const marmitaLocal = marmitasPersonalizadas[Number(conflito.marmita_index)];
 
             return {
                 ...conflito,
@@ -687,7 +690,11 @@ export default function Carrinho() {
         }
 
         if (carrinho.length === 0) {
-            return toast.error('Adicione pelo menos uma marmita com alimentos para finalizar o pedido.');
+            return toast.error('Adicione pelo menos uma marmita para finalizar o pedido.');
+        }
+
+        if (possuiMarmitaEspecial) {
+            return toast.error('A finalização de marmitas especiais será liberada na próxima etapa.');
         }
 
         if (!form.metodo_pagamento_id) {
@@ -734,13 +741,22 @@ export default function Carrinho() {
             observacoes: form.observacoes,
             precisa_troco: isPagamentoDinheiro ? form.precisa_troco : false,
             troco_para: isPagamentoDinheiro && form.precisa_troco ? Number(String(form.troco_para).replace(',', '.')) : null,
-            marmitas: carrinho.map((item) => ({
+            marmitas: marmitasPersonalizadas.map((item) => ({
                 tamanho_id: Number(item.tamanho.id),
                 quantidade: Number(item.quantidade),
-                alimentos: item.itens.map((alimento) => Number(alimento.id)),
+                alimentos: (item.itens || []).map((alimento) => Number(alimento.id)),
                 observacao: item.observacao || null
             })),
-            produtos: produtosCarrinho.map((produto) => ({ produto_id: Number(produto.id), quantidade: Number(produto.quantidade), preco_referencia: Number(produto.preco) }))
+            marmitas_especiais: marmitasEspeciais.map((item) => ({
+                marmita_especial_id: Number(item.marmita_especial_id),
+                quantidade: Number(item.quantidade),
+                preco_referencia: Number(item.preco)
+            })),
+            produtos: produtosCarrinho.map((produto) => ({
+                produto_id: Number(produto.id),
+                quantidade: Number(produto.quantidade),
+                preco_referencia: Number(produto.preco)
+            }))
         };
 
         const resposta = await finalizarPedidoNoBanco(payload);
@@ -776,7 +792,7 @@ export default function Carrinho() {
         return (
             <main className={styles.containerVazio}>
                 <h2>Seu carrinho ainda não possui uma marmita 😕</h2>
-                <p className={styles.mensagemVazio}>Para realizar um pedido, escolha um tamanho e monte pelo menos uma marmita com alimentos.</p>
+                <p className={styles.mensagemVazio}>Escolha uma marmita especial ou monte uma marmita do seu jeito para continuar.</p>
                 <button type="button" onClick={() => router.push('/pedido')} className={styles.btnVoltar}>Montar Marmita</button>
             </main>
         );
@@ -792,24 +808,44 @@ export default function Carrinho() {
             <section className={styles.resumo}>
                 <h2 className={styles.secaoTitulo}>Marmitas</h2>
 
-                {carrinho.map((item, index) => (
-                    <div key={item.id_temp} className={styles.itemCarrinho}>
-                        <div className={styles.itemInfo}>
-                            <span className={styles.itemQuantidade}>{item.quantidade}x</span>
-                            <div>
-                                <h3>Marmita {item.tamanho.nome}</h3>
-                                <p className={styles.itemDetalhes}>{item.itens.map((alimento) => alimento.nome).join(', ')}</p>
-                                {item.observacao && <p className={styles.observacaoMarmita}>* Obs: {item.observacao}</p>}
+                {carrinho.map((item, index) => {
+                    const especial = item.tipo === 'ESPECIAL';
+
+                    return (
+                        <div key={item.id_temp} className={styles.itemCarrinho}>
+                            <div className={styles.itemInfo}>
+                                <span className={styles.itemQuantidade}>{item.quantidade}x</span>
+                                <div>
+                                    <div className={styles.itemTituloLinha}>
+                                        <h3>{especial ? item.nome : `Marmita ${item.tamanho?.nome || ''}`}</h3>
+                                        {especial && <span className={styles.badgeEspecialCarrinho}>Especial</span>}
+                                    </div>
+
+                                    {especial ? (
+                                        item.descricao && <p className={styles.itemDetalhes}>{item.descricao}</p>
+                                    ) : (
+                                        <>
+                                            <p className={styles.itemDetalhes}>{(item.itens || []).map((alimento) => alimento.nome).join(', ')}</p>
+                                            {item.observacao && <p className={styles.observacaoMarmita}>* Obs: {item.observacao}</p>}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className={styles.itemAcoes}>
+                                <span className={styles.itemPreco}>{formatarMoeda(item.subtotal)}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoverMarmita(index)}
+                                    className={styles.btnRemover}
+                                    title={especial ? 'Remover marmita especial' : 'Remover marmita'}
+                                >
+                                    <Trash2 size={20} />
+                                </button>
                             </div>
                         </div>
-                        <div className={styles.itemAcoes}>
-                            <span className={styles.itemPreco}>{formatarMoeda(item.subtotal)}</span>
-                            <button type="button" onClick={() => handleRemoverMarmita(index)} className={styles.btnRemover} title="Remover marmita">
-                                <Trash2 size={20} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
 
                 <div className={styles.subtotalLinha}>
                     <span>Subtotal das marmitas</span>
@@ -968,10 +1004,26 @@ export default function Carrinho() {
                 <button
                     type="submit"
                     className={styles.btnFinalizar}
-                    disabled={enviando || loadingMetodosPagamento || pedidoBloqueado || lojaBloqueada}
-                    title={pedidoBloqueado ? 'Atualize ou remova os itens indisponíveis para continuar.' : lojaBloqueada ? 'A loja não está disponível para novos pedidos.' : undefined}
+                    disabled={enviando || loadingMetodosPagamento || pedidoBloqueado || lojaBloqueada || possuiMarmitaEspecial}
+                    title={
+                        pedidoBloqueado
+                            ? 'Atualize ou remova os itens indisponíveis para continuar.'
+                            : lojaBloqueada
+                                ? 'A loja não está disponível para novos pedidos.'
+                                : possuiMarmitaEspecial
+                                    ? 'A finalização de marmitas especiais será habilitada na próxima etapa.'
+                                    : undefined
+                    }
                 >
-                    {pedidoBloqueado ? 'Atualize o pedido para continuar' : lojaBloqueada ? 'Loja fechada' : enviando ? 'Processando...' : `Confirmar Pedido • ${formatarMoeda(totalGeral)}`}
+                    {pedidoBloqueado
+                        ? 'Atualize o pedido para continuar'
+                        : lojaBloqueada
+                            ? 'Loja fechada'
+                            : possuiMarmitaEspecial
+                                ? 'Finalização da especial em preparação'
+                                : enviando
+                                    ? 'Processando...'
+                                    : `Confirmar Pedido • ${formatarMoeda(totalGeral)}`}
                 </button>
             </form>
 
