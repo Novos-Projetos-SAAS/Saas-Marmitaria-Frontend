@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePedidos } from "@/hooks/usePedidos";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
+import { buscarMarmitasEspeciaisPublicas } from "@/services/marmitasEspeciaisService.js";
 
 import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal";
 import TelefoneInput from "@/components/ui/inputMask";
 
-import { Save, X, ShoppingBag, User, MapPin } from "lucide-react";
+import { Save, X, ShoppingBag, User, MapPin, Plus, Minus, Star, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 import styles from "./pedidoPresencialForm.module.css";
 
@@ -16,6 +17,11 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
 
     const [modalAberto, setModalAberto] = useState(false);
+    const [modalEspecialAberto, setModalEspecialAberto] = useState(false);
+    const [opcoesMarmitasEspeciais, setOpcoesMarmitasEspeciais] = useState([]);
+    const [loadingMarmitasEspeciais, setLoadingMarmitasEspeciais] = useState(true);
+    const [marmitaEspecialSelecionadaId, setMarmitaEspecialSelecionadaId] = useState('');
+    const [quantidadeMarmitaEspecial, setQuantidadeMarmitaEspecial] = useState(1);
 
     const [formData, setFormData] = useState({
         nome_cliente: '',
@@ -28,14 +34,32 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         metodo_pagamento_id: '',
         observacoes: '',
         marmitas: [],
+        marmitas_especiais: [],
         produtos: [],
         precisa_troco: false, // 👇 Adicionado
         troco_para: ''        // 👇 Adicionado
     });
 
+    useEffect(() => {
+        async function carregarMarmitasEspeciais() {
+            try {
+                const marmitas = await buscarMarmitasEspeciaisPublicas();
+                setOpcoesMarmitasEspeciais(marmitas || []);
+            } catch (error) {
+                console.error(error);
+                setOpcoesMarmitasEspeciais([]);
+            } finally {
+                setLoadingMarmitasEspeciais(false);
+            }
+        }
+
+        carregarMarmitasEspeciais();
+    }, []);
+
     // Calcula o total do pedido dinamicamente
-    const totalPedido = 
-        formData.marmitas.reduce((acc, item) => acc + (item.preco_unitario * item.quantidade), 0) + 
+    const totalPedido =
+        formData.marmitas.reduce((acc, item) => acc + (item.preco_unitario * item.quantidade), 0) +
+        formData.marmitas_especiais.reduce((acc, item) => acc + (item.preco * item.quantidade), 0) +
         formData.produtos.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
 
     // Identifica se o método de pagamento selecionado é Dinheiro
@@ -113,7 +137,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
             }
         }
 
-        if (formData.marmitas.length === 0) {
+        if (formData.marmitas.length === 0 && formData.marmitas_especiais.length === 0) {
             return toast.error("Adicione pelo menos uma marmita ao pedido.");
         }
 
@@ -136,6 +160,11 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                 alimentos: item.alimentos.map(Number),
                 observacao: item.observacao || null
             })),
+            marmitas_especiais: formData.marmitas_especiais.map((item) => ({
+                marmita_especial_id: Number(item.marmita_especial_id),
+                quantidade: Number(item.quantidade),
+                preco_referencia: Number(item.preco)
+            })),
             produtos: (formData.produtos || []).map((produto) => ({
                 produto_id: Number(produto.produto_id),
                 quantidade: Number(produto.quantidade),
@@ -143,6 +172,11 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         };
 
         const resposta = await finalizarPedidoNoBanco(payloadDoBanco, { admin: true });
+
+        if (resposta?.status === 'conflict') {
+            toast.error(resposta.message || "O pedido precisa ser atualizado antes de ser salvo.");
+            return;
+        }
 
         if (resposta) {
             voltarParaLista();
@@ -155,9 +189,68 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         setFormData(prev => ({ ...prev, marmitas: novasMarmitas }));
     };
 
+    const removerMarmitaEspecial = (marmitaEspecialId) => {
+        setFormData(prev => ({
+            ...prev,
+            marmitas_especiais: prev.marmitas_especiais.filter(
+                item => Number(item.marmita_especial_id) !== Number(marmitaEspecialId)
+            )
+        }));
+    };
+
     const removerProduto = (produtoId) => {
         setFormData(prev => ({ ...prev, produtos: prev.produtos.filter(produto => produto.produto_id !== produtoId) }));
     };
+
+    const fecharModalEspecial = () => {
+        setModalEspecialAberto(false);
+        setMarmitaEspecialSelecionadaId('');
+        setQuantidadeMarmitaEspecial(1);
+    };
+
+    const adicionarMarmitaEspecial = () => {
+        const marmita = opcoesMarmitasEspeciais.find(
+            item => Number(item.id) === Number(marmitaEspecialSelecionadaId)
+        );
+
+        if (!marmita) {
+            return toast.error("Selecione uma marmita especial.");
+        }
+
+        setFormData(prev => {
+            const especiais = prev.marmitas_especiais.map(item => ({ ...item }));
+            const existente = especiais.find(
+                item => Number(item.marmita_especial_id) === Number(marmita.id)
+            );
+
+            if (existente) {
+                existente.quantidade += quantidadeMarmitaEspecial;
+                existente.nome = marmita.nome;
+                existente.descricao = marmita.descricao || null;
+                existente.preco = Number(marmita.preco);
+            } else {
+                especiais.push({
+                    marmita_especial_id: Number(marmita.id),
+                    nome: marmita.nome,
+                    descricao: marmita.descricao || null,
+                    preco: Number(marmita.preco),
+                    quantidade: quantidadeMarmitaEspecial
+                });
+            }
+
+            return {
+                ...prev,
+                marmitas_especiais: especiais
+            };
+        });
+
+        toast.success("Marmita especial adicionada ao pedido!");
+        fecharModalEspecial();
+    };
+
+    const marmitaEspecialSelecionada = opcoesMarmitasEspeciais.find(
+        item => Number(item.id) === Number(marmitaEspecialSelecionadaId)
+    );
 
     return (
         <>
@@ -328,13 +421,26 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                     <div className={styles.colunaItens}>
                         <div className={styles.headerItens}>
                             <h3 className={styles.sectionTitle}><ShoppingBag size={18} /> Itens do Pedido</h3>
-                            <button type="button" className={styles.btnAddItem} onClick={() => setModalAberto(true)}>
-                                + Adicionar Marmita
-                            </button>
+
+                            <div className={styles.acoesAdicionar}>
+                                <button type="button" className={styles.btnAddItem} onClick={() => setModalAberto(true)}>
+                                    <Plus size={15} />
+                                    Marmita
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className={styles.btnAddItem + ' ' + styles.btnAddEspecial}
+                                    onClick={() => setModalEspecialAberto(true)}
+                                >
+                                    <Star size={15} />
+                                    Especial
+                                </button>
+                            </div>
                         </div>
 
                         <div className={styles.listaItens}>
-                            {formData.marmitas.length === 0 && formData.produtos.length === 0 ? (
+                            {formData.marmitas.length === 0 && formData.marmitas_especiais.length === 0 && formData.produtos.length === 0 ? (
                                 <div className={styles.emptyCart}>
                                     <p>Nenhum item adicionado ainda.</p>
                                 </div>
@@ -359,6 +465,27 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                             </button>
                                         </div>
                                     ))}
+                                    {formData.marmitas_especiais.map(item => (
+                                        <div key={'especial-' + item.marmita_especial_id} className={styles.itemCart}>
+                                            <div className={styles.itemCartInfo}>
+                                                <strong>{item.quantidade}x {item.nome}</strong>
+                                                {item.descricao && (
+                                                    <small className={styles.descricaoEspecialItem}>{item.descricao}</small>
+                                                )}
+                                                <span className={styles.precoEspecialItem}>
+                                                    R$ {(item.preco * item.quantidade).toFixed(2).replace('.', ',')}
+                                                </span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className={styles.btnRemoveItem}
+                                                onClick={() => removerMarmitaEspecial(item.marmita_especial_id)}
+                                                title="Remover marmita especial"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
                                     {formData.produtos.map(produto => (
                                         <div key={`produto-${produto.produto_id}`} className={styles.itemCart}>
                                             <div className={styles.itemCartInfo}>
@@ -377,7 +504,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                             )}
                         </div>
 
-                        {(formData.marmitas.length > 0 || formData.produtos.length > 0) && (
+                        {(formData.marmitas.length > 0 || formData.marmitas_especiais.length > 0 || formData.produtos.length > 0) && (
                             <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px dashed #e4e4e7', display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
                                 <strong>Total:</strong>
                                 <strong style={{ color: '#ea580c' }}>R$ {totalPedido.toFixed(2).replace('.', ',')}</strong>
@@ -413,6 +540,113 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         setModalAberto(false);
                     }}
                 />
+            )}
+
+            {modalEspecialAberto && (
+                <div
+                    className={styles.modalEspecialOverlay}
+                    onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) fecharModalEspecial();
+                    }}
+                >
+                    <div className={styles.modalEspecial} role="dialog" aria-modal="true" aria-labelledby="titulo-modal-especial">
+                        <div className={styles.modalEspecialHeader}>
+                            <div>
+                                <span className={styles.modalEspecialLabel}>Marmitas Especiais</span>
+                                <h3 id="titulo-modal-especial">Adicionar ao pedido</h3>
+                            </div>
+
+                            <button type="button" className={styles.btnFecharEspecial} onClick={fecharModalEspecial}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className={styles.modalEspecialBody}>
+                            {loadingMarmitasEspeciais ? (
+                                <div className={styles.loadingEspecial}>
+                                    <RefreshCw size={22} className={styles.spin} />
+                                    <span>Carregando marmitas especiais...</span>
+                                </div>
+                            ) : opcoesMarmitasEspeciais.length === 0 ? (
+                                <div className={styles.emptyEspecial}>
+                                    Nenhuma marmita especial ativa no momento.
+                                </div>
+                            ) : (
+                                <>
+                                    <div className={styles.inputGroup}>
+                                        <label>Marmita Especial *</label>
+                                        <select
+                                            value={marmitaEspecialSelecionadaId}
+                                            onChange={(event) => setMarmitaEspecialSelecionadaId(event.target.value)}
+                                        >
+                                            <option value="" disabled>Selecione...</option>
+                                            {opcoesMarmitasEspeciais.map((marmita) => (
+                                                <option key={marmita.id} value={marmita.id}>
+                                                    {marmita.nome} - R$ {Number(marmita.preco).toFixed(2).replace('.', ',')}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {marmitaEspecialSelecionada && (
+                                        <div className={styles.previewEspecial}>
+                                            <strong>{marmitaEspecialSelecionada.nome}</strong>
+
+                                            {marmitaEspecialSelecionada.descricao && (
+                                                <p>{marmitaEspecialSelecionada.descricao}</p>
+                                            )}
+
+                                            <span>
+                                                R$ {Number(marmitaEspecialSelecionada.preco).toFixed(2).replace('.', ',')} cada
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    <div className={styles.quantidadeEspecial}>
+                                        <div>
+                                            <strong>Quantidade</strong>
+                                            <span>Quantas unidades deseja adicionar?</span>
+                                        </div>
+
+                                        <div className={styles.contadorEspecial}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setQuantidadeMarmitaEspecial(q => Math.max(1, q - 1))}
+                                                disabled={quantidadeMarmitaEspecial <= 1}
+                                            >
+                                                <Minus size={16} />
+                                            </button>
+
+                                            <strong>{quantidadeMarmitaEspecial}</strong>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setQuantidadeMarmitaEspecial(q => q + 1)}
+                                            >
+                                                <Plus size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className={styles.modalEspecialFooter}>
+                            <button type="button" className={styles.btnCancelarEspecial} onClick={fecharModalEspecial}>
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="button"
+                                className={styles.btnConfirmarEspecial}
+                                onClick={adicionarMarmitaEspecial}
+                                disabled={loadingMarmitasEspeciais || opcoesMarmitasEspeciais.length === 0 || !marmitaEspecialSelecionadaId}
+                            >
+                                Adicionar ao Pedido
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </>
     );
