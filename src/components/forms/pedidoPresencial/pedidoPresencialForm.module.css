@@ -561,3 +561,286 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* MARMITAS ESPECIAIS - PEDIDO BALCÃO */
+.acoesAdicionar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btnAddItem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.btnAddEspecial {
+    background: #a54b3c;
+}
+
+.btnAddEspecial:hover {
+    background: #8f4034;
+}
+
+.descricaoEspecialItem {
+    white-space: pre-line;
+    line-height: 1.4;
+}
+
+.precoEspecialItem {
+    color: #a54b3c;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.modalEspecialOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.modalEspecial {
+    width: 100%;
+    max-width: 480px;
+    max-height: 90dvh;
+    overflow-y: auto;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modalEspecialHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+.modalEspecialHeader h3 {
+    margin: 3px 0 0;
+    color: #18181b;
+    font-size: 1.15rem;
+}
+
+.modalEspecialLabel {
+    color: #a54b3c;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btnFecharEspecial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: #f4f4f5;
+    color: #71717a;
+    cursor: pointer;
+}
+
+.modalEspecialBody {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+}
+
+.previewEspecial {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 14px;
+    border: 1px solid #ead8d4;
+    border-radius: 10px;
+    background: #fffaf9;
+}
+
+.previewEspecial strong {
+    color: #3f3f46;
+    font-size: 0.95rem;
+}
+
+.previewEspecial p {
+    margin: 0;
+    color: #71717a;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    white-space: pre-line;
+}
+
+.previewEspecial span {
+    color: #a54b3c;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.quantidadeEspecial {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid #e4e4e7;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.quantidadeEspecial > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.quantidadeEspecial > div:first-child strong {
+    color: #3f3f46;
+    font-size: 0.9rem;
+}
+
+.quantidadeEspecial > div:first-child span {
+    color: #71717a;
+    font-size: 0.78rem;
+}
+
+.contadorEspecial {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contadorEspecial button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #d4d4d8;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #3f3f46;
+    cursor: pointer;
+}
+
+.contadorEspecial button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.contadorEspecial > strong {
+    min-width: 26px;
+    text-align: center;
+    color: #18181b;
+}
+
+.loadingEspecial,
+.emptyEspecial {
+    padding: 24px;
+    border: 1px dashed #d4d4d8;
+    border-radius: 10px;
+    color: #71717a;
+    text-align: center;
+}
+
+.loadingEspecial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+
+.modalEspecialFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px 20px;
+    border-top: 1px solid #e4e4e7;
+}
+
+.btnCancelarEspecial,
+.btnConfirmarEspecial {
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btnCancelarEspecial {
+    border: 1px solid #d4d4d8;
+    background: #ffffff;
+    color: #52525b;
+}
+
+.btnConfirmarEspecial {
+    border: 1px solid #a54b3c;
+    background: #a54b3c;
+    color: #ffffff;
+}
+
+.btnConfirmarEspecial:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .headerItens {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .acoesAdicionar {
+        width: 100%;
+    }
+
+    .acoesAdicionar .btnAddItem {
+        flex: 1;
+    }
+
+    .modalEspecialOverlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modalEspecial {
+        max-height: 92dvh;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .quantidadeEspecial {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .contadorEspecial {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .modalEspecialFooter {
+        flex-direction: column-reverse;
+    }
+
+    .btnCancelarEspecial,
+    .btnConfirmarEspecial {
+        width: 100%;
+    }
+}
