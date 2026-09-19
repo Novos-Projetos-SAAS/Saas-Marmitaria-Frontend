@@ -309,7 +309,6 @@ export default function Dashboard() {
                 key="tamanhosMaisVendidos"
                 titulo="Tamanhos de marmita mais vendidos"
                 descricao="Quantidade vendida por tamanho"
-                amplo
             >
                 {graficos.tamanhos_marmita?.length ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -331,6 +330,35 @@ export default function Dashboard() {
                     </ResponsiveContainer>
                 ) : (
                     <SemDados mensagem="Nenhuma marmita vendida neste período." />
+                )}
+            </CardGrafico>
+        ),
+        marmitasEspeciaisMaisVendidas: (
+            <CardGrafico
+                key="marmitasEspeciaisMaisVendidas"
+                titulo="Marmitas especiais mais vendidas"
+                descricao="Top 4 por quantidade vendida no período"
+            >
+                {graficos.marmitas_especiais?.length ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                            data={graficos.marmitas_especiais}
+                            layout="vertical"
+                            margin={{ top: 8, right: 28, left: 12, bottom: 0 }}
+                            accessibilityLayer
+                        >
+                            <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" horizontal={false} />
+                            <XAxis type="number" tick={ESTILO_EIXO} allowDecimals={false} tickLine={false} axisLine={false} />
+                            <YAxis type="category" dataKey="nome" tick={ESTILO_EIXO} tickLine={false} axisLine={false} width={150} />
+                            <Tooltip
+                                {...PROPRIEDADES_TOOLTIP}
+                                formatter={(valor) => [formatarNumero(valor), "Marmitas"]}
+                            />
+                            <Bar dataKey="quantidade" fill="#ea580c" radius={[0, 7, 7, 0]} maxBarSize={34} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <SemDados mensagem="Nenhuma marmita especial vendida neste período." />
                 )}
             </CardGrafico>
         ),
