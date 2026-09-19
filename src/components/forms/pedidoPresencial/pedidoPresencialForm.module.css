@@ -587,7 +587,7 @@
 }
 
 .descricaoEspecialItem {
-    white-space: pre-line;
+    white-space: normal;
     line-height: 1.4;
 }
 
@@ -682,7 +682,7 @@
     color: #71717a;
     font-size: 0.85rem;
     line-height: 1.45;
-    white-space: pre-line;
+    white-space: normal;
 }
 
 .previewEspecial span {
