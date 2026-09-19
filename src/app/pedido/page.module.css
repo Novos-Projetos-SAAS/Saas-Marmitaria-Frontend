@@ -362,6 +362,7 @@
   color: #737373;
   font-size: 0.86rem;
   line-height: 1.45;
+  white-space: pre-line;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
