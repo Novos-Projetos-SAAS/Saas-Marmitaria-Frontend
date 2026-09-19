@@ -16,6 +16,7 @@ export const GRAFICOS_ATIVOS = [
     "faturamentoPorDia",
     "pedidosPorDia",
     "tamanhosMaisVendidos",
+    "marmitasEspeciaisMaisVendidas",
     // "alimentosMaisEscolhidos",
     // "metodosPagamento",
     // "tiposEntrega",
