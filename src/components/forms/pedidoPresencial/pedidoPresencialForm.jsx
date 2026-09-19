@@ -6,6 +6,7 @@ import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
 import { buscarMarmitasEspeciaisPublicas } from "@/services/marmitasEspeciaisService.js";
 
 import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal";
+import modalStyles from "@/components/modals/montarMarmita/montarMarmitaModal.module.css";
 import TelefoneInput from "@/components/ui/inputMask";
 
 import { Save, X, ShoppingBag, User, MapPin, Plus, Minus, Star, RefreshCw } from "lucide-react";
@@ -543,31 +544,34 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
             )}
 
             {modalEspecialAberto && (
-                <div className={styles.modalEspecialOverlay} onMouseDown={(event) => {
-                    if (event.target === event.currentTarget) fecharModalEspecial();
-                }}>
-                    <div className={styles.modalEspecial} role="dialog" aria-modal="true" aria-labelledby="titulo-modal-especial">
-                        <div className={styles.modalEspecialHeader}>
+                <div
+                    className={modalStyles.overlay}
+                    onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) fecharModalEspecial();
+                    }}
+                >
+                    <div className={modalStyles.modal} role="dialog" aria-modal="true" aria-labelledby="titulo-modal-especial">
+                        <div className={modalStyles.header}>
                             <h3 id="titulo-modal-especial">Adicionar Marmita Especial</h3>
-                            <button type="button" className={styles.btnFecharEspecial} onClick={fecharModalEspecial}>
+                            <button type="button" onClick={fecharModalEspecial} className={modalStyles.btnFechar}>
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <div className={styles.modalEspecialBody}>
+                        <div className={modalStyles.body}>
                             {loadingMarmitasEspeciais ? (
-                                <div className={styles.loadingEspecial}>
-                                    <RefreshCw size={24} className={styles.spin} />
+                                <div className={modalStyles.loadingContainer}>
+                                    <RefreshCw className={modalStyles.spin} size={24} />
                                     <p>Sincronizando marmitas especiais...</p>
                                 </div>
                             ) : opcoesMarmitasEspeciais.length === 0 ? (
-                                <p className={styles.emptyEspecial}>Nenhuma marmita especial ativa no momento.</p>
+                                <p className={modalStyles.emptyCardapio}>Nenhuma marmita especial ativa no momento.</p>
                             ) : (
                                 <>
-                                    <div className={styles.secaoEspecial}>
+                                    <div className={modalStyles.secao}>
                                         <h4>1. Escolha a Marmita Especial</h4>
                                         <select
-                                            className={styles.selectEspecial}
+                                            className={modalStyles.selectModal}
                                             value={marmitaEspecialSelecionadaId}
                                             onChange={(event) => setMarmitaEspecialSelecionadaId(event.target.value)}
                                         >
@@ -580,26 +584,41 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                         </select>
                                     </div>
 
-                                    {marmitaEspecialSelecionada && (
-                                        <div className={styles.secaoEspecial}>
-                                            <h4>2. Detalhes</h4>
+                                    <div className={modalStyles.secao}>
+                                        <h4>2. Detalhes</h4>
+
+                                        {marmitaEspecialSelecionada ? (
                                             <div className={styles.previewEspecial}>
                                                 <strong>{marmitaEspecialSelecionada.nome}</strong>
                                                 {marmitaEspecialSelecionada.descricao && <p>{marmitaEspecialSelecionada.descricao}</p>}
                                                 <span>R$ {Number(marmitaEspecialSelecionada.preco).toFixed(2).replace('.', ',')} cada</span>
                                             </div>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className={styles.previewEspecialVazio}>
+                                                Selecione uma marmita especial para visualizar os detalhes.
+                                            </div>
+                                        )}
+                                    </div>
 
-                                    <div className={styles.quantidadeEspecial}>
+                                    <div className={modalStyles.secaoHorizontal}>
                                         <h4>3. Quantidade de Marmitas Iguais:</h4>
-                                        <div className={styles.contadorEspecial}>
-                                            <button type="button" onClick={() => setQuantidadeMarmitaEspecial(q => Math.max(1, q - 1))} disabled={quantidadeMarmitaEspecial <= 1}>
-                                                <Minus size={16} />
+
+                                        <div className={modalStyles.contador}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setQuantidadeMarmitaEspecial(q => Math.max(1, q - 1))}
+                                                disabled={quantidadeMarmitaEspecial <= 1}
+                                            >
+                                                <Minus size={15} />
                                             </button>
+
                                             <span>{quantidadeMarmitaEspecial}</span>
-                                            <button type="button" onClick={() => setQuantidadeMarmitaEspecial(q => q + 1)}>
-                                                <Plus size={16} />
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setQuantidadeMarmitaEspecial(q => q + 1)}
+                                            >
+                                                <Plus size={15} />
                                             </button>
                                         </div>
                                     </div>
@@ -607,14 +626,20 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                             )}
                         </div>
 
-                        <div className={styles.modalEspecialFooter}>
-                            <button type="button" className={styles.btnCancelarEspecial} onClick={fecharModalEspecial} disabled={loadingMarmitasEspeciais}>
-                                Cancelar
-                            </button>
+                        <div className={modalStyles.footer}>
                             <button
                                 type="button"
-                                className={styles.btnConfirmarEspecial}
+                                onClick={fecharModalEspecial}
+                                className={modalStyles.btnCancelar}
+                                disabled={loadingMarmitasEspeciais}
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="button"
                                 onClick={adicionarMarmitaEspecial}
+                                className={modalStyles.btnConfirmar}
                                 disabled={loadingMarmitasEspeciais || opcoesMarmitasEspeciais.length === 0 || !marmitaEspecialSelecionadaId}
                             >
                                 Adicionar ao Pedido
