@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePedidos } from "@/hooks/usePedidos";
 import { useMetodosPagamento } from "@/hooks/useMetodosPagamento";
+import { useProdutosCardapio } from "@/hooks/useProdutosCardapio";
 import { buscarMarmitasEspeciaisPublicas } from "@/services/marmitasEspeciaisService.js";
 
 import ModalMontarMarmita from "@/components/modals/montarMarmita/montarMarmitaModal";
@@ -16,6 +17,7 @@ import styles from "./pedidoPresencialForm.module.css";
 export default function FormPedidoPresencial({ voltarParaLista }) {
     const { finalizarPedidoNoBanco, enviando } = usePedidos();
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
+    const { categoriasProdutos, loading: loadingProdutosCardapio } = useProdutosCardapio();
 
     const [modalAberto, setModalAberto] = useState(false);
     const [modalEspecialAberto, setModalEspecialAberto] = useState(false);
@@ -23,6 +25,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
     const [loadingMarmitasEspeciais, setLoadingMarmitasEspeciais] = useState(true);
     const [marmitaEspecialSelecionadaId, setMarmitaEspecialSelecionadaId] = useState('');
     const [quantidadeMarmitaEspecial, setQuantidadeMarmitaEspecial] = useState(1);
+    const [produtosMarmitaEspecial, setProdutosMarmitaEspecial] = useState([]);
 
     const [formData, setFormData] = useState({
         nome_cliente: '',
@@ -203,10 +206,44 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
         setFormData(prev => ({ ...prev, produtos: prev.produtos.filter(produto => produto.produto_id !== produtoId) }));
     };
 
+    const alterarQuantidadeProdutoEspecial = (produto, categoria, diferenca) => {
+        setProdutosMarmitaEspecial(prev => {
+            const existente = prev.find(item => item.produto_id === produto.id);
+            const novaQuantidade = (existente?.quantidade || 0) + diferenca;
+
+            if (novaQuantidade <= 0) {
+                return prev.filter(item => item.produto_id !== produto.id);
+            }
+
+            if (existente) {
+                return prev.map(item =>
+                    item.produto_id === produto.id
+                        ? { ...item, quantidade: novaQuantidade }
+                        : item
+                );
+            }
+
+            return [
+                ...prev,
+                {
+                    produto_id: produto.id,
+                    nome: produto.nome,
+                    preco: Number(produto.preco),
+                    quantidade: 1,
+                    categoria_nome: categoria.nome
+                }
+            ];
+        });
+    };
+
+    const quantidadeProdutoEspecial = (produtoId) =>
+        produtosMarmitaEspecial.find(item => item.produto_id === produtoId)?.quantidade || 0;
+
     const fecharModalEspecial = () => {
         setModalEspecialAberto(false);
         setMarmitaEspecialSelecionadaId('');
         setQuantidadeMarmitaEspecial(1);
+        setProdutosMarmitaEspecial([]);
     };
 
     const adicionarMarmitaEspecial = () => {
@@ -239,13 +276,28 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                 });
             }
 
+            const produtos = prev.produtos.map(produto => ({ ...produto }));
+
+            produtosMarmitaEspecial.forEach(produto => {
+                const produtoExistente = produtos.find(
+                    item => Number(item.produto_id) === Number(produto.produto_id)
+                );
+
+                if (produtoExistente) {
+                    produtoExistente.quantidade += produto.quantidade;
+                } else {
+                    produtos.push({ ...produto });
+                }
+            });
+
             return {
                 ...prev,
-                marmitas_especiais: especiais
+                marmitas_especiais: especiais,
+                produtos
             };
         });
 
-        toast.success("Marmita especial adicionada ao pedido!");
+        toast.success("Itens adicionados ao pedido!");
         fecharModalEspecial();
     };
 
@@ -559,7 +611,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                         </div>
 
                         <div className={modalStyles.body}>
-                            {loadingMarmitasEspeciais ? (
+                            {(loadingMarmitasEspeciais || loadingProdutosCardapio) ? (
                                 <div className={modalStyles.loadingContainer}>
                                     <RefreshCw className={modalStyles.spin} size={24} />
                                     <p>Sincronizando marmitas especiais...</p>
@@ -622,6 +674,52 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                             </button>
                                         </div>
                                     </div>
+
+                                    <div className={modalStyles.secao}>
+                                        <h4>4. Adicionar Produtos <small>(Opcional)</small></h4>
+
+                                        {categoriasProdutos.length === 0 ? (
+                                            <p className={modalStyles.emptyCardapio}>Nenhum produto disponível hoje.</p>
+                                        ) : categoriasProdutos.map(categoria => (
+                                            <div key={categoria.id} className={modalStyles.grupoCategoria}>
+                                                <h5 className={modalStyles.tituloCategoria}>{categoria.nome}</h5>
+
+                                                <div className={modalStyles.listaProdutos}>
+                                                    {(categoria.produtos || []).map(produto => {
+                                                        const quantidadeSelecionada = quantidadeProdutoEspecial(produto.id);
+
+                                                        return (
+                                                            <div key={produto.id} className={modalStyles.produtoLinha}>
+                                                                <div className={modalStyles.produtoInfo}>
+                                                                    <strong>{produto.nome}</strong>
+                                                                    <span>R$ {Number(produto.preco).toFixed(2).replace('.', ',')}</span>
+                                                                </div>
+
+                                                                <div className={modalStyles.contador}>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => alterarQuantidadeProdutoEspecial(produto, categoria, -1)}
+                                                                        disabled={quantidadeSelecionada === 0}
+                                                                    >
+                                                                        <Minus size={15} />
+                                                                    </button>
+
+                                                                    <span>{quantidadeSelecionada}</span>
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => alterarQuantidadeProdutoEspecial(produto, categoria, 1)}
+                                                                    >
+                                                                        <Plus size={15} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -631,7 +729,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                 type="button"
                                 onClick={fecharModalEspecial}
                                 className={modalStyles.btnCancelar}
-                                disabled={loadingMarmitasEspeciais}
+                                disabled={loadingMarmitasEspeciais || loadingProdutosCardapio}
                             >
                                 Cancelar
                             </button>
@@ -640,7 +738,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                 type="button"
                                 onClick={adicionarMarmitaEspecial}
                                 className={modalStyles.btnConfirmar}
-                                disabled={loadingMarmitasEspeciais || opcoesMarmitasEspeciais.length === 0 || !marmitaEspecialSelecionadaId}
+                                disabled={loadingMarmitasEspeciais || loadingProdutosCardapio || opcoesMarmitasEspeciais.length === 0 || !marmitaEspecialSelecionadaId}
                             >
                                 Adicionar ao Pedido
                             </button>
