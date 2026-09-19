@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Edit, Eye, Filter, Plus, Power, PowerOff, Search } from "lucide-react";
+import { ChevronDown, Edit, Eye, Filter, Plus, Power, PowerOff, Search } from "lucide-react";
 import Swal from "sweetalert2";
 
 import { useMarmitasEspeciais } from "@/hooks/useMarmitasEspeciais.js";
@@ -183,6 +183,8 @@ export default function MarmitasEspeciaisClient() {
                             <option value="ativos">Apenas Ativas</option>
                             <option value="inativos">Apenas Inativas</option>
                         </select>
+
+                        <ChevronDown size={16} className={styles.selectChevron} />
                     </div>
                 </div>
 
