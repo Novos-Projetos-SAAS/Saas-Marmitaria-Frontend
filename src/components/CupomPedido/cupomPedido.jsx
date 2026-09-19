@@ -31,6 +31,14 @@
 //     alimentoItem: { fontSize: '13px', margin: '2px 0' },
 //     observacaoItem: { display: 'block', margin: '4px 0 0 0', padding: '4px 6px', border: '1px solid #000000', fontSize: '13px', fontWeight: 800 },
 //     produtoDetalhe: { fontSize: '12px', marginTop: '2px' },
+    valorDetalheCompacto: {
+        marginTop: '2px',
+        fontSize: '9px',
+        lineHeight: 1.15,
+        fontWeight: 700,
+        letterSpacing: '-0.15px',
+        whiteSpace: 'nowrap'
+    },
 //     totalBox: { margin: '8px 0', fontSize: '16px', fontWeight: 800 },
 //     trocoBox: { marginTop: '8px', padding: '6px', border: '2px solid #000000', fontSize: '15px', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase' },
 //     rodape: { textAlign: 'center', marginTop: '10px', fontSize: '12px' },
@@ -296,8 +304,8 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                                         {marmita.descricao}
                                     </div>
                                 )}
-                                <div style={cupomStyles.produtoDetalhe}>
-                                    R$ {moeda(marmita.preco_unitario)} cada | Subtotal R$ {moeda(marmita.subtotal)}
+                                <div style={cupomStyles.valorDetalheCompacto}>
+                                    Unit. R$ {moeda(marmita.preco_unitario)} | Subtotal R$ {moeda(marmita.subtotal)}
                                 </div>
                             </>
                         ) : (
@@ -315,6 +323,10 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                                         * Obs: {marmita.observacao}
                                     </div>
                                 )}
+
+                                <div style={cupomStyles.valorDetalheCompacto}>
+                                    Unit. R$ {moeda(marmita.preco_unitario)} | Subtotal R$ {moeda(marmita.subtotal)}
+                                </div>
                             </>
                         )}
                     </div>
@@ -330,8 +342,8 @@ const CupomPedido = forwardRef(function CupomPedido({ pedido }, ref) {
                             <span style={cupomStyles.itemTitulo}>
                                 {produto.quantidade}x {produto.nome}
                             </span>
-                            <div style={cupomStyles.produtoDetalhe}>
-                                {produto.categoria_nome} | R$ {moeda(produto.subtotal)}
+                            <div style={cupomStyles.valorDetalheCompacto}>
+                                {produto.categoria_nome || 'Produto'} | Unit. R$ {moeda(produto.preco_unitario)} | Subtotal R$ {moeda(produto.subtotal)}
                             </div>
                         </div>
                     ))}
