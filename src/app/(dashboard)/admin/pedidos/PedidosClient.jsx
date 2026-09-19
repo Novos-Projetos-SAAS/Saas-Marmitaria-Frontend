@@ -601,10 +601,11 @@ export default function PedidosClient() {
                                                     </div>
 
                                                     {especial ? (
-                                                        <span style={{ color: '#71717A', fontSize: '0.85rem', lineHeight: 1.4 }}>
-                                                            {marmita.descricao && <>{marmita.descricao} {' • '}</>}
-                                                            R$ {Number(marmita.preco_unitario).toFixed(2).replace('.', ',')} cada
-                                                        </span>
+                                                        marmita.descricao && (
+                                                            <span style={{ color: '#71717A', fontSize: '0.85rem', lineHeight: 1.4 }}>
+                                                                {marmita.descricao}
+                                                            </span>
+                                                        )
                                                     ) : (
                                                         <>
                                                             <ul className={styles.alimentosList}>
