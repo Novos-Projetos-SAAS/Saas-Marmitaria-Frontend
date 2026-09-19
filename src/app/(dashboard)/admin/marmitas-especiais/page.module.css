@@ -11,12 +11,6 @@
     letter-spacing: -0.02em;
 }
 
-.subtitle {
-    margin: 6px 0 24px;
-    color: #71717A;
-    font-size: 0.9rem;
-}
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -31,7 +25,4 @@
         font-size: 1.35rem;
     }
 
-    .subtitle {
-        margin-bottom: 16px;
-    }
 }
