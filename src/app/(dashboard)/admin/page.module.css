@@ -8,6 +8,20 @@
     animation: aparecer 0.28s ease-out;
 }
 
+.resumoFinanceiro {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 16px;
+    padding: 20px;
+    color: #334155;
+}
+.resumoFinanceiro h2 { font-size: 1.1rem; margin: 0 0 16px; color: #9a3412; }
+.resumoFinanceiro dl { display: flex; flex-wrap: wrap; gap: 20px; margin: 0; }
+.resumoFinanceiro dl div { flex: 1 1 220px; }
+.resumoFinanceiro dt { font-size: .85rem; line-height: 1.5; }
+.resumoFinanceiro dd { margin: 6px 0 0; font-size: 1.15rem; font-weight: 700; }
+.resumoFinanceiro p { margin: 16px 0 0; font-size: .8rem; line-height: 1.6; }
+
 .apresentacao {
     position: relative;
     isolation: isolate;

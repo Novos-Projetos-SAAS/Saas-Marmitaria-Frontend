@@ -78,6 +78,9 @@ export default function ReportActionMenu({
     return (
         <div className={styles.wrapper} ref={menuRef}>
             <button
+                type="button"
+                aria-label="Ações do relatório"
+                aria-expanded={isOpen}
                 ref={buttonRef}
                 className={styles.menuButton}
                 onClick={() => setIsOpen(v => !v)}

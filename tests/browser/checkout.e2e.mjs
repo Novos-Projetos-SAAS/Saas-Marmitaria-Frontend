@@ -9,6 +9,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { resolve, join, dirname, basename } from 'node:path';
 import { chromium, expect } from '@playwright/test';
+import * as XLSX from 'xlsx';
 
 // This is an automated test harness, never an operational server or an H1 command.
 const backendRoot = process.env.CHECKOUT_BACKEND_REPOSITORY || fileURLToPath(new URL('../../../Saas-Marmitaria-Backend/', import.meta.url));
@@ -418,4 +419,120 @@ test('admin PDV keeps all four payment methods posterior with checkout disabled'
         }
         assert.equal(calls, beforeCalls); assert.equal(await page.evaluate(() => window.syntheticPrints), 0);
     } finally { onlineEnabled = true; await ctx.close(); }
+});
+
+let reportFixture;
+async function prepareReports() {
+    if (reportFixture) return reportFixture;
+    const db = fixture.db, date = '2050-10-25';
+    const dateFilters = [{ nome: 'data_inicio', tipo: 'date', label: 'Data inicial' }, { nome: 'data_fim', tipo: 'date', label: 'Data final' }];
+    for (const [nome, funcao_db, fields] of [
+        ['Faturamento por Período','fn_rel_faturamento_periodo', [['data_faturamento','Data'],['qtd_pedidos','Pedidos'],['total_faturado','Vendas consideradas']]],
+        ['Vendas por Tamanho de Marmita','fn_rel_vendas_tamanho', [['tamanho_nome','Tamanho'],['qtd_vendida','Quantidade'],['faturamento_tamanho','Total']]],
+        ['Histórico de Vendas','fn_rel_historico_vendas_financeiro', [['pedido_id','Pedido'],['valor_total','Valor do pedido'],['situacao_financeira','Situação'],['valor_considerado','Venda considerada']]]
+    ]) await db('catalogo_relatorios').insert({ nome, funcao_db, descricao: 'Catálogo sintético', ativo: true,
+        filtros_config: JSON.stringify(dateFilters), colunas_config: JSON.stringify(fields.map(([chave,label]) => ({ chave, label, totalizar: ['qtd_pedidos','total_faturado','valor_considerado'].includes(chave) }))) });
+    await db('metodos_pagamento').insert({ id: 15, nome: 'Personalizado sintético', codigo: 'PERSONALIZADO', tipo_financeiro: 'OUTRO' });
+    const size = await db('tamanhos_marmitas').first();
+    for (let n = 0; n < 10; n++) {
+        const [special] = await db('marmitas_especiais').insert({ nome: 'Financeiro especial ' + n, preco: 20 }).returning('*');
+        const [order] = await db('pedidos').insert({ nome_cliente: 'RELATORIO SINTETICO ' + n, telefone_cliente: '11999999999',
+            tipo_pedido: 'Presencial', metodo_entrega: 'Retirada', metodo_pagamento_id: n === 1 ? 14 : n === 3 ? 15 : 13,
+            fluxo_pagamento: n < 6 ? 'POSTERIOR' : 'INFINITEPAY', status: n === 9 ? 'Cancelado' : 'Pendente',
+            valor_total: 20, criado_em: date + 'T15:00:00Z' }).returning('*');
+        await db('itens_pedido').insert({ pedido_id: order.id, tamanho_marmita_id: n === 0 ? size.id : null,
+            marmita_especial_id: n === 0 ? null : special.id, quantidade: 1, preco_unitario: 20, subtotal: 20, nome_item_snapshot: special.nome });
+        if (n >= 6) {
+            const [payment] = await db('pagamentos').insert({ pedido_id: order.id, tentativa_numero: 1, order_nsu: 'SYNTHETIC-REPORT-' + n,
+                status: n === 7 ? 'INCERTA' : n === 8 ? 'ESTORNADA' : 'PAGA', valor_centavos: 2000, valid_until: date + 'T23:00:00Z',
+                ...(n === 7 ? {} : { provider_verified_at: date + 'T18:00:00Z', pago_em: date + 'T18:00:00Z',
+                    transaction_nsu: 'SYNTHETIC-REPORT-TXN-' + n, invoice_slug: 'SYNTHETIC-REPORT-SLUG-' + n,
+                    capture_method: 'credit_card', valor_base_provider_centavos: 2000, valor_pago_provider_centavos: 2100 }),
+                ...(n === 8 ? { estornado_em: date + 'T20:00:00Z' } : {}) }).returning('*');
+            if (n === 6) {
+                await db('pagamentos').insert({ pedido_id: order.id, tentativa_numero: 2, order_nsu: 'SYNTHETIC-REPORT-FAILED', status: 'FALHOU', bloqueia_nova_cobranca: false, valor_centavos: 2000, valid_until: date + 'T23:00:00Z' });
+                await db('pagamentos_eventos').insert([1,2].map(x => ({ pagamento_id: payment.id, event_key: 'synthetic-report-repeat-' + x, tipo_evento: 'WEBHOOK' })));
+            }
+        }
+    }
+    reportFixture = { date }; return reportFixture;
+}
+
+test('financial dashboard preserves configuration, excludes uncertain revenue and renders four specials on mobile', { timeout: 120000 }, async () => {
+    const { date } = await prepareReports(), ctx = await adminContext({ viewport: { width: 320, height: 760 } }), page = await ctx.newPage();
+    try {
+        await page.goto(origin + '/admin');
+        await page.locator('#periodo-dashboard').selectOption('personalizado');
+        await page.locator('#data-inicio-dashboard').fill(date); await page.locator('#data-fim-dashboard').fill(date);
+        const finance = page.getByRole('region', { name: 'Pagamentos InfinitePay' });
+        await expect(finance).toContainText('3 · R$'); await expect(finance).toContainText('60,00');
+        await expect(finance).toContainText('não informados');
+        const dto = await page.evaluate(async url => (await (await fetch(url, { credentials: 'include' })).json()).data, backend + '/dashboard?data_inicio=' + date + '&data_fim=' + date);
+        assert.equal(dto.cards.faturamento, 160); assert.equal(dto.graficos.marmitas_especiais.length, 4);
+        assert.equal(dto.financeiro.pendentes_verificacao, 1); assert.equal(dto.financeiro.estornos, 1);
+        await expect(page.getByRole('heading', { name: 'Tamanhos de marmita mais vendidos' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Marmitas especiais mais vendidas' })).toBeVisible();
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        assert.equal((await fixture.db('config_infinitepay').first()).ativo, false);
+        await finance.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE4_RESUMO_FINANCEIRO_MOBILE.png', import.meta.url)) });
+        await page.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE4_DASHBOARD_MOBILE.png', import.meta.url)), fullPage: true });
+    } finally { await ctx.close(); }
+});
+
+test('report browser keeps size/special adjacency and exports financial PDF and Excel with unknown amounts intact', { timeout: 120000 }, async () => {
+    const { date } = await prepareReports(), ctx = await adminContext({ viewport: { width: 1280, height: 900 } }), page = await ctx.newPage(), beforeCalls = calls;
+    try {
+        await page.goto(origin + '/admin/relatorios');
+        await expect(page.getByRole('heading', { name: 'Painel de Relatórios' })).toBeVisible();
+        const rows = await page.getByRole('row').allTextContents();
+        assert.equal(rows.findIndex(r => r.includes('Vendas de Marmitas Especiais')), rows.findIndex(r => r.includes('Vendas por Tamanho de Marmita')) + 1);
+        for (const type of ['Excel','PDF']) {
+            const row = page.getByRole('row').filter({ hasText: 'Pagamentos InfinitePay' });
+            if (type === 'Excel') await row.getByTitle('Gerar Excel', { exact: true }).click();
+            else {
+                await page.setViewportSize({ width: 320, height: 760 });
+                await row.getByRole('button', { name: 'Ações do relatório' }).click();
+                await page.getByRole('button', { name: 'Gerar PDF', exact: true }).click();
+            }
+            const form = page.locator('form');
+            await form.locator('input[type=date]').nth(0).fill(date); await form.locator('input[type=date]').nth(1).fill(date);
+            await form.locator('select').nth(0).selectOption('pedido'); await form.locator('select').nth(1).selectOption('todos');
+            const downloadPromise = page.waitForEvent('download');
+            await form.getByRole('button', { name: 'Gerar ' + type, exact: true }).click();
+            const download = await downloadPromise;
+            const bytes = readFileSync(await download.path());
+            if (type === 'Excel') {
+                const workbook = XLSX.read(bytes, { type: 'buffer' });
+                const data = XLSX.utils.sheet_to_json(workbook.Sheets['Relatório']);
+                assert.equal(data.length, 4); assert.equal(data.filter(r => r['Situação financeira'] === 'PAGA').length, 2);
+                assert.ok(data.every(r => r['Taxas (R$)'] === 'Não informado' && r['Líquido recebido (R$)'] === 'Não informado'));
+                assert.equal(data.find(r => r['Situação financeira'] === 'INCERTA')['Base confirmada (R$)'], 'Não informado');
+                assert.ok(XLSX.utils.sheet_to_csv(workbook.Sheets['Critérios']).includes('America/Sao_Paulo'));
+            } else {
+                assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
+                assert.ok(bytes.toString('latin1').includes('America/Sao_Paulo'));
+                assert.ok(bytes.toString('latin1').includes('INCERTA'));
+            }
+            assert.ok(!bytes.includes(Buffer.from('SYNTHETIC-REPORT-TXN-')));
+        }
+        await page.setViewportSize({ width: 1280, height: 900 });
+        for (const name of ['Faturamento por Período','Histórico de Vendas']) {
+            await page.getByRole('row').filter({ hasText: name }).getByTitle('Gerar Excel', { exact: true }).click();
+            const form = page.locator('form');
+            await form.locator('input[type=date]').nth(0).fill(date); await form.locator('input[type=date]').nth(1).fill(date);
+            const pending = page.waitForEvent('download'); await form.getByRole('button', { name: 'Gerar Excel', exact: true }).click();
+            const workbook = XLSX.read(readFileSync(await (await pending).path()), { type: 'buffer' });
+            const data = XLSX.utils.sheet_to_json(workbook.Sheets['Relatório']);
+            if (name.startsWith('Faturamento')) {
+                assert.equal(data[0]['Vendas consideradas'], 'R$ 160,00'); assert.equal(data[0].Pedidos, '10');
+                assert.equal(data.at(-1)['Vendas consideradas'], 'R$ 160,00');
+            } else {
+                const uncertain = data.find(row => row.Situação === 'INCERTA');
+                assert.equal(uncertain['Valor do pedido'], 'R$ 20,00'); assert.equal(uncertain['Venda considerada'], 'R$ 0,00');
+                assert.equal(data.at(-1)['Venda considerada'], 'R$ 140,00'); assert.equal(data.at(-1)['Valor do pedido'], '-');
+            }
+        }
+        assert.equal(calls, beforeCalls); assert.equal(await page.evaluate(() => window.syntheticPrints), 0);
+        await page.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE4_RELATORIOS.png', import.meta.url)), fullPage: true });
+    } finally { await ctx.close(); }
 });

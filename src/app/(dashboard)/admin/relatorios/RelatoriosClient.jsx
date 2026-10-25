@@ -17,44 +17,7 @@ import Swal from "sweetalert2";
 
 import styles from "./RelatoriosClient.module.css";
 
-const CAMPOS_DINHEIRO = [
-    "valor",
-    "valor_total",
-    "total",
-    "total_faturado",
-    "ticket_medio",
-    "preco",
-    "subtotal",
-    "desconto",
-    "acrescimo",
-    "troco",
-    "faturamento"
-];
-
-// const ehCampoDinheiro = (chave = "") =>
-//     CAMPOS_DINHEIRO.some(campo => chave.includes(campo));
-
-const ehCampoDinheiro = (chave = "") => {
-    const chaveMinuscula = chave.toLowerCase();
-
-    // Se a chave for uma data, bloqueia a formatação de dinheiro imediatamente
-    if (chaveMinuscula.includes("data") || chaveMinuscula.includes("criado_em")) {
-        return false;
-    }
-
-    return CAMPOS_DINHEIRO.some(campo => chaveMinuscula.includes(campo));
-};
-
-const formatarValor = (valor, chave) => {
-
-    if (valor == null) return "";
-
-    if (ehCampoDinheiro(chave)) {
-        return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
-    }
-
-    return valor;
-};
+import { formatarValor, calcularTotais } from "@/utils/reportFormatting.mjs";
 
 export default function RelatoriosClient() {
 
@@ -152,9 +115,9 @@ export default function RelatoriosClient() {
                                     <FileText size={18} color="#dc2626" />
                                 </button>
 
-                                {/* <button onClick={() => handleAbrirAcao(item, 'excel')} className={styles.actionButton} title="Gerar Excel">
+                                <button onClick={() => handleAbrirAcao(item, 'excel')} className={styles.actionButton} title="Gerar Excel">
                                     <Download size={18} color="#16a34a" />
-                                </button> */}
+                                </button>
 
                                 <button onClick={() => handleAbrirAcao(item, 'imprimir')} className={styles.actionButton} title="Imprimir Relatório">
                                     <Printer size={18} color="#2563eb" />
@@ -178,7 +141,6 @@ export default function RelatoriosClient() {
                                         <span>Gerar PDF</span>
 
                                     </button>
-                                    {/* 
                                     <button
                                         type="button"
                                         className={reportActionMenuStyles.item}
@@ -186,7 +148,7 @@ export default function RelatoriosClient() {
                                     >
                                         <Download size={16} color="#16a34a" />
                                         <span>Gerar Excel</span>
-                                    </button> */}
+                                    </button>
 
                                     <button
                                         type="button"
@@ -305,6 +267,7 @@ export default function RelatoriosClient() {
                         </h2>
 
                         {/* Exibe os filtros se eles existirem */}
+                        {dadosImpressao.notas && <p>{dadosImpressao.notas}</p>}
                         {dadosImpressao.filtros_aplicados && (
                             <div style={{ fontSize: '14px', color: '#4b5563' }}>
 
@@ -399,16 +362,8 @@ export default function RelatoriosClient() {
                             <tfoot>
                                 <tr id="linha-total-print">
                                     {dadosImpressao.colunas.map((col, colIndex) => {
-                                        if (colIndex === 0) return <td key={colIndex} style={tdTotalStyle}>TOTAL:</td>;
-                                        if (col.totalizar) {
-                                            const soma = dadosImpressao.dados.reduce((acc, linha) => acc + Number(linha[col.chave] || 0), 0);
-                                            return (
-                                                <td key={colIndex} style={tdTotalStyle}>
-                                                    {ehCampoDinheiro(col.chave) ? `R$ ${soma.toFixed(2).replace(".", ",")}` : soma}
-                                                </td>
-                                            );
-                                        }
-                                        return <td key={colIndex} style={tdTotalStyle}>-</td>;
+                                        const totals = calcularTotais(dadosImpressao.colunas, dadosImpressao.dados);
+                                        return <td key={colIndex} style={tdTotalStyle}>{totals?.[col.label] ?? '-'}</td>;
                                     })}
                                 </tr>
                             </tfoot>

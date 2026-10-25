@@ -70,6 +70,7 @@ const formatarDataHora = (valor) => {
     if (Number.isNaN(data.getTime())) return "";
 
     return data.toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
         day: "2-digit",
         month: "2-digit",
         hour: "2-digit",
@@ -176,7 +177,7 @@ export default function Dashboard() {
                 icon={DollarSign}
                 titulo="Faturamento do período"
                 valor={formatarMoeda(cards.faturamento)}
-                detalhe="Pedidos cancelados não entram no valor"
+                detalhe="Por criação do pedido (SP): POSTERIOR legado + online comprovado, sem estornos"
                 variante="faturamento"
             />
         ),
@@ -560,13 +561,25 @@ export default function Dashboard() {
                                 <span>Resumo</span>
                                 <h2 id="titulo-indicadores">Indicadores principais</h2>
                             </div>
-                            <p>Dados consolidados do período selecionado</p>
+                            <p>Pedidos por data de criação em America/Sao_Paulo. Vendas brutas consideradas; não representam repasse bancário.</p>
                         </header>
 
                         <div className={styles.gridCards}>
                             {CARDS_ATIVOS.map((opcao) => cardsPreparados[opcao]).filter(Boolean)}
                         </div>
                     </section>
+
+                    {dados?.financeiro && (
+                        <section className={styles.resumoFinanceiro} aria-labelledby="titulo-financeiro">
+                            <h2 id="titulo-financeiro">Pagamentos InfinitePay</h2>
+                            <dl>
+                                <div><dt>Confirmados pela data de pagamento (SP)</dt><dd>{formatarNumero(dados.financeiro.confirmados)} · {formatarMoeda(dados.financeiro.valor_confirmado)}</dd></div>
+                                <div><dt>Pendentes de verificação por criação do pedido (SP)</dt><dd>{formatarNumero(dados.financeiro.pendentes_verificacao)}</dd></div>
+                                <div><dt>Estornos comprovados pela data de estorno (SP)</dt><dd>{formatarNumero(dados.financeiro.estornos)}</dd></div>
+                            </dl>
+                            <p>A base confirmada é o valor original e inclui pagamentos posteriormente estornados. Cancelamento operacional não é estorno. LIQUIDADA não comprova repasse bancário. Valor estornado, taxas e líquido recebido: não informados.</p>
+                        </section>
+                    )}
 
                     <section className={styles.blocoDashboard} aria-labelledby="titulo-graficos">
                         <header className={styles.secaoCabecalho}>

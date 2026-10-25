@@ -5,6 +5,8 @@
 }
 
 .menuButton {
+    min-height: 48px;
+    min-width: 48px;
     background: none;
     border: none;
     cursor: pointer;
@@ -34,6 +36,7 @@
 }
 
 .item {
+    min-height: 48px;
     display: flex;
     align-items: center;
     gap: 10px;

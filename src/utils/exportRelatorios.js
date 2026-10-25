@@ -221,70 +221,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-/**
- * Campos que representam valores monetários.
- * Não utilize includes(), pois "data_faturamento"
- * também contém "faturamento".
- */
-const CAMPOS_DINHEIRO = [
-    "valor",
-    "valor_total",
-    "total",
-    "total_faturado",
-    "ticket_medio",
-    "preco",
-    "subtotal",
-    "desconto",
-    "acrescimo",
-    "troco"
-];
-
-const ehCampoDinheiro = (chave = "") =>
-    CAMPOS_DINHEIRO.includes(chave);
-
-const formatarValor = (valor, chave) => {
-
-    if (valor == null) return "";
-
-    if (ehCampoDinheiro(chave)) {
-        return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
-    }
-
-    return valor;
-};
-
-const calcularTotais = (colunas, dados) => {
-
-    const temTotal = colunas.some(col => col.totalizar);
-
-    if (!temTotal || !dados?.length) return null;
-
-    const totais = {};
-
-    colunas.forEach((col, index) => {
-
-        if (index === 0) {
-            totais[col.label] = "TOTAL:";
-            return;
-        }
-
-        if (!col.totalizar) {
-            totais[col.label] = "-";
-            return;
-        }
-
-        const soma = dados.reduce(
-            (acc, row) => acc + Number(row[col.chave] || 0),
-            0
-        );
-
-        totais[col.label] = ehCampoDinheiro(col.chave)
-            ? `R$ ${soma.toFixed(2).replace(".", ",")}`
-            : soma;
-    });
-
-    return totais;
-};
+import { formatarValor, calcularTotais } from "./reportFormatting.mjs";
 
 export const gerarExcel = (relatorio) => {
 
@@ -321,6 +258,12 @@ export const gerarExcel = (relatorio) => {
             worksheet,
             "Relatório"
         );
+
+        const criteria = [
+            ['Critérios', relatorio.notas || ''],
+            ...Object.entries(relatorio.filtros_aplicados || {}).map(([key, value]) => [key, value])
+        ];
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(criteria), 'Critérios');
 
         XLSX.writeFile(
             workbook,
@@ -416,6 +359,13 @@ export const gerarPDF = (relatorio) => {
             if (Object.keys(filtros_aplicados).length > 0) {
                 tableStartY += 2;
             }
+        }
+
+        if (relatorio.notas) {
+            doc.setFontSize(8);
+            const lines = doc.splitTextToSize(relatorio.notas, 268);
+            doc.text(lines, 14, tableStartY);
+            tableStartY += lines.length * 4 + 5;
         }
 
         const tableColumns = colunas.map(col => col.label);

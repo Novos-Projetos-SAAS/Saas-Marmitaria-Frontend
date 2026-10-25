@@ -2,72 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { buscarDadosDashboard } from "@/services/dashboardService.js";
 
-const formatarDataInput = (data) => {
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const dia = String(data.getDate()).padStart(2, "0");
-
-    return `${ano}-${mes}-${dia}`;
-};
-
-const adicionarDias = (data, quantidade) => {
-    const novaData = new Date(data);
-    novaData.setDate(novaData.getDate() + quantidade);
-    return novaData;
-};
-
-const calcularDatasPeriodo = (periodo, dataInicioPersonalizada, dataFimPersonalizada) => {
-    const hoje = new Date();
-
-    if (periodo === "semana") {
-        const diaSemana = hoje.getDay();
-        const diferencaSegunda = diaSemana === 0 ? -6 : 1 - diaSemana;
-
-        return {
-            dataInicio: formatarDataInput(adicionarDias(hoje, diferencaSegunda)),
-            dataFim: formatarDataInput(hoje)
-        };
-    }
-
-    if (periodo === "mes") {
-        return {
-            dataInicio: formatarDataInput(new Date(hoje.getFullYear(), hoje.getMonth(), 1)),
-            dataFim: formatarDataInput(hoje)
-        };
-    }
-
-    if (periodo === "personalizado") {
-        return {
-            dataInicio: dataInicioPersonalizada,
-            dataFim: dataFimPersonalizada
-        };
-    }
-
-    // Opções extras já preparadas. Para exibi-las, descomente-as em dashboardConfig.js.
-    if (periodo === "ultimos7dias") {
-        return {
-            dataInicio: formatarDataInput(adicionarDias(hoje, -6)),
-            dataFim: formatarDataInput(hoje)
-        };
-    }
-
-    if (periodo === "ultimos30dias") {
-        return {
-            dataInicio: formatarDataInput(adicionarDias(hoje, -29)),
-            dataFim: formatarDataInput(hoje)
-        };
-    }
-
-    const hojeFormatado = formatarDataInput(hoje);
-
-    return {
-        dataInicio: hojeFormatado,
-        dataFim: hojeFormatado
-    };
-};
+import { calcularDatasPeriodo, hojeSaoPaulo } from "@/utils/dashboardDates.mjs";
 
 export function useDashboard() {
-    const hoje = useMemo(() => formatarDataInput(new Date()), []);
+    const hoje = useMemo(() => hojeSaoPaulo(), []);
     const [periodo, setPeriodo] = useState("hoje");
     const [dataInicioPersonalizada, setDataInicioPersonalizada] = useState(hoje);
     const [dataFimPersonalizada, setDataFimPersonalizada] = useState(hoje);
