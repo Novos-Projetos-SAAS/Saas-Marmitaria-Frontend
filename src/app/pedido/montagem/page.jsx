@@ -231,10 +231,10 @@ export default function Montagem() {
             return;
         }
 
-        if (!marmitaAtual?.tamanho) {
+        if (!marmitaAtual?.tamanho && !isFinalizando) {
             router.replace('/pedido');
         }
-    }, [lojaAbertaPedido, marmitaAtual, router]);
+    }, [lojaAbertaPedido, marmitaAtual, router, isFinalizando]);
 
     const handleAvancar = async () => {
         if (!marmitaAtual?.itens?.length) {

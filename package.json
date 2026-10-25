@@ -5,6 +5,7 @@
   "scripts": {
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "test:browser": "node --test --test-isolation=none --test-concurrency=1 tests/browser/checkout.e2e.mjs",
+    "test:demo": "node --test --test-isolation=none --test-concurrency=1 tests/browser/demo.e2e.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

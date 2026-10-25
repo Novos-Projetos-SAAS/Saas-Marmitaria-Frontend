@@ -1,3 +1,4 @@
+import { paymentOrigin } from '../services/paymentOrigins.mjs';
 const ownerCookie = '__Host-marmitaria-checkout', statusCookie = '__Host-marmitaria-status';
 const opaque = value => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
 const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(value);
@@ -33,8 +34,8 @@ function publicData(data) {
     for (const key of ['pedido_id','total','client_request_id','fluxo_pagamento','pagamento_status','pedido_status','cozinha_liberada']) {
         if (Object.hasOwn(data, key)) clean[key] = data[key];
     }
-    if (data.checkout_url !== undefined) clean.checkout_url = providerUrl(data.checkout_url, 'https://checkout.infinitepay.io');
-    if (data.receipt_url !== undefined) clean.receipt_url = providerUrl(data.receipt_url, 'https://recibo.infinitepay.io');
+    if (data.checkout_url !== undefined) clean.checkout_url = providerUrl(data.checkout_url, paymentOrigin('checkout'));
+    if (data.receipt_url !== undefined) clean.receipt_url = providerUrl(data.receipt_url, paymentOrigin('receipt'));
     return clean;
 }
 async function boundedJson(stream, limit) {

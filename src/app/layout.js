@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { PedidoProvider } from "../context/PedidoContext.js";
 
 import "./globals.css";
+import demoStyles from './DemoNotice.module.css';
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -110,6 +111,8 @@ export default function RootLayout({ children }) {
     return (
         <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable}`}>
             <body suppressHydrationWarning>
+                {process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_INFINITEPAY_DEMO === 'local-only' &&
+                    <aside role="note" aria-label="Demonstração local" className={demoStyles.notice}>DEMONSTRAÇÃO LOCAL · Sem dinheiro real ou impressão. Não cadastre API Key real.</aside>}
                 <PedidoProvider>
                     {children}
                     {/* TOASTER PREMIUM CUSTOMIZADO */}

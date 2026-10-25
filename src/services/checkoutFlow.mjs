@@ -1,3 +1,5 @@
+import { paymentOrigin } from './paymentOrigins.mjs';
+
 export function operationallyAllowed(order) {
     return order?.fluxo_pagamento !== 'INFINITEPAY' || order.cozinha_autorizada === true;
 }
@@ -28,7 +30,7 @@ export function paymentPresentation(order, error = false) {
 export function checkoutDestination(order) {
     if (order.checkout_url !== undefined) {
         const url = new URL(order.checkout_url);
-        if (url.origin !== 'https://checkout.infinitepay.io' || url.username || url.password || url.hash ||
+        if (url.origin !== paymentOrigin('checkout') || url.username || url.password || url.hash ||
             /[\s\p{C}\\]/u.test(order.checkout_url) || url.href !== order.checkout_url) throw new Error('Link de pagamento inválido.');
         return url.href;
     }

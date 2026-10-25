@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { listarPedidosFinanceiros, buscarComprovanteAdmin } from '@/services/pedidosService.js';
 import toast from 'react-hot-toast';
 import styles from './FinancialOrders.module.css';
+import { paymentOrigin } from '@/services/paymentOrigins.mjs';
 
 function label(order) {
     if (order.pagamento_status === 'ESTORNADA') return 'Pagamento estornado';
@@ -18,7 +19,7 @@ export default function FinancialOrders() {
     async function receipt(order) {
         try {
             const url = await buscarComprovanteAdmin(order.pedido_id);
-            if (new URL(url).origin !== 'https://recibo.infinitepay.io') throw new Error();
+            if (new URL(url).origin !== paymentOrigin('receipt')) throw new Error();
             setReceipts(previous => ({ ...previous, [order.pedido_id]: url }));
         } catch { toast.error('Comprovante indisponível para este pedido.'); }
     }
