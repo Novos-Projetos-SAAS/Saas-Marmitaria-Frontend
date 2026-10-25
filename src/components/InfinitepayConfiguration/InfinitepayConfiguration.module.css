@@ -1,0 +1,9 @@
+.panel { background:#fff; border:1px solid #fed7aa; border-radius:14px; padding:20px; color:#334155; }
+.panel h2 { color:#9a3412; margin:0 0 16px; }
+.panel p,.panel small { line-height:1.6; }
+.form { display:grid; gap:16px; max-width:600px; margin-top:20px; }
+.form label { display:grid; gap:8px; }
+.form input:not([type=checkbox]) { box-sizing:border-box; width:100%; min-height:48px; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; }
+.form .toggle { display:flex; align-items:center; min-height:48px; gap:12px; }
+.form button { min-height:48px; border:0; border-radius:8px; background:#ea580c; color:white; font-weight:700; cursor:pointer; }
+.form button:disabled { opacity:.6; cursor:wait; }

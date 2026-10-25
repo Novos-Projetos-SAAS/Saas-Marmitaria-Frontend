@@ -16,7 +16,7 @@ const backendRoot = process.env.CHECKOUT_BACKEND_REPOSITORY || fileURLToPath(new
 const tlsCert = process.env.CHECKOUT_TEST_TLS_CERT, tlsKey = process.env.CHECKOUT_TEST_TLS_KEY;
 if (Boolean(tlsCert) !== Boolean(tlsKey)) throw new Error('Informe certificado e chave TLS de teste juntos.');
 const origin = (tlsCert ? 'https' : 'http') + '://localhost:55443';
-let fixture, appDb, server, next, browser, runtime, backend, io, adminToken, getOrder, chromeLaunchOptions;
+let fixture, appDb, server, next, browser, runtime, backend, io, adminToken, getOrder, chromeLaunchOptions, backendApp, normalApplication;
 let scenario = 'AGUARDANDO', calls = 0, deliveryFailure = false, onlineEnabled = true, returnNavigation;
 const delivered = new Set();
 const returnUrls = new Map();
@@ -50,7 +50,7 @@ before(async () => {
     const { encryptApiKey } = await load('src/utils/infinitepayCredentials.js');
     const [credential] = await fixture.db('infinitepay_credenciais').insert({ handle: 'synthetic-browser', ...encryptApiKey('SYNTHETIC_BROWSER_KEY', 'synthetic-browser') }).returning('*');
     await fixture.db('config_infinitepay').where({ id: 1 }).update({ handle: credential.handle, credencial_atual_id: credential.id });
-    const app = (await load('src/app.js')).default; appDb = (await load('src/database/connection.js')).default;
+    const app = (await load('src/app.js')).default; backendApp=app; appDb = (await load('src/database/connection.js')).default;
     getOrder = (await load('src/utils/pedidosUtils.js')).buscarPedidoCompletoPorId;
     server = tlsCert ? httpsServer({ cert: readFileSync(tlsCert), key: readFileSync(tlsKey) }, app) : httpServer(app);
     server.prependListener('request', req => {
@@ -105,6 +105,7 @@ before(async () => {
     browser = await chromium.launch(chromeLaunchOptions);
 }, { timeout: 180000 });
 after(async () => {
+    await normalApplication?.stop();
     await browser?.close();
     if (next?.pid && next.exitCode === null) {
         if (process.platform === 'win32') execFileSync('taskkill.exe', ['/PID', String(next.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
@@ -115,6 +116,61 @@ after(async () => {
     if (server?.listening) { server.closeAllConnections(); await new Promise(done => server.close(done)); }
     delete global.io;
     await appDb?.destroy(); await fixture?.close();
+});
+
+test('normal application activates through admin and runs real adapters, automatic worker and isolated outbox for Pix and credit', { timeout: 150000 }, async () => {
+    const { initializeInfinitepayApplication } = await load('src/infinitepayApplication.js');
+    const publicOrigin=tlsCert ? backend : 'https://backend.invalid.test';
+    const successOrigin=tlsCert ? origin : 'https://shop.invalid.test';
+    const settings={NODE_ENV:'development',INFINITEPAY_MODE:'homologation',DB_HOST:'127.0.0.1',DB_NAME:'infinitepay_phase1_test',INFINITEPAY_DATABASE_NAME:'infinitepay_phase1_test',
+        INFINITEPAY_CHECKOUT_ENABLED:'true',INFINITEPAY_PUBLIC_ORIGIN:publicOrigin,INFINITEPAY_SUCCESS_URL:successOrigin+'/pedido/sucesso',
+        ALLOWED_ORIGINS:successOrigin,INFINITEPAY_ALLOWED_PUBLIC_ORIGINS:publicOrigin+','+successOrigin};
+    let posts=0, checkRequests=0, captureMethod='pix'; const payloads=new Map();
+    normalApplication=await initializeInfinitepayApplication({app:backendApp,db:fixture.db,env:settings,transport:async(url,init)=>{
+        assert.equal(init.headers['X-Api-Key'],'SYNTHETIC_5A_KEY'); const body=JSON.parse(init.body);
+        if(url.endsWith('/links')) {posts++;payloads.set(body.order_nsu,body);return {status:200,json:async()=>({url:'https://checkout.infinitepay.io/SYNTHETIC-NORMAL-'+posts})};}
+        checkRequests++;assert.ok(body.order_nsu && body.transaction_nsu && body.slug);
+        return {status:200,json:async()=>({success:true,paid:true,amount:2000,paid_amount:captureMethod==='pix'?2000:2100,installments:1,capture_method:captureMethod})};
+    }});
+    normalApplication.start({intervalMs:50});
+    const admin=await adminContext({viewport:{width:390,height:844}}), operator=await admin.newPage();
+    try {
+        await operator.goto(origin+'/admin/configuracoes-loja');
+        await operator.getByRole('button',{name:'InfinitePay',exact:true}).click();
+        await operator.getByLabel('InfiniteTag').fill('synthetic-browser');
+        await operator.getByLabel('Nova API Key').fill('SYNTHETIC_5A_KEY');
+        await operator.getByRole('button',{name:'Salvar configuração InfinitePay'}).click();
+        await expect(operator.getByLabel('Nova API Key')).toHaveValue('');
+        await operator.getByLabel('Permitir novas cobranças em homologação').check();
+        await operator.getByRole('button',{name:'Salvar configuração InfinitePay'}).click();
+        await expect.poll(async()=>(await fixture.db('config_infinitepay').first()).ativo).toBe(true);
+        for(const [method,capture] of [['Pix','pix'],['Crédito','credit_card']]) {
+            captureMethod=capture;
+            const buyer=await context(), page=await buyer.newPage();
+            try {
+                await cart(page,method);await submit(page);await expect(page.getByRole('heading',{name:'Checkout simulado'})).toBeVisible();
+                const payment=await fixture.db('pagamentos').orderBy('id','desc').first();
+                assert.equal(payment.status,'AGUARDANDO');assert.equal((await fixture.db('pedidos').where({id:payment.pedido_id}).first()).liberado_cozinha_em,null);
+                assert.equal(await operator.evaluate(async url=>(await fetch(url,{credentials:'include'})).status,backend+'/pedidos/'+payment.pedido_id+'/operacao'),409);
+                const event={event_type:'paid',order_nsu:payment.order_nsu,invoice_slug:'SYNTHETIC-NORMAL-SLUG-'+payment.id,transaction_nsu:'SYNTHETIC-NORMAL-TXN-'+payment.id,
+                    receipt_url:'https://recibo.infinitepay.io/SYNTHETIC-NORMAL-TXN-'+payment.id};
+                // Turn off new creation while the existing transaction is still awaiting payment.
+                if(capture==='credit_card') {settings.INFINITEPAY_CHECKOUT_ENABLED='false';await fixture.db('config_infinitepay').where({id:1}).update({ativo:false});}
+                for(let n=0;n<3;n++) assert.equal((await fetch(backend+'/pagamentos/infinitepay/webhook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(event)})).status,200);
+                await expect.poll(async()=>(await fixture.db('pagamentos').where({id:payment.id}).first()).status).toBe('PAGA');
+                await expect.poll(async()=>(await fixture.db('outbox_eventos').where({pedido_id:payment.pedido_id}).first())?.status).toBe('CONCLUIDO');
+                assert.equal(Number((await fixture.db('infinitepay_entregas_homologacao').where({pedido_id:payment.pedido_id}).count('* as n').first()).n),1);
+                await page.goto(origin+'/pedido/sucesso');await expect(page.getByRole('heading',{name:'Pedido liberado',exact:true})).toBeVisible();
+                const canonical=await fixture.db('vw_rel_pedidos_financeiros').where({id:payment.pedido_id}).first();
+                assert.equal(Number(canonical.valor_venda),20);assert.equal(canonical.capture_method,capture);
+                assert.ok(await getOrder(payment.pedido_id));
+            } finally {await buyer.close();}
+        }
+        assert.equal(posts,2);assert.ok(checkRequests>=2);assert.equal(payloads.size,2);
+        assert.equal(await operator.evaluate(()=>window.syntheticPrints),0);
+        assert.equal(normalApplication.status().consumer,'isolated');
+        await operator.goto(origin+'/admin/pedidos');await expect(operator.getByRole('heading',{name:'Gestão de Pedidos',level:2})).toBeVisible();
+    } finally {await normalApplication.stop();backendApp.locals.infinitepayRuntime=runtime;delete backendApp.locals.infinitepayActivation;await admin.close();}
 });
 async function context(options = {}, profileDirectory) {
     const settings = { viewport: { width: 390, height: 844 }, ...options };

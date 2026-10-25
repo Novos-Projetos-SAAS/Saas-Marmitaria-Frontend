@@ -104,6 +104,7 @@ import { useCardapio } from "@/hooks/useCardapio.js";
 import { Store, RefreshCw, Power, AlertTriangle, Building2, Settings } from "lucide-react";
 import Can from "@/components/ui/can/index.jsx"; // Ajuste o caminho se necessário
 import EmpresaForm from "@/components/forms/empresa/empresaForm.jsx"; // Ajuste o caminho se necessário
+import InfinitepayConfiguration from '@/components/InfinitepayConfiguration/InfinitepayConfiguration.jsx';
 import styles from "./ConfiguracoesClient.module.css";
 
 export const metadata = {
@@ -139,6 +140,9 @@ export default function ConfiguracoesClient() {
             
             {/* 👇 SISTEMA DE ABAS */}
             <div className={styles.tabs}>
+                <Can perform="pagamentos.configurar">
+                    <button className={`${styles.tabBtn} ${abaAtiva === 'infinitepay' ? styles.tabAtiva : ''}`} onClick={()=>setAbaAtiva('infinitepay')}>InfinitePay</button>
+                </Can>
                 <button 
                     className={`${styles.tabBtn} ${abaAtiva === 'operacional' ? styles.tabAtiva : ''}`} 
                     onClick={() => setAbaAtiva('operacional')}
@@ -157,6 +161,7 @@ export default function ConfiguracoesClient() {
             </div>
 
             {/* 👇 CONTEÚDO DA ABA OPERACIONAL (Seus cards originais) */}
+            {abaAtiva === 'infinitepay' && <Can perform="pagamentos.configurar"><InfinitepayConfiguration /></Can>}
             {abaAtiva === 'operacional' && (
                 <div className={styles.abaContent}>
                     {/* CARD 1: CONTROLE DE FUNCIONAMENTO */}
