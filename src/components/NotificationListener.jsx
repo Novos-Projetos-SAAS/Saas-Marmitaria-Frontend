@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 import { buscarDadosEmpresa } from '@/services/dadosEmpresaService.js';
 import { imprimirCupom } from '@/services/qzService.js';
 import CupomPedido from '@/components/CupomPedido/cupomPedido';
+import { operationallyAllowed, authorizePrintOrder } from '@/services/checkoutFlow.mjs';
+import { autorizarOperacaoPedido } from '@/services/pedidosService.js';
 
 export default function NotificationListener() {
     const router = useRouter();
@@ -19,6 +21,7 @@ export default function NotificationListener() {
 
         // Adiciona o pedido em uma fila FIFO para impedir duas chamadas simultâneas ao QZ Tray.
         const enfileirarImpressao = pedido => {
+            if (!operationallyAllowed(pedido)) return;
             if (!pedido?.id || pedidosRecebidosRef.current.has(pedido.id)) return;
 
             pedidosRecebidosRef.current.add(pedido.id);
@@ -30,12 +33,13 @@ export default function NotificationListener() {
             }
 
             filaImpressaoRef.current = filaImpressaoRef.current.then(async () => {
+                const autorizado = await authorizePrintOrder(pedido, autorizarOperacaoPedido);
                 const resEmpresa = await buscarDadosEmpresa();
                 const config = resEmpresa?.data;
 
                 if (!config?.imprimir_automaticamente || !config?.nome_impressora) return;
 
-                const htmlDoCupom = renderToString(<CupomPedido pedido={pedido} />);
+                const htmlDoCupom = renderToString(<CupomPedido pedido={autorizado} />);
                 await imprimirCupom(htmlDoCupom, config.nome_impressora);
                 console.log(`🖨️ Pedido #${pedido.id} enviado para impressão automática.`);
             }).catch(error => {
@@ -45,6 +49,7 @@ export default function NotificationListener() {
         };
 
         socket.on('novo_pedido_recebido', novoPedido => {
+            if (!operationallyAllowed(novoPedido)) return;
             const audio = new Audio('/sons/campainha.mp3');
             audio.play().catch(() => console.log('Áudio aguardando interação do usuário.'));
 

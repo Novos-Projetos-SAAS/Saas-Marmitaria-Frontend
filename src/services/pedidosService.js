@@ -47,3 +47,16 @@ export async function criarPedidoAdmin(dadosPedido) {
     const response = await api.post('/pedidos/admin', dadosPedido);
     return response.data;
 }
+
+export async function autorizarOperacaoPedido(id) {
+    const response = await api.get(`/pedidos/${Number(id)}/operacao`);
+    return response.data.data;
+}
+export async function listarPedidosFinanceiros() {
+    const response = await api.get('/pagamentos/admin');
+    return response.data.data;
+}
+export async function buscarComprovanteAdmin(id) {
+    const response = await api.get(`/pagamentos/admin/${Number(id)}/comprovante`);
+    return response.data.data.receipt_url;
+}

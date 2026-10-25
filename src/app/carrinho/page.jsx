@@ -452,7 +452,8 @@ import { AlertTriangle, PackagePlus, RefreshCw, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { useMetodosPagamento } from '@/hooks/useMetodosPagamento.js';
-import { usePedidos } from '@/hooks/usePedidos.js';
+import { useCheckout } from '@/hooks/useCheckout.js';
+import Link from 'next/link';
 import { usePedido } from '@/context/PedidoContext.js';
 import TelefoneInput from '@/components/ui/inputMask/index.jsx';
 
@@ -486,7 +487,7 @@ export default function Carrinho() {
     } = usePedido();
 
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
-    const { finalizarPedidoNoBanco, enviando } = usePedidos();
+    const { finalizarPedidoNoBanco, enviando, prosseguir, state: checkoutState } = useCheckout();
 
     const [form, setForm] = useState({
         nome: '',
@@ -512,7 +513,7 @@ export default function Carrinho() {
     const lojaBloqueada = lojaAbertaPedido !== true;
     const marmitasPersonalizadas = carrinho.filter((item) => item.tipo !== 'ESPECIAL');
     const marmitasEspeciais = carrinho.filter((item) => item.tipo === 'ESPECIAL');
-    const isPagamentoDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(form.metodo_pagamento_id))?.nome.toLowerCase().includes('dinheiro');
+    const isPagamentoDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(form.metodo_pagamento_id))?.tipo_financeiro === 'DINHEIRO';
 
     useEffect(() => {
         if (lojaAbertaPedido === false) {
@@ -535,7 +536,7 @@ export default function Carrinho() {
             }
 
             if (name === 'metodo_pagamento_id') {
-                const isDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(value))?.nome.toLowerCase().includes('dinheiro');
+                const isDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(value))?.tipo_financeiro === 'DINHEIRO';
 
                 if (!isDinheiro) {
                     novoEstado.precisa_troco = false;
@@ -803,10 +804,10 @@ export default function Carrinho() {
         }
 
         setFinalizando(true);
-        limparCarrinho();
+        if (!resposta.data.recovered) limparCarrinho();
         setSucessoPedido(true);
         localStorage.setItem('marmitaria_telefone_cliente', telefoneLimpo);
-        router.push('/pedido/sucesso');
+        prosseguir();
     };
 
     if (carrinho.length === 0) {
@@ -833,6 +834,13 @@ export default function Carrinho() {
                 <button type="button" className={styles.btnLink} onClick={() => router.push('/pedido')}>← Continuar Comprando</button>
                 <h1>Finalizar Pedido</h1>
             </header>
+            <div role="status" aria-live="polite">
+                {checkoutState.phase === 'PREPARANDO_ACESSO' && <p>Preparando seu acesso seguro...</p>}
+                {checkoutState.phase === 'CRIANDO_PEDIDO' && <p>Registrando seu pedido e preparando o pagamento, com os valores conferidos pela marmitaria...</p>}
+                {checkoutState.phase === 'REDIRECIONANDO' && <p>Abrindo o checkout seguro da InfinitePay...</p>}
+                {checkoutState.phase === 'INCERTA' && <p>Não foi possível concluir a verificação. Seu carrinho foi preservado. <Link href="/pedido/sucesso">Consultar pedido existente</Link></p>}
+                {checkoutState.phase === 'FALHA' && <p>Confira os dados do pedido antes de continuar.</p>}
+            </div>
 
             <section className={styles.resumo}>
                 <h2 className={styles.secaoTitulo}>Marmitas</h2>

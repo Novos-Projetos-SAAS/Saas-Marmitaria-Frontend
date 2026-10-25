@@ -6,28 +6,29 @@ import { useEffect } from 'react';
 
 import { usePedido } from '@/context/PedidoContext';
 
-import { CheckCircle, Home, ShoppingBag } from 'lucide-react';
+import { CheckCircle, Clock, Home, ShoppingBag, RefreshCw } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { usePaymentTracking } from '@/hooks/usePaymentTracking.js';
+import { paymentPresentation, checkoutDestination } from '@/services/checkoutFlow.mjs';
+import { requestCheckout, startAnotherOrder } from '@/services/checkoutService.js';
 
 import styles from './page.module.css';
 
 export default function PedidoSucesso() {
     const router = useRouter();
-    const { sucessoPedido, setSucessoPedido, setFinalizando } = usePedido();
-
-    // Mantemos o useEffect APENAS para o redirecionamento (efeito colateral real)
-    useEffect(() => {
-        if (!sucessoPedido) {
-            router.replace('/');
-        }
-    }, [sucessoPedido, router]);
+    const { setSucessoPedido, setFinalizando } = usePedido();
+    const { loading, order, error, refresh } = usePaymentTracking();
+    const presentation = paymentPresentation(order, error);
 
     useEffect(() => {
         setFinalizando(false);
     }, [setFinalizando]);
 
-    // Funções de saída que limpam o estado
-    const finalizarEIrPara = (rota) => {
-        // 1. Primeiro resetamos a permissão de ver a tela de sucesso
+    const finalizarEIrPara = async (rota) => {
+        if (rota === '/pedido') {
+            try { await startAnotherOrder(); }
+            catch { toast.error('Consulte a marmitaria antes de iniciar outro pedido.'); return; }
+        }
         router.push(rota);
         setTimeout(() => {
             setSucessoPedido(false);
@@ -35,28 +36,37 @@ export default function PedidoSucesso() {
         // 2. Depois navegamos para onde o usuário quer ir
     };
 
-    // 💡 Em vez de um estado 'podeExibir', apenas checamos a variável do contexto
-    if (!sucessoPedido) return null;
+    async function abrirPagamento() {
+        try {
+            const session = await requestCheckout('sessao', {});
+            const result = await requestCheckout('retomar', { client_request_id: order.client_request_id }, session.csrf_token);
+            if (result.checkout_url) window.location.assign(checkoutDestination(result)); else refresh();
+        } catch { toast.error('Não foi possível recuperar o link. Nenhuma nova cobrança foi solicitada.'); refresh(); }
+    }
 
     return (
         <main className={styles.container}>
             <div className={styles.card}>
                 <div className={styles.iconWrapper}>
-                    <CheckCircle size={80} strokeWidth={1.5} className={styles.icon} />
+                    {order?.cozinha_liberada ? <CheckCircle size={80} strokeWidth={1.5} className={styles.icon} /> : <Clock size={80} strokeWidth={1.5} className={styles.pending} />}
                 </div>
 
-                <h1 className={styles.title}>Pedido Confirmado!</h1>
+                <h1 className={styles.title} aria-live="polite">{loading ? 'Consultando pedido...' : presentation.title}</h1>
                 <p
                     className={
                         styles.message
                     }
                 >
-                    Seu pedido já está na fila de produção e logo seguirá para entrega ou retirada.
+                    {loading ? 'Conferindo o estado registrado pela marmitaria.' : presentation.message}
                 </p>
+                {order?.pedido_id && <p>Pedido #{order.pedido_id}</p>}
+                {order?.checkout_url && !error && order.pagamento_status === 'AGUARDANDO' && <button type="button" onClick={abrirPagamento} className={styles.btnHome}>Abrir pagamento existente</button>}
+                {order?.receipt_url && !error && order.cozinha_liberada && <a href={order.receipt_url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className={styles.btnSecondary}>Ver comprovante</a>}
 
                 <div className={styles.divider} />
 
                 <div className={styles.actions}>
+                    <button type="button" onClick={refresh} className={styles.btnSecondary}><RefreshCw size={20} /> Atualizar verificação</button>
                     <button
                         onClick={() => finalizarEIrPara('/')}
                         className={styles.btnHome}

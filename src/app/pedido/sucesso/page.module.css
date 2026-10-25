@@ -12,7 +12,7 @@
 .card {
     background: white;
     padding: 3rem;
-    border-radius: 24px;
+    border-radius: 8px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
     text-align: center;
     max-width: 480px;
@@ -29,6 +29,7 @@
 .icon {
     color: #22c55e; /* Verde Sucesso */
 }
+.pending { color: #EA580C; }
 
 .title {
     font-size: 2rem;
@@ -62,7 +63,9 @@
     justify-content: center;
     gap: 10px;
     padding: 1rem;
-    border-radius: 12px;
+    border-radius: 8px;
+    min-height: 48px;
+    text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
@@ -70,13 +73,13 @@
 }
 
 .btnHome {
-    background: #e11d48; /* Cor principal da marmitaria */
+    background: #EA580C;
     color: white;
     border: none;
 }
 
 .btnHome:hover {
-    background: #be123c;
+    background: #C2410C;
     transform: translateY(-2px);
 }
 

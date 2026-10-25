@@ -330,6 +330,9 @@ import { renderToString } from 'react-dom/server';
 import { usePedidosAdmin } from "@/hooks/usePedidosAdmin.js";
 import { buscarDadosEmpresa } from "@/services/dadosEmpresaService.js";
 import { imprimirCupom } from "@/services/qzService.js";
+import { autorizarOperacaoPedido } from '@/services/pedidosService.js';
+import { operationallyAllowed, authorizePrintOrder } from '@/services/checkoutFlow.mjs';
+import FinancialOrders from '@/components/FinancialOrders/FinancialOrders.jsx';
 
 import FormPedidoPresencial from "@/components/forms/pedidoPresencial/pedidoPresencialForm";
 import Pagination from "@/components/ui/pagination";
@@ -363,6 +366,11 @@ export default function PedidosClient() {
 
     // INTEGRAÇÃO MANUAL COM O QZ TRAY
     const handleImprimirPedido = async (pedido) => {
+        try {
+            pedido = await authorizePrintOrder(pedido, autorizarOperacaoPedido);
+        } catch {
+            toast.error('Impressão bloqueada: o Backend não autorizou este pedido.'); return;
+        }
         try {
             const resEmpresa = await buscarDadosEmpresa();
             const config = resEmpresa.data;
@@ -417,6 +425,7 @@ export default function PedidosClient() {
                         <button className={`${styles.tabBtn} ${abaAtiva === 'lista' ? styles.tabAtiva : ''}`} onClick={() => setAbaAtiva('lista')}>
                             <List size={18} /> Pedidos do Dia
                         </button>
+                        <Can perform="pagamentos.visualizar"><button type="button" className={`${styles.tabBtn} ${abaAtiva === 'financeiro' ? styles.tabAtiva : ''}`} onClick={() => setAbaAtiva('financeiro')}>Pagamentos InfinitePay</button></Can>
 
                         <Can perform="pedidos.criar">
                             <button
@@ -429,6 +438,7 @@ export default function PedidosClient() {
                     </div>
 
                     {/* ABA: LISTA */}
+                    {abaAtiva === 'financeiro' && <FinancialOrders />}
                     {abaAtiva === 'lista' && (
                         <div className={styles.cardGeral}>
                             <div className={styles.headerRow}>
@@ -507,6 +517,7 @@ export default function PedidosClient() {
                                                             <select
                                                                 className={`${styles.selectStatus} ${styles[`status_${pedido.status.replace(/\s+/g, '')}`]}`}
                                                                 value={pedido.status}
+                                                                disabled={!operationallyAllowed(pedido)}
                                                                 onChange={event => atualizarStatus(pedido.id, event.target.value)}
                                                             >
                                                                 {obterStatusOpcoes(pedido).map(status => (
@@ -522,6 +533,7 @@ export default function PedidosClient() {
                                                         <button
                                                             onClick={() => handleImprimirPedido(pedido)}
                                                             title="Imprimir Comanda"
+                                                            disabled={!operationallyAllowed(pedido)}
                                                             className={styles.btnImprimirGrid}
                                                         >
                                                             <Printer size={18} />
