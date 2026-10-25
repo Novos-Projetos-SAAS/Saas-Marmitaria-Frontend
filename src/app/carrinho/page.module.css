@@ -416,6 +416,10 @@
 }
 
 @media (max-width: 480px) {
+    .itemCarrinho { flex-wrap: wrap; }
+    .itemInfo { flex-basis: 100%; }
+    .itemInfo > div { min-width: 0; overflow-wrap: anywhere; }
+    .itemAcoes { margin-left: auto; }
     .row {
         gap: 0.5rem;
         /* Reduz o espaço ao meio para dar mais largura aos inputs */

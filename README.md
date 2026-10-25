@@ -61,16 +61,35 @@ Não executar migrations em produção ou no banco H1 automaticamente.
 Manter `INFINITEPAY_CHECKOUT_ENABLED=false` e a configuração financeira desativada.
 Esta fase não instala transporte financeiro real nem inicia worker de cozinha.
 
-Testes automatizados (repositórios lado a lado e Chrome instalado):
+Testes automatizados (repositórios lado a lado e Chrome instalado). Execute na
+raiz do Frontend. O PostgreSQL descartável precisa estar iniciado: encerrar uma
+execução anterior não mantém a porta 55439 disponível. Não use o H1 da porta55440.
+O cluster abaixo já deve existir; estes comandos não criam banco nem executam seeds.
 
 ```powershell
-npm ci
-npm test
+$pg = 'C:\Program Files\PostgreSQL\18\bin'
+$cluster = Join-Path (Split-Path (Get-Location).Path) 'infinitepay-test-cluster'
+& "$pg\pg_isready.exe" -h 127.0.0.1 -p 55439 -d infinitepay_phase1_test
+if ($LASTEXITCODE -ne 0) {
+    & "$pg\pg_ctl.exe" -D $cluster -o '-h 127.0.0.1 -p 55439' -l "$cluster\server.log" start
+    if ($LASTEXITCODE -ne 0) { throw 'PostgreSQL descartável não iniciou. Confira server.log; não use produção/H1.' }
+}
 $env:TEST_DATABASE_URL='postgresql://codex_test@127.0.0.1:55439/infinitepay_phase1_test'
+npm ci
+Push-Location '../Saas-Marmitaria-Backend'
+npm test
+Pop-Location
+npm test
 npm run test:browser
 npm run lint
 npm run build
 ```
+
+O `-o` com host/porta é necessário: `pg_ctl start` sem esses argumentos pode
+tentar a configuração padrão do PostgreSQL. Após iniciar, `pg_isready` deve
+informar `accepting connections`. A suíte recusa nomes/origens de banco não
+descartáveis. Para encerrar voluntariamente apenas esse cluster, use
+`& "$pg\pg_ctl.exe" -D $cluster -m fast stop`; reinicie antes de repetir testes.
 
 Use exclusivamente PostgreSQL descartável loopback com nome `infinitepay_*test`.
 O teste de navegador cria schemas sintéticos, inicia o Next local na porta55443,
@@ -84,6 +103,39 @@ Os cenários exercitam o carrinho pelas telas existentes, Pix/Crédito simulados
 Dinheiro/Débito, duas abas, resposta perdida, timeout, reload, restauração de
 cookies, confirmação sem retorno e comprovante restrito ao titular. Para observar
 os cenários em uma janela, defina `CHECKOUT_BROWSER_HEADED=1` antes do comando.
+
+Para validar HTTPS em ambos os servidores, use um PowerShell separado e um
+certificado sintético fora do Git (OpenSSL já instalado com Git for Windows):
+
+```powershell
+$tlsDir = Join-Path $env:TEMP 'marmitaria-checkout-tls'
+New-Item -ItemType Directory -Path $tlsDir -Force | Out-Null
+& 'C:\Program Files\Git\usr\bin\openssl.exe' req -x509 -newkey rsa:2048 -nodes `
+  -keyout "$tlsDir\localhost-key.pem" -out "$tlsDir\localhost.pem" -days 2 `
+  -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' `
+  -addext 'extendedKeyUsage=serverAuth'
+if ($LASTEXITCODE -ne 0) { throw 'Certificado local não foi gerado.' }
+$env:CHECKOUT_TEST_TLS_CERT = "$tlsDir\localhost.pem"
+$env:CHECKOUT_TEST_TLS_KEY = "$tlsDir\localhost-key.pem"
+$env:NODE_EXTRA_CA_CERTS = $env:CHECKOUT_TEST_TLS_CERT
+$env:TEST_DATABASE_URL='postgresql://codex_test@127.0.0.1:55439/infinitepay_phase1_test'
+npm run test:browser
+```
+
+O Next recebe explicitamente essa CA e o Chrome descartável reconhece somente
+o SPKI desse certificado. Não há instalação de CA no Windows, `ignoreHTTPSErrors`
+global ou `NODE_TLS_REJECT_UNAUTHORIZED=0`. O Frontend usa
+`https://localhost:55443`; o Express usa outra porta local atribuída pelo sistema.
+Não são URLs públicas nem homologação de certificado de produção. Feche o
+PowerShell separado após o teste para descartar essas variáveis locais.
+
+O navegador também exercita CSRF, cookies host-only, administração/PDV com os
+quatro métodos, bloqueio de impressão por resposta desatualizada, falha de Socket
+com liberação persistida e eventos repetidos. Um cenário encerra o processo Chrome
+e reabre seu perfil temporário, recuperando o cookie sem exportar `storageState`.
+Esse perfil contém só dados sintéticos e é removido ao terminar. `window.print` e conexões QZ são
+interceptados somente no teste; nenhuma impressora é acionada. A configuração
+real do QZ/PEM permanece intacta.
 
 O acompanhamento consulta somente o banco: no máximo20 consultas automáticas,
 com intervalo crescente até30segundos e pausa em aba oculta. Atualizar/recarregar

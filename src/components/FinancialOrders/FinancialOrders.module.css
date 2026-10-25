@@ -5,4 +5,5 @@
 .order { display: flex; flex-direction: column; gap: 10px; border: 1px solid #e4e4e7; border-radius: 6px; padding: 16px; overflow-wrap: anywhere; }
 .order span { color: #9a3412; }
 .order small { color: #71717a; }
+.order a { display: flex; align-items: center; min-height: 48px; color: #9a3412; }
 @media (min-width: 768px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
