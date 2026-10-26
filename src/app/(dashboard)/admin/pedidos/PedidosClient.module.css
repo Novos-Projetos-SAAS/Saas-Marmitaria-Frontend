@@ -1,3 +1,31 @@
+.orderActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.actionButtons { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 768px) {
+    .actionButtons > button { min-width: 48px; min-height: 48px; justify-content: center; }
+    .actionButtons .btnVer span { display: none; }
+}
+
+.btnComprovante {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    border: 1px solid #e4e4e7;
+    border-radius: 6px;
+    background: #fff;
+    color: #52525b;
+    cursor: pointer;
+}
+.btnComprovante:hover:not(:disabled) { background: #fff7ed; color: #ea580c; border-color: #fed7aa; }
+.btnComprovante:focus-visible { outline: 2px solid #ea580c; outline-offset: 2px; }
+.btnComprovante:disabled { opacity: .5; cursor: wait; }
+
 /* 
 .wrapper {
     display: flex;

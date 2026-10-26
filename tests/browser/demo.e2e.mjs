@@ -119,3 +119,78 @@ test('pending and uncertain demo attempts survive browser recovery and do not di
     }
     await mode('PENDING');
 },{timeout:150000});
+
+async function orderRow(page,id){
+    await page.goto(shop+'/admin/pedidos');
+    await page.getByPlaceholder('Buscar por Nome, Telefone ou #ID...').fill(String(id));
+    const row=page.locator('tbody tr').filter({has:page.locator('td[data-label="#ID"]').filter({hasText:new RegExp('^#'+id+'$')})});
+    await expect(row).toBeVisible();return row;
+}
+test('daily order receipts reauthorize Pix and credit, protect the new tab and preserve details/printing on desktop/mobile',async()=>{
+    const dispatches=(await db('demo_provider_settings').first()).dispatches;
+    const paid=[];
+    for(const capture_method of ['pix','credit_card'])paid.push(await db('pagamentos').where({status:'PAGA',capture_method}).whereNotNull('receipt_url').orderBy('criado_em','desc').first());
+    for(const [index,payment]of paid.entries()){
+        assert.ok(payment);await operator.setViewportSize(index?{width:390,height:844}:{width:1366,height:900});
+        const row=await orderRow(operator,payment.pedido_id),button=row.getByRole('button',{name:'Ver comprovante de pagamento',exact:true});
+        await expect(button).toBeVisible();assert.equal(await button.getAttribute('title'),'Ver comprovante de pagamento');
+        const box=await button.boundingBox();assert.ok(box.width>=48&&box.height>=48);
+        const printBox=await row.getByTitle('Imprimir Comanda',{exact:true}).boundingBox();
+        assert.ok(Math.abs((box.y+box.height/2)-(printBox.y+printBox.height/2))<2,'Receipt must remain beside Print on mobile too');
+        assert.ok(box.x>=printBox.x+printBox.width && box.x-printBox.x-printBox.width<=10);
+        const [receipt]=await Promise.all([admin.waitForEvent('page'),button.click()]);
+        await expect(receipt.getByRole('heading',{name:'Comprovante sintético',exact:true})).toBeVisible();
+        assert.equal(await receipt.evaluate(()=>opener===null),true);assert.equal(await receipt.evaluate(()=>document.referrer),'');await receipt.close();
+        await row.getByRole('button',{name:'Detalhes',exact:true}).click();await expect(operator.getByRole('heading',{name:'Pedido #'+payment.pedido_id,exact:true})).toBeVisible();
+        await operator.locator('[class*="modalHeader"]').getByRole('button').last().click();
+        await operator.evaluate(()=>{window.__receiptPrints=0;window.print=()=>window.__receiptPrints++;});
+        await row.getByTitle('Imprimir Comanda',{exact:true}).click();await expect.poll(()=>operator.evaluate(()=>window.__receiptPrints)).toBe(1);
+        assert.equal(await operator.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+        await operator.screenshot({path:fileURLToPath(new URL(index?'../../../../outputs/receipt-mobile.png':'../../../../outputs/receipt-desktop.png',import.meta.url)),fullPage:true});
+    }
+    assert.equal((await db('demo_provider_settings').first()).dispatches,dispatches);
+    await operator.setViewportSize({width:1366,height:900});
+},{timeout:120000});
+test('daily receipt button handles permission, stale authorization and invalid/unavailable URL without financial side effects',async()=>{
+    await mode('PENDING');
+    const pendingContext=await context(),pendingPage=await pendingContext.newPage();
+    try{
+        await cart(pendingPage,'Pix',{name:'DEMO COMPROVANTE PENDENTE'});
+        await pendingPage.getByRole('button',{name:/Confirmar Pedido/}).click();
+        await expect(pendingPage.getByRole('heading',{name:'Checkout simulado',exact:true})).toBeVisible();
+    }finally{await pendingContext.close();}
+    const payment=await db('pagamentos').where({status:'PAGA'}).whereNotNull('receipt_url').orderBy('criado_em','desc').first();
+    const before=(await db('demo_provider_settings').first()).dispatches;
+    const endpoint=backend+'/pagamentos/admin/'+payment.pedido_id+'/comprovante';
+    for(const scenario of ['state-changed','invalid-url','unavailable']){
+        const row=await orderRow(operator,payment.pedido_id);
+        await operator.route(endpoint,route=>route.fulfill({headers:{'Access-Control-Allow-Origin':shop,'Access-Control-Allow-Credentials':'true'},...(scenario==='invalid-url'
+            ?{status:200,contentType:'application/json',body:JSON.stringify({status:'success',data:{receipt_url:'https://evil.invalid/receipt'}})}
+            :{status:404,contentType:'application/json',body:JSON.stringify({status:'fail'})})}));
+        const [tab]=await Promise.all([admin.waitForEvent('page'),row.getByRole('button',{name:'Ver comprovante de pagamento',exact:true}).click()]);
+        await expect(operator.getByText(/Comprovante indisponível\. Confira/)).toBeVisible();
+        if(!tab.isClosed()){
+            await expect(tab.locator('body')).toContainText('Comprovante indisponível. Volte à página de pedidos.');
+            await tab.close();
+        }
+        assert.ok(operator.url().startsWith(shop+'/admin/pedidos'));await operator.unroute(endpoint);
+    }
+    const limited=await context({storageState:await admin.storageState()}),page=await limited.newPage();
+    try{
+        await page.route(backend+'/permissoes/me',route=>route.fulfill({status:200,headers:{'Access-Control-Allow-Origin':shop,'Access-Control-Allow-Credentials':'true'},
+            json:{status:'success',nome:'DEMO SEM PERMISSAO FINANCEIRA',email:'restricted@demo.invalid',nivel_acesso:'atendente',permissoes:['pedidos.listar']}}));
+        const row=await orderRow(page,payment.pedido_id);
+        await expect(row.getByRole('button',{name:'Ver comprovante de pagamento',exact:true})).toHaveCount(0);
+    }finally{await limited.close();}
+    for(const method of [2,4]){
+        const order=await db('pedidos').where({metodo_pagamento_id:method}).orderBy('id','desc').first();assert.ok(order);
+        const row=await orderRow(operator,order.id);await expect(row.getByRole('button',{name:'Ver comprovante de pagamento',exact:true})).toHaveCount(0);
+    }
+    for(const status of ['AGUARDANDO','INCERTA']){
+        const payment=await db('pagamentos').where({status}).orderBy('criado_em','desc').first();assert.ok(payment);
+        await operator.goto(shop+'/admin/pedidos');await operator.getByPlaceholder('Buscar por Nome, Telefone ou #ID...').fill(String(payment.pedido_id));
+        await expect(operator.getByText('Nenhum pedido encontrado.',{exact:true})).toBeVisible();
+        await expect(operator.getByRole('button',{name:'Ver comprovante de pagamento',exact:true})).toHaveCount(0);
+    }
+    assert.equal((await db('demo_provider_settings').first()).dispatches,before);
+},{timeout:120000});

@@ -333,18 +333,20 @@ import { imprimirCupom } from "@/services/qzService.js";
 import { autorizarOperacaoPedido } from '@/services/pedidosService.js';
 import { operationallyAllowed, authorizePrintOrder } from '@/services/checkoutFlow.mjs';
 import FinancialOrders from '@/components/FinancialOrders/FinancialOrders.jsx';
+import { useAdminReceipt } from '@/hooks/useAdminReceipt.js';
 
 import FormPedidoPresencial from "@/components/forms/pedidoPresencial/pedidoPresencialForm";
 import Pagination from "@/components/ui/pagination";
 import CupomPedido from "@/components/CupomPedido/cupomPedido";
 import Can from "@/components/ui/can";
 
-import { RefreshCw, Eye, Plus, List, X, Search, Filter, Printer } from "lucide-react";
+import { RefreshCw, Eye, Plus, List, X, Search, Filter, Printer, ReceiptText } from "lucide-react";
 import styles from "./PedidosClient.module.css";
 
 const STATUS_OPCOES = ['Pendente', 'Em Preparo', 'Pronto para Retirada', 'Saiu para Entrega', 'Entregue', 'Cancelado'];
 
 export default function PedidosClient() {
+    const receipt = useAdminReceipt();
     const {
         pedidos, loading, carregarPedidos, atualizarStatus,
         page, setPage, totalPages, search, setSearch, statusFilter, setStatusFilter
@@ -526,8 +528,9 @@ export default function PedidosClient() {
                                                             </select>
                                                         </Can>
                                                     </td>
-                                                    <td data-label="Ações" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
-                                                        <button className={styles.btnVer} onClick={() => setPedidoSelecionado(pedido)} title="Ver Detalhes">
+                                                    <td data-label="Ações" className={styles.orderActions}>
+                                                        <div className={styles.actionButtons}>
+                                                        <button className={styles.btnVer} onClick={() => setPedidoSelecionado(pedido)} title="Ver Detalhes" aria-label="Detalhes">
                                                             <Eye size={18} /> <span>Detalhes</span>
                                                         </button>
                                                         <button
@@ -538,6 +541,14 @@ export default function PedidosClient() {
                                                         >
                                                             <Printer size={18} />
                                                         </button>
+                                                        {pedido.comprovante_disponivel === true && <Can perform="pagamentos.visualizar">
+                                                            <button type="button" className={styles.btnComprovante}
+                                                                title="Ver comprovante de pagamento" aria-label="Ver comprovante de pagamento"
+                                                                disabled={receipt.opening !== null} onClick={() => receipt.open(pedido.id)}>
+                                                                <ReceiptText size={18} />
+                                                            </button>
+                                                        </Can>}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))

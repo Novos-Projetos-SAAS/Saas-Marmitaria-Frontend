@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { listarPedidosFinanceiros, buscarComprovanteAdmin } from '@/services/pedidosService.js';
 import toast from 'react-hot-toast';
 import styles from './FinancialOrders.module.css';
-import { paymentOrigin } from '@/services/paymentOrigins.mjs';
+import { validateReceiptUrl } from '@/services/adminReceipt.mjs';
 
 function label(order) {
     if (order.pagamento_status === 'ESTORNADA') return 'Pagamento estornado';
@@ -18,8 +18,7 @@ export default function FinancialOrders() {
     const [receipts, setReceipts] = useState({});
     async function receipt(order) {
         try {
-            const url = await buscarComprovanteAdmin(order.pedido_id);
-            if (new URL(url).origin !== paymentOrigin('receipt')) throw new Error();
+            const url = validateReceiptUrl(await buscarComprovanteAdmin(order.pedido_id));
             setReceipts(previous => ({ ...previous, [order.pedido_id]: url }));
         } catch { toast.error('Comprovante indisponível para este pedido.'); }
     }
