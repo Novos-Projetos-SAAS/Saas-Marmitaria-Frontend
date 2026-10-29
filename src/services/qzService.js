@@ -1,5 +1,15 @@
 import qz from "qz-tray";
 import api from "./api";
+import { createQzSecureTransport, resolveQzSigningMode } from './qzSecureTransport.mjs';
+
+const signingMode = resolveQzSigningMode(process.env.NEXT_PUBLIC_QZ_SIGNING_MODE);
+// Invalid opt-in configuration also blocks browser/anonymous fallback.
+export const qzSigningSecureEnabled = signingMode !== 'legacy';
+const secureTransport = qzSigningSecureEnabled ? createQzSecureTransport({
+    api, qz,
+    stationId: signingMode === 'secure-test' ? process.env.NEXT_PUBLIC_QZ_STATION_ID : undefined,
+    certificate: process.env.NEXT_PUBLIC_QZ_CERTIFICATE
+}) : null;
 
 // Função para buscar e formatar o certificado público
 const getQzCertificate = () => {
@@ -14,33 +24,36 @@ const getQzCertificate = () => {
 };
 
 // 2. Apresenta o "Crachá" (Certificado) para o QZ Tray
-qz.security.setCertificatePromise((resolve, reject) => {
-    try {
-        const certificate = getQzCertificate();
-        resolve(certificate);
-    } catch (error) {
-        reject(error);
-    }
-});
+if (!qzSigningSecureEnabled) {
+    qz.security.setCertificatePromise((resolve, reject) => {
+        try {
+            const certificate = getQzCertificate();
+            resolve(certificate);
+        } catch (error) {
+            reject(error);
+        }
+    });
 
-qz.security.setSignatureAlgorithm("SHA512");
+    qz.security.setSignatureAlgorithm("SHA512");
 
-// 3. Pede para o Backend carimbar a requisição usando a chave privada
-qz.security.setSignaturePromise((toSign) => {
-    return function (resolve, reject) {
-        // Bate exatamente na rota do Backend
-        api.post('/qz/assinar', { request: toSign })
-            .then(response => {
-                resolve(response.data); 
-            })
-            .catch(err => {
-                console.error("Erro ao solicitar assinatura do Backend:", err);
-                reject(err);
-            });
-    };
-});
+    // 3. Pede para o Backend carimbar a requisição usando a chave privada
+    qz.security.setSignaturePromise((toSign) => {
+        return function (resolve, reject) {
+            // Bate exatamente na rota do Backend
+            api.post('/qz/assinar', { request: toSign })
+                .then(response => {
+                    resolve(response.data);
+                })
+                .catch(err => {
+                    console.error("Erro ao solicitar assinatura do Backend:", err);
+                    reject(err);
+                });
+        };
+    });
+}
 
 export const conectarQZ = async () => {
+    if (secureTransport) return secureTransport.conectarQZ();
     try {
         if (!qz.websocket.isActive()) {
             await qz.websocket.connect();
@@ -53,12 +66,14 @@ export const conectarQZ = async () => {
 };
 
 export const desconectarQZ = async () => {
+    if (secureTransport) return secureTransport.desconectarQZ();
     if (qz.websocket.isActive()) {
         await qz.websocket.disconnect();
     }
 };
 
-export const imprimirCupom = async (conteudoHTML, nomeImpressora) => {
+export const imprimirCupom = async (conteudoHTML, nomeImpressora, contexto) => {
+    if (secureTransport) return secureTransport.imprimirCupom(conteudoHTML, nomeImpressora, contexto);
     try {
         await conectarQZ();
 

@@ -329,7 +329,7 @@ import { renderToString } from 'react-dom/server';
 
 import { usePedidosAdmin } from "@/hooks/usePedidosAdmin.js";
 import { buscarDadosEmpresa } from "@/services/dadosEmpresaService.js";
-import { imprimirCupom } from "@/services/qzService.js";
+import { imprimirCupom, qzSigningSecureEnabled } from "@/services/qzService.js";
 import { autorizarOperacaoPedido } from '@/services/pedidosService.js';
 import { operationallyAllowed, authorizePrintOrder } from '@/services/checkoutFlow.mjs';
 import FinancialOrders from '@/components/FinancialOrders/FinancialOrders.jsx';
@@ -381,15 +381,20 @@ export default function PedidosClient() {
                 toast.loading("Enviando para a impressora térmica...", { id: "printQZ" });
 
                 const htmlDoCupom = renderToString(<CupomPedido pedido={pedido} />);
-                await imprimirCupom(htmlDoCupom, config.nome_impressora);
+                await imprimirCupom(htmlDoCupom, config.nome_impressora, { pedidoId: pedido.id });
 
-                toast.success("Cupom impresso com sucesso!", { id: "printQZ" });
+                toast.success(qzSigningSecureEnabled ? 'Cupom enviado ao QZ. Confira a impressão física.' : "Cupom impresso com sucesso!", { id: "printQZ" });
             } else {
+                if (qzSigningSecureEnabled) throw new Error('Configuração QZ segura ausente.');
                 // Plano B: Fluxo antigo (Navegador) caso o QZ Tray não esteja configurado
                 setPedidoParaImprimir(pedido);
                 setTimeout(() => window.print(), 1000);
             }
         } catch (error) {
+            if (qzSigningSecureEnabled) {
+                toast.error('Impressão QZ segura bloqueada. Verifique a sessão e a configuração de testes.', { id: 'printQZ' });
+                return;
+            }
             console.error("Erro ao imprimir via QZ Tray:", error);
             toast.error("Falha ao usar QZ Tray. Abrindo tela padrão.", { id: "printQZ" });
 

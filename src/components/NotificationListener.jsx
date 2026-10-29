@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { buscarDadosEmpresa } from '@/services/dadosEmpresaService.js';
-import { imprimirCupom } from '@/services/qzService.js';
+import { imprimirCupom, qzSigningSecureEnabled } from '@/services/qzService.js';
 import CupomPedido from '@/components/CupomPedido/cupomPedido';
 import { operationallyAllowed, authorizePrintOrder } from '@/services/checkoutFlow.mjs';
 import { autorizarOperacaoPedido } from '@/services/pedidosService.js';
@@ -40,10 +40,10 @@ export default function NotificationListener() {
                 if (!config?.imprimir_automaticamente || !config?.nome_impressora) return;
 
                 const htmlDoCupom = renderToString(<CupomPedido pedido={autorizado} />);
-                await imprimirCupom(htmlDoCupom, config.nome_impressora);
+                await imprimirCupom(htmlDoCupom, config.nome_impressora, { pedidoId: autorizado.id });
                 console.log(`🖨️ Pedido #${pedido.id} enviado para impressão automática.`);
             }).catch(error => {
-                console.error(`Erro ao imprimir automaticamente o pedido #${pedido.id}:`, error);
+                if (!qzSigningSecureEnabled) console.error(`Erro ao imprimir automaticamente o pedido #${pedido.id}:`, error);
                 toast.error(`Pedido #${pedido.id} recebido, mas não foi possível imprimir automaticamente.`, { id: `print-error-${pedido.id}` });
             });
         };
