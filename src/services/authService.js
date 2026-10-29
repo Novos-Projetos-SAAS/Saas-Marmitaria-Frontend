@@ -1,4 +1,5 @@
 import api from "./api";
+import { logoutWithFinancialRevocation } from './financialLogout.mjs';
 
 export async function login(email, senha) {
 
@@ -28,10 +29,9 @@ export async function getMe() {
 
 export const logout = async () => {
     try {
-        const response = await api.post('/auth/logout');
-        return response.data;
+        return await logoutWithFinancialRevocation(api);
     } catch (error) {
-        console.error("Erro no authService (logout):", error);
+        console.error('Encerramento da sessão indisponível.');
         throw error;
     }
 };

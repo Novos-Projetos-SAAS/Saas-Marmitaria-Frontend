@@ -105,17 +105,66 @@ before(async () => {
     browser = await chromium.launch(chromeLaunchOptions);
 }, { timeout: 180000 });
 after(async () => {
-    await normalApplication?.stop();
-    await browser?.close();
-    if (next?.pid && next.exitCode === null) {
+    const errors=[];
+    const clean=async action=>{try{await action();}catch(error){errors.push(error);}};
+    await clean(()=>normalApplication?.stop());
+    await clean(()=>browser?.close());
+    await clean(async()=>{if (next?.pid && next.exitCode === null) {
         if (process.platform === 'win32') execFileSync('taskkill.exe', ['/PID', String(next.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
         else next.kill('SIGTERM');
-    }
+    }});
     server?.closeAllConnections();
-    if (io) await new Promise(done => io.close(done));
-    if (server?.listening) { server.closeAllConnections(); await new Promise(done => server.close(done)); }
+    if (io) await clean(()=>new Promise(done => io.close(done)));
+    if (server?.listening) await clean(async()=>{server.closeAllConnections();await new Promise(done => server.close(done));});
     delete global.io;
-    await appDb?.destroy(); await fixture?.close();
+    await clean(()=>appDb?.destroy());await clean(()=>fixture?.close());
+    if(errors.length)throw new AggregateError(errors,'Falha na limpeza do ambiente sintético.');
+});
+
+test('admin reconciliation UI requires an explicit grant and retries a lost response with the same durable request', {
+    timeout: 90000, skip: !tlsCert && 'A conciliação exige Origin HTTPS; configure o par TLS sintético do harness.'
+}, async () => {
+    scenario = 'INCERTA';
+    const buyer = await context(), admin = await adminContext({ viewport: { width: 1280, height: 900 } });
+    let grantedPermission;
+    try {
+        const customer = await buyer.newPage(); await cart(customer); await submit(customer);
+        await expect(customer.getByRole('heading', { name: 'Verificação inconclusiva' })).toBeVisible();
+        const payment = await fixture.db('pagamentos').orderBy('id', 'desc').first(), beforeCalls = calls;
+        const page = await admin.newPage(); await page.goto(origin + '/admin/pedidos');
+        await page.getByRole('button', { name: 'Pagamentos InfinitePay', exact: true }).click();
+        let card = page.locator('article').filter({ hasText: 'Pedido #' + payment.pedido_id + ' ·' });
+        await expect(card.getByText('Em verificação', { exact: true })).toBeVisible();
+        assert.equal(await card.getByRole('button', { name: 'Solicitar conciliação', exact: true }).count(), 0,
+            'A permissão admin genérica não concede a ação de conciliar.');
+        let permission = await fixture.db('permissoes').where({ nome: 'pagamentos.conciliar' }).first();
+        if (!permission) [permission] = await fixture.db('permissoes').insert({ nome: 'pagamentos.conciliar', descricao: 'Teste sintético de ação explícita' }).returning('*');
+        grantedPermission = permission.id;
+        await fixture.db('permissoes_usuarios').insert({ usuario_id: 1, permissao_id: grantedPermission });
+        await page.reload(); await page.getByRole('button', { name: 'Pagamentos InfinitePay', exact: true }).click();
+        card = page.locator('article').filter({ hasText: 'Pedido #' + payment.pedido_id + ' ·' });
+        const ids = [];
+        await page.route(backend + '/pagamentos/admin/' + payment.pedido_id + '/conciliar', async route => {
+            ids.push(route.request().postDataJSON().request_id);
+            assert.match(route.request().headers()['x-infinitepay-csrf'], /^[A-Za-z0-9_-]{43}$/);
+            const response = await route.fetch();
+            if (ids.length === 1) await route.abort('failed'); else await route.fulfill({ response });
+        });
+        const requestButton = card.getByRole('button', { name: 'Solicitar conciliação', exact: true });
+        await requestButton.click();
+        await expect(page.getByText('Não foi possível confirmar a solicitação. Tente novamente; a mesma solicitação será preservada.')).toBeVisible();
+        await requestButton.click();
+        await expect(page.getByText('Não há identificadores suficientes para verificar este pagamento. Consulte o suporte.')).toBeVisible();
+        assert.equal(ids.length, 2); assert.equal(ids[0], ids[1]);
+        assert.equal(Number((await fixture.db('pagamentos_eventos').where({ event_key: 'admin_conciliacao:' + ids[0] }).count('* as n').first()).n), 1);
+        assert.equal((await fixture.db('pagamentos').where({ id: payment.id }).first()).status, 'INCERTA');
+        assert.equal((await fixture.db('pedidos').where({ id: payment.pedido_id }).first()).liberado_cozinha_em, null);
+        assert.equal(calls, beforeCalls);
+        await page.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE6_CONCILIACAO_ADMIN.png', import.meta.url)), fullPage: true });
+    } finally {
+        if (grantedPermission) await fixture.db('permissoes_usuarios').where({ usuario_id: 1, permissao_id: grantedPermission }).delete();
+        scenario = 'AGUARDANDO'; await buyer.close(); await admin.close();
+    }
 });
 
 test('normal application activates through admin and runs real adapters, automatic worker and isolated outbox for Pix and credit', { timeout: 150000 }, async () => {
@@ -217,6 +266,21 @@ async function adminContext(options = {}) {
     ]);
     return ctx;
 }
+
+test('a failed durable logout keeps the authenticated interface and shows a sanitized retry message', { timeout: 90000 }, async () => {
+    const admin = await adminContext({ viewport: { width: 1280, height: 900 } }), page = await admin.newPage();
+    try {
+        await page.goto(origin + '/admin/pedidos');
+        await page.route(backend + '/auth/logout', route => route.fulfill({ status: 503, contentType: 'application/json',
+            body: JSON.stringify({ status: 'error', message: 'SYNTHETIC_PRIVATE_SERVER_DETAIL' }) }));
+        await page.getByRole('button', { name: 'Sair do sistema', exact: true }).click();
+        await expect(page.getByText('Não foi possível encerrar a sessão. Tente novamente.')).toBeVisible();
+        assert.equal(new URL(page.url()).pathname, '/admin/pedidos');
+        assert.equal((await admin.cookies()).find(cookie => cookie.name === 'is_logged')?.value, 'true');
+        assert.equal(await page.getByText('SYNTHETIC_PRIVATE_SERVER_DETAIL').count(), 0);
+        await expect(page.getByRole('button', { name: 'Sair do sistema', exact: true })).toBeVisible();
+    } finally { await admin.close(); }
+});
 test('browser transport, host-only cookies and CSRF protect a real BFF request', { timeout: 90000 }, async () => {
     const ctx = await context({ viewport: { width: 320, height: 760 } }), page = await ctx.newPage();
     try {
@@ -289,6 +353,28 @@ test('browser Pix keeps secure cookies, receives delayed verified payment withou
         await reopened.goto(origin + '/pedido/sucesso'); await expect(reopened.getByRole('heading', { name: 'Aguardando pagamento' })).toBeVisible();
         assert.equal(await reopened.evaluate(() => document.cookie.includes('__Host-marmitaria-checkout')), false);
         const payment = await fixture.db('pagamentos').orderBy('id','desc').first();
+        // Pending tracking is recovered only through the holder session, even when
+        // the public phone endpoint correctly excludes unpaid operational orders.
+        await reopened.goto(origin + '/acompanhar');
+        const ownedHeading = reopened.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true });
+        await expect(ownedHeading).toBeVisible();
+        await expect(reopened.getByRole('heading', { name: 'Aguardando pagamento', exact: true })).toBeVisible();
+        await expect(reopened.getByText('Pedido deste navegador', { exact: true })).toBeVisible();
+        assert.equal(await reopened.getByRole('link', { name: 'Ver comprovante' }).count(), 0);
+        await reopened.reload(); await expect(ownedHeading).toBeVisible();
+        const anonymous = await context(), anonymousPage = await anonymous.newPage();
+        try {
+            await anonymousPage.goto(origin + '/acompanhar');
+            await expect(anonymousPage.locator('form button[type=submit]')).toBeEnabled();
+            await anonymousPage.locator('input[type=tel]').fill('11999999999');
+            await expect(anonymousPage.locator('input[type=tel]')).toHaveValue('(11) 99999-9999');
+            await anonymousPage.locator('form button[type=submit]').click();
+            await expect(anonymousPage.getByRole('button').last()).toBeEnabled();
+            assert.equal(await anonymousPage.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true }).count(), 0);
+            assert.equal(await anonymousPage.getByRole('link', { name: 'Ver comprovante' }).count(), 0);
+        } finally { await anonymous.close(); }
+        await reopened.goto(origin + '/pedido/sucesso');
+        await expect(reopened.getByRole('heading', { name: 'Aguardando pagamento' })).toBeVisible();
         const payload = { event_type: 'paid', order_nsu: payment.order_nsu, invoice_slug: payment.invoice_slug, transaction_nsu: 'SYNTHETIC-TX-' + payment.id };
         for (let i = 0; i < 3; i++) assert.equal((await fetch(backend + '/pagamentos/infinitepay/webhook', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) })).status, 200);
         await runtime.processPending({ limit: 5 });
@@ -322,6 +408,22 @@ test('browser Pix keeps secure cookies, receives delayed verified payment withou
         const statusCookie = (await restored.cookies()).find(value => value.name === '__Host-marmitaria-status');
         await restored.addCookies([{ ...statusCookie, value: randomBytes(32).toString('base64url') }]);
         await reopened.reload(); await expect(reopened.getByRole('link', { name: 'Ver comprovante' })).toBeVisible();
+        const ownedSuccessUrl = reopened.url();
+        await reopened.goto(origin + '/acompanhar');
+        await expect(reopened.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true })).toBeVisible();
+        const trackingCard = reopened.locator('div').filter({ has: reopened.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true }) })
+            .filter({ has: reopened.getByRole('link', { name: 'Ver comprovante', exact: true }) }).last();
+        const trackingLink=trackingCard.getByRole('link', { name: 'Ver comprovante', exact: true });
+        await expect(trackingLink).toHaveAttribute('href','https://recibo.infinitepay.io/'+payload.transaction_nsu);
+        await expect(trackingLink).toHaveAttribute('target','_blank');
+        await expect(trackingLink).toHaveAttribute('rel','noopener noreferrer');
+        // Follow the native anchor's validated destination without depending on
+        // the local Chrome popup preference; custom admin opening is tested below.
+        const trackingReceipt=await restored.newPage();await trackingReceipt.goto(await trackingLink.getAttribute('href'));
+        await expect(trackingReceipt.getByRole('heading', { name: 'Comprovante sintético autorizado' })).toBeVisible();
+        await trackingReceipt.close();
+        await reopened.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE6_ACOMPANHAR_TITULAR.png', import.meta.url)), fullPage: true });
+        await reopened.goto(ownedSuccessUrl);
         const stranger = await context();
         try {
             const ref = new URLSearchParams(destination.hash.slice(1)).get('ref');
@@ -331,6 +433,14 @@ test('browser Pix keeps secure cookies, receives delayed verified payment withou
             await expect(reader.getByRole('heading', { name: 'Pedido liberado' })).toBeVisible();
             assert.equal(await reader.getByRole('link', { name: 'Ver comprovante' }).count(), 0);
             assert.equal(new URL(reader.url()).hash, destination.hash);
+            await reader.goto(origin + '/acompanhar');
+            await expect(reader.locator('form button[type=submit]')).toBeEnabled();
+            await reader.locator('input[type=tel]').fill('11999999999');
+            await expect(reader.locator('input[type=tel]')).toHaveValue('(11) 99999-9999');
+            await reader.locator('form button[type=submit]').click();
+            await expect(reader.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true })).toBeVisible();
+            assert.equal(await reader.getByRole('link', { name: 'Ver comprovante', exact: true }).count(), 0);
+            assert.equal(await reader.getByRole('heading', { name: 'Pedido liberado', exact: true }).count(), 0);
         } finally { await stranger.close(); }
         await reopened.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE3A_MOBILE.png', import.meta.url)), fullPage: true });
     } finally { await restored?.close(); if (!restored) await ctx.close(); }
@@ -409,6 +519,8 @@ test('admin browser blocks stale unpaid printing and preserves release across so
         await expect(page.getByText('Impressão bloqueada: o Backend não autorizou este pedido.')).toBeVisible();
         assert.equal(await page.evaluate(() => window.syntheticPrints), 0); assert.equal(configReads, 0);
         await page.unroute(backend + '/pedidos/admin?*');
+        await page.getByRole('button', { name: 'Atualizar', exact: true }).click();
+        await expect(staleRow).toHaveCount(0);
         await page.getByRole('button', { name: 'Pagamentos InfinitePay', exact: true }).click();
         let card = page.locator('article').filter({ hasText: 'Pedido #' + payment.pedido_id + ' ·' });
         await expect(card.getByText('Aguardando pagamento', { exact: true })).toBeVisible();
@@ -426,6 +538,18 @@ test('admin browser blocks stale unpaid printing and preserves release across so
         const receiptPage = page.waitForEvent('popup'); await card.getByRole('link', { name: 'Abrir comprovante autorizado' }).click();
         const receipt = await receiptPage; await expect(receipt.getByRole('heading', { name: 'Comprovante sintético autorizado' })).toBeVisible(); await receipt.close();
         await page.screenshot({ path: fileURLToPath(new URL('../../../../outputs/FASE3B_ADMIN_DESKTOP.png', import.meta.url)), fullPage: true });
+        // No delivery event reached the client. A real transport reconnect must
+        // recover the released database order without reprinting it.
+        await page.getByRole('button', { name: 'Pedidos do Dia', exact: true }).click();
+        const recoveredRow = page.getByRole('row').filter({ has: page.getByRole('cell', { name: '#' + payment.pedido_id, exact: true }) });
+        await expect(recoveredRow).toHaveCount(0);
+        const previousSocket = [...io.of('/').sockets.values()][0];
+        const previousSocketId = previousSocket.id;
+        await new Promise(done => { previousSocket.once('disconnect', done); previousSocket.conn.close(); });
+        await expect.poll(() => [...io.of('/').sockets.keys()].some(id => id !== previousSocketId)).toBe(true);
+        await expect(recoveredRow).toBeVisible();
+        assert.equal(configReads, 0);
+        assert.equal(await page.evaluate(() => window.syntheticPrints), 0);
         deliveryFailure = false;
         await fixture.db('outbox_eventos').where({ pedido_id: payment.pedido_id }).update({ proxima_tentativa_em: new Date(0) });
         await runtime.processPending({ limit: 5 });
@@ -440,6 +564,14 @@ test('admin browser blocks stale unpaid printing and preserves release across so
         await expect(row).toBeVisible(); await row.getByTitle('Imprimir Comanda').click();
         await expect.poll(async () => page.evaluate(() => window.syntheticPrints)).toBe(1);
         assert.equal(configReads, 2);
+        await row.getByRole('button', { name: 'Detalhes', exact: true }).click();
+        const [detailReceipt] = await Promise.all([admin.waitForEvent('page'),
+            page.getByRole('button', { name: 'Ver comprovante de pagamento', exact: true }).last().click()]);
+        await expect(detailReceipt.getByRole('heading', { name: 'Comprovante sintético autorizado' })).toBeVisible();
+        await detailReceipt.close();
+        const detailHeader = page.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true }).locator('..').locator('..');
+        await detailHeader.getByRole('button').last().click();
+        assert.equal(await page.evaluate(() => window.syntheticPrints), 1);
         await page.setViewportSize({ width: 320, height: 760 });
         await page.getByRole('button', { name: 'Pagamentos InfinitePay', exact: true }).click();
         card = page.locator('article').filter({ hasText: 'Pedido #' + payment.pedido_id + ' ·' });

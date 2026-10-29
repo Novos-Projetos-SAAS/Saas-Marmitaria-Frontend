@@ -23,7 +23,11 @@ import {
 import styles from "./produtosForm.module.css";
 
 
-export default function ProdutosForm({
+export default function ProdutosForm(props) {
+    return <ProdutosFormContent key={JSON.stringify([props.mode, props.initialData])} {...props} />;
+}
+
+function ProdutosFormContent({
 
     initialData,
 
@@ -104,72 +108,14 @@ export default function ProdutosForm({
             true,
 
         disponivel_hoje:
-            initialData
-                ?.disponivel_hoje ??
-            true
+            initialData ? (initialData.disponivel_hoje ?? false) : true
     });
 
 
     /**
-     * Sincroniza os dados quando a API
-     * termina de carregar o produto.
+     * O registro e o modo definem a identidade do formulário.
      */
-    useEffect(() => {
 
-        if (!initialData) {
-            return;
-        }
-
-
-        setFormData({
-
-            id:
-                initialData.id ||
-                null,
-
-            nome:
-                initialData.nome ||
-                "",
-
-            categoria_produto_id:
-                initialData
-                    .categoria_produto_id ||
-                "",
-
-            descricao:
-                initialData.descricao ||
-                "",
-
-            preco:
-                initialData.preco ??
-                "",
-
-            ordem_exibicao:
-                initialData
-                    .ordem_exibicao ??
-                0,
-
-            ativo:
-                initialData.ativo ??
-                true,
-
-            disponivel_hoje:
-                initialData
-                    .disponivel_hoje ??
-                false
-        });
-
-
-        setIsEditable(
-
-            mode === "create" ||
-            mode === "edit"
-        );
-
-    }, [
-        initialData,
-        mode
-    ]);
 
 
     /**

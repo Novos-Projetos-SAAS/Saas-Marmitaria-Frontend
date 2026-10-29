@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
+
+import { useState, useCallback } from "react";
 import { buscarTamanhosMarmitasAdmin } from "../services/tamanhosMarmitasService.js";
 
 export function useTamanhosMarmitas() {
     const [tamanhos, setTamanhos] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [statusFilter, setStatusFilter] = useState("false");
@@ -13,8 +14,7 @@ export function useTamanhosMarmitas() {
     const [sortDirection, setSortDirection] = useState('ASC');
     const [search, setSearch] = useState("");
 
-    const carregarTamanhos = useCallback(async () => {
-        setLoading(true);
+    const consultarTamanhos = useCallback(async ({ signal } = {}) => {
 
         try {
             const response = await buscarTamanhosMarmitasAdmin(
@@ -24,15 +24,15 @@ export function useTamanhosMarmitas() {
                 sortColumn,
                 sortDirection
             );
+            if (signal?.aborted) return;
 
             setTamanhos(response?.data || []);
             setTotalPages(response?.pagination?.lastPage || 1);
             setPage(response?.pagination?.page || 1);
         } catch {
+            if (signal?.aborted) return;
             setTamanhos([]);
             setTotalPages(1);
-        } finally {
-            setLoading(false);
         }
     }, [
         search,
@@ -42,9 +42,7 @@ export function useTamanhosMarmitas() {
         sortDirection
     ]);
 
-    useEffect(() => {
-        carregarTamanhos();
-    }, [carregarTamanhos]);
+    const { loading, refresh: carregarTamanhos } = useAsyncLoad(consultarTamanhos);
 
     const handleSort = (column) => {
         const isSameColumn = sortColumn === column;

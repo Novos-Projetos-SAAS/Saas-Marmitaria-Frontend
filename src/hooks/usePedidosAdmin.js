@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
 
 import { alterarStatusPedidoAPI, listarPedidosAdmin } from '@/services/pedidosService.js';
 
 export function usePedidosAdmin() {
     const [pedidos, setPedidos] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
@@ -22,15 +22,14 @@ export function usePedidosAdmin() {
      * Consultas silenciosas disparadas pelo Socket não podem executar
      * simultaneamente, evitando requisições duplicadas.
      */
-    const carregarPedidos = useCallback(async (options = {}) => {
+    const consultarPedidos = useCallback(async (options = {}) => {
         const silencioso = options?.silencioso === true;
+        const { signal } = options;
 
         if (silencioso && carregandoSilenciosoRef.current) return;
 
         if (silencioso) {
             carregandoSilenciosoRef.current = true;
-        } else {
-            setLoading(true);
         }
 
         try {
@@ -39,10 +38,12 @@ export function usePedidosAdmin() {
                 search,
                 status: statusFilter
             });
+            if (signal?.aborted) return;
 
             setPedidos(response.data || []);
             setTotalPages(response?.pagination?.totalPages || 1);
         } catch (error) {
+            if (signal?.aborted) return;
             if (!silencioso) {
                 if (error?.response?.status === 429) {
                     toast.error(error?.response?.data?.message || 'Muitas solicitações foram realizadas. Aguarde alguns instantes.');
@@ -53,8 +54,6 @@ export function usePedidosAdmin() {
         } finally {
             if (silencioso) {
                 carregandoSilenciosoRef.current = false;
-            } else {
-                setLoading(false);
             }
         }
     }, [page, search, statusFilter]);
@@ -63,9 +62,7 @@ export function usePedidosAdmin() {
      * Busca inicial e atualização quando página, pesquisa
      * ou filtro forem modificados.
      */
-    useEffect(() => {
-        carregarPedidos();
-    }, [carregarPedidos]);
+    const { loading, refresh: carregarPedidos } = useAsyncLoad(consultarPedidos);
 
     /**
      * Atualizações recebidas pelo Socket são agrupadas por alguns

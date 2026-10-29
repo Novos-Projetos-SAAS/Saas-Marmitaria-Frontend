@@ -1,8 +1,9 @@
 "use client";
 
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
+
 import {
     useState,
-    useEffect,
     useCallback
 } from "react";
 
@@ -19,10 +20,6 @@ export function useCategoriasProdutos() {
     ] = useState([]);
 
 
-    const [
-        loading,
-        setLoading
-    ] = useState(true);
 
 
     const [
@@ -67,11 +64,8 @@ export function useCategoriasProdutos() {
     );
 
 
-    const carregarLista =
-        useCallback(
-            async () => {
-
-                setLoading(true);
+    const consultarLista = useCallback(
+            async ({ signal } = {}) => {
 
 
                 try {
@@ -91,6 +85,7 @@ export function useCategoriasProdutos() {
                             order:
                                 sortDirection
                         });
+                    if (signal?.aborted) return;
 
 
                     setCategorias(
@@ -115,15 +110,13 @@ export function useCategoriasProdutos() {
                     );
 
                 } catch (error) {
+                    if (signal?.aborted) return;
 
                     console.error(
                         "Erro ao carregar categorias de produtos:",
                         error
                     );
 
-                } finally {
-
-                    setLoading(false);
                 }
 
             },
@@ -137,13 +130,7 @@ export function useCategoriasProdutos() {
         );
 
 
-    useEffect(() => {
-
-        carregarLista();
-
-    }, [
-        carregarLista
-    ]);
+    const { loading, refresh: carregarLista } = useAsyncLoad(consultarLista);
 
 
     const handleSort = (

@@ -508,7 +508,7 @@
 // }
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Edit, Save } from "lucide-react";
 
 import InputForm from "@/components/ui/inputForm/inputForm.jsx";
@@ -516,14 +516,18 @@ import Can from "@/components/ui/can/index.jsx";
 
 import styles from "../produtos/produtosForm.module.css";
 
-export default function CategoriasProdutosForm({
+export default function CategoriasProdutosForm(props) {
+    return <CategoriasProdutosFormContent key={JSON.stringify([props.mode, props.initialData])} {...props} />;
+}
+
+function CategoriasProdutosFormContent({
     initialData,
     mode = "create",
     onSave,
     onCancel
 }) {
     const [loading, setLoading] = useState(false);
-    const [isEditable, setIsEditable] = useState(mode === "create" || mode === "edit");
+    const [isEditable, setIsEditable] = useState(initialData ? mode === "edit" : mode === "create" || mode === "edit");
     const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
@@ -533,20 +537,6 @@ export default function CategoriasProdutosForm({
         ordem_exibicao: initialData?.ordem_exibicao ?? 0,
         ativo: initialData?.ativo ?? true
     });
-
-    useEffect(() => {
-        if (!initialData) return;
-
-        setFormData({
-            id: initialData.id,
-            nome: initialData.nome || "",
-            descricao: initialData.descricao || "",
-            ordem_exibicao: initialData.ordem_exibicao ?? 0,
-            ativo: initialData.ativo ?? true
-        });
-
-        setIsEditable(mode === "edit");
-    }, [initialData, mode]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;

@@ -55,23 +55,31 @@ async function boundedJson(stream, limit) {
 export async function handleCheckout(request, action, { backendUrl, siteOrigin, fetchImpl = fetch, allowLoopback = false } = {}) {
     let backend, origin;
     try { backend = configuredUrl(backendUrl, allowLoopback); origin = configuredUrl(siteOrigin, allowLoopback); } catch { return fail(503); }
-    if (!['sessao','status','pedido','retomar','nova-compra'].includes(action)) return fail(404);
-    const write = action !== 'status';
+    if (!['sessao','status','pedido','retomar','nova-compra','acompanhamento'].includes(action)) return fail(404);
+    const write = !['status','acompanhamento'].includes(action);
     if (request.method !== (write ? 'POST' : 'GET')) return fail(405);
     if (request.headers.get('sec-fetch-site') === 'cross-site') return fail(403);
     if (write && request.headers.get('origin') !== origin) return fail(403);
     if (write && request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') return fail(415);
     try {
-        const owner = cookie(request, ownerCookie), storedRef = cookie(request, statusCookie);
-        const requestId = new URL(request.url).searchParams.get('requisicao');
-        const ref = request.headers.get('X-Checkout-Status') || (!requestId ? storedRef : undefined);
+        const ownerOnlyHeader = request.headers.get('X-Checkout-Owner-Only');
+        if (ownerOnlyHeader !== null && (action !== 'status' || ownerOnlyHeader !== '1')) return fail(400);
+        const ownerOnly = ownerOnlyHeader === '1';
+        const owner = cookie(request, ownerCookie), storedRef = ownerOnly ? undefined : cookie(request, statusCookie);
+        if (ownerOnly && !owner) return fail(404);
+        const params = new URL(request.url).searchParams;
+        const orderId = params.get('pedido');
+        if (action === 'acompanhamento' && (params.getAll('pedido').length !== 1 ||
+            [...params.keys()].some(key => key !== 'pedido') || !/^[1-9]\d{0,9}$/.test(orderId ?? '') || Number(orderId) > 2147483647)) return fail(400);
+        const requestId = params.get('requisicao');
+        const ref = ownerOnly ? undefined : request.headers.get('X-Checkout-Status') || (!requestId ? storedRef : undefined);
         if (requestId !== null && !uuid(requestId) || ref && !opaque(ref)) return fail(400);
         if (action !== 'sessao' && !owner && !(action === 'status' && ref)) return fail(404);
         const csrf = request.headers.get('X-Checkout-CSRF');
         if (write && action !== 'sessao' && !opaque(csrf)) return fail(403);
         const headers = { 'Content-Type': 'application/json', ...(owner ? { Authorization: 'Bearer ' + owner } : {}),
             ...(csrf ? { 'X-Checkout-CSRF': csrf } : {}) };
-        const path = action === 'sessao' ? '/pagamentos/sessao' : action === 'status'
+        const path = action === 'acompanhamento' ? '/pagamentos/sessao/pedido/' + orderId : action === 'sessao' ? '/pagamentos/sessao' : action === 'status'
             ? ref ? (owner ? '/pagamentos/sessao/retorno?ref=' : '/pagamentos/consulta?ref=') + ref : '/pagamentos/sessao/pedido' + (requestId ? '?requisicao=' + requestId : '')
             : '/pagamentos/sessao/' + action;
         const input = write ? await boundedJson(request.body, 65536) : undefined;

@@ -1,8 +1,11 @@
-export async function requestCheckout(action, body, csrf, requestId, { signal, statusRef } = {}) {
+export { requestOwnedOrder } from './ownedOrder.mjs';
+
+export async function requestCheckout(action, body, csrf, requestId, { signal, statusRef, ownerOnly = false } = {}) {
     const response = await fetch('/api/checkout/' + action + (requestId ? '?requisicao=' + encodeURIComponent(requestId) : ''), {
         method: action === 'status' ? 'GET' : 'POST', credentials: 'same-origin', cache: 'no-store', referrerPolicy: 'no-referrer',
         headers: { ...(action !== 'status' ? { 'Content-Type': 'application/json' } : {}),
-            ...(csrf ? { 'X-Checkout-CSRF': csrf } : {}), ...(statusRef ? { 'X-Checkout-Status': statusRef } : {}) },
+            ...(csrf ? { 'X-Checkout-CSRF': csrf } : {}), ...(statusRef ? { 'X-Checkout-Status': statusRef } : {}),
+            ...(ownerOnly === true ? { 'X-Checkout-Owner-Only': '1' } : {}) },
         ...(action !== 'status' ? { body: JSON.stringify(body ?? {}) } : {}), signal
     });
     const result = await response.json();

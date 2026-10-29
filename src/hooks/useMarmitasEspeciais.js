@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
+
+import { useCallback, useState } from "react";
 import { buscarMarmitasEspeciaisAdmin } from "@/services/marmitasEspeciaisService.js";
 
 export function useMarmitasEspeciais() {
     const [marmitas, setMarmitas] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [statusFilter, setStatusFilterState] = useState("todos");
@@ -13,8 +14,7 @@ export function useMarmitasEspeciais() {
     const [sortDirection, setSortDirection] = useState("DESC");
     const [search, setSearchState] = useState("");
 
-    const carregarMarmitas = useCallback(async () => {
-        setLoading(true);
+    const consultarMarmitas = useCallback(async ({ signal } = {}) => {
 
         try {
             const response = await buscarMarmitasEspeciaisAdmin(
@@ -24,21 +24,19 @@ export function useMarmitasEspeciais() {
                 sortColumn,
                 sortDirection
             );
+            if (signal?.aborted) return;
 
             setMarmitas(response?.data || []);
             setTotalPages(response?.pagination?.lastPage || 1);
             setPage(response?.pagination?.page || 1);
         } catch {
+            if (signal?.aborted) return;
             setMarmitas([]);
             setTotalPages(1);
-        } finally {
-            setLoading(false);
         }
     }, [search, page, statusFilter, sortColumn, sortDirection]);
 
-    useEffect(() => {
-        carregarMarmitas();
-    }, [carregarMarmitas]);
+    const { loading, refresh: carregarMarmitas } = useAsyncLoad(consultarMarmitas);
 
     const handleSort = (column) => {
         const isSameColumn = sortColumn === column;

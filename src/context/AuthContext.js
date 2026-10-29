@@ -3,6 +3,7 @@
 import { createContext, useState, useEffect, useContext, useCallback } from "react";
 
 import Cookies from "js-cookie";
+import toast from 'react-hot-toast';
 
 import { getMe, logout } from "@/services/authService.js";
 
@@ -23,18 +24,16 @@ export function AuthProvider({ children }) {
         try {
             // 1. Bate na rota do backend para invalidar a sessão/token
             await logout();
-        } catch (error) {
-            console.error("Erro ao invalidar sessão no servidor:", error);
-        } finally {
-            // 2. O 'finally' garante que o frontend será limpo de qualquer forma
-            Cookies.remove('role', { path: '/' });
-            Cookies.remove('is_logged', { path: '/' });
-            localStorage.removeItem('user');
-
-            setUser(null);
-            // router.push('/auth/login');
-            window.location.href = '/auth/login';
+        } catch {
+            toast.error('Não foi possível encerrar a sessão. Tente novamente.');
+            return false;
         }
+        Cookies.remove('role', { path: '/' });
+        Cookies.remove('is_logged', { path: '/' });
+        localStorage.removeItem('user');
+        setUser(null);
+        window.location.href = '/auth/login';
+        return true;
     }, [])
 
     const buscarDadosUsuario = useCallback(async () => {

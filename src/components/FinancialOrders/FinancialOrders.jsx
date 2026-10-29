@@ -4,6 +4,8 @@ import { listarPedidosFinanceiros, buscarComprovanteAdmin } from '@/services/ped
 import toast from 'react-hot-toast';
 import styles from './FinancialOrders.module.css';
 import { validateReceiptUrl } from '@/services/adminReceipt.mjs';
+import { useAuthContext } from '@/context/AuthContext.js';
+import { useAdminReconciliation } from '@/hooks/useAdminReconciliation.js';
 
 function label(order) {
     if (order.pagamento_status === 'ESTORNADA') return 'Pagamento estornado';
@@ -14,6 +16,9 @@ function label(order) {
     return 'Pagamento não confirmado';
 }
 export default function FinancialOrders() {
+    const { permissoes } = useAuthContext();
+    const mayReconcile = permissoes.includes('pagamentos.conciliar');
+    const reconciliation = useAdminReconciliation(mayReconcile);
     const [orders, setOrders] = useState([]), [error, setError] = useState(false), [version, setVersion] = useState(0);
     const [receipts, setReceipts] = useState({});
     async function receipt(order) {
@@ -39,6 +44,12 @@ export default function FinancialOrders() {
             <span>{label(order)}</span>
             <span>R$ {Number(order.valor_total).toFixed(2).replace('.', ',')}</span>
             <small>{order.cozinha_autorizada ? 'Operação autorizada pelo Backend.' : 'Preparo e impressão bloqueados.'}</small>
+            {mayReconcile && ['INCERTA', 'DIVERGENTE'].includes(order.pagamento_status) && (
+                <button type="button" disabled={reconciliation.pendingId !== null}
+                    onClick={async () => { if (await reconciliation.request(order)) setVersion(value => value + 1); }}>
+                    {reconciliation.pendingId === order.pedido_id ? 'Solicitando verificação...' : 'Solicitar conciliação'}
+                </button>
+            )}
             {order.comprovante_disponivel && (receipts[order.pedido_id]
                 ? <a href={receipts[order.pedido_id]} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Abrir comprovante autorizado</a>
                 : <button type="button" onClick={() => receipt(order)}>Consultar comprovante</button>)}

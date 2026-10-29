@@ -1,28 +1,26 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
+
+import { useCallback, useState } from 'react';
 import { buscarDadosEmpresaPublicos } from '@/services/dadosEmpresaService.js';
 
 export const useDadosEmpresaPublicos = () => {
     const [dados, setDados] = useState(null);
-    const [loadingDados, setLoadingDados] = useState(true);
 
-    const carregarDados = useCallback(async () => {
-        setLoadingDados(true);
+    const consultarDados = useCallback(async ({ signal } = {}) => {
 
         try {
             const response = await buscarDadosEmpresaPublicos();
+            if (signal?.aborted) return;
             setDados(response?.data || null);
         } catch {
+            if (signal?.aborted) return;
             setDados(null);
-        } finally {
-            setLoadingDados(false);
         }
     }, []);
 
-    useEffect(() => {
-        carregarDados();
-    }, [carregarDados]);
+    const { loading: loadingDados, refresh: carregarDados } = useAsyncLoad(consultarDados);
 
     return {
         dados,

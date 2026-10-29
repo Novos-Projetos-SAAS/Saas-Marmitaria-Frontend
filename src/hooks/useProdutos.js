@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
+
+import { useState, useCallback } from "react";
 import { buscarProdutosAdmin } from "@/services/produtosService.js";
 
 export function useProdutos() {
     const [produtos, setProdutos] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
@@ -15,8 +16,7 @@ export function useProdutos() {
     const [sortColumn, setSortColumn] = useState("ordem_exibicao");
     const [sortDirection, setSortDirection] = useState("ASC");
 
-    const carregarLista = useCallback(async () => {
-        setLoading(true);
+    const consultarLista = useCallback(async ({ signal } = {}) => {
 
         try {
             const response = await buscarProdutosAdmin({
@@ -28,15 +28,15 @@ export function useProdutos() {
                 sort: sortColumn,
                 order: sortDirection
             });
+            if (signal?.aborted) return;
 
             setProdutos(response?.data || []);
             setTotalPages(response?.pagination?.last_page || 1);
             setPage(response?.pagination?.page || 1);
         } catch {
+            if (signal?.aborted) return;
             setProdutos([]);
             setTotalPages(1);
-        } finally {
-            setLoading(false);
         }
     }, [
         search,
@@ -48,9 +48,7 @@ export function useProdutos() {
         sortDirection
     ]);
 
-    useEffect(() => {
-        carregarLista();
-    }, [carregarLista]);
+    const { loading, refresh: carregarLista } = useAsyncLoad(consultarLista);
 
     const handleSort = (column) => {
         const isSameColumn = sortColumn === column;

@@ -68,6 +68,10 @@ export default function NotificationListener() {
             window.dispatchEvent(new CustomEvent('marmitaria:pedidos-atualizados'));
         });
 
+        socket.on('connect', () => {
+            window.dispatchEvent(new CustomEvent('marmitaria:pedidos-atualizados'));
+        });
+
         socket.on('connect_error', error => {
             console.warn('Socket administrativo indisponível:', error.message);
         });

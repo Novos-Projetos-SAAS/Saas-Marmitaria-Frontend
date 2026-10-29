@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Edit, Save } from "lucide-react";
 
 import Can from "@/components/ui/can";
@@ -8,7 +8,11 @@ import InputForm from "@/components/ui/inputForm/inputForm.jsx";
 
 import styles from "./marmitasEspeciaisForm.module.css";
 
-export default function MarmitasEspeciaisForm({
+export default function MarmitasEspeciaisForm(props) {
+    return <MarmitasEspeciaisFormContent key={JSON.stringify([props.mode, props.initialData])} {...props} />;
+}
+
+function MarmitasEspeciaisFormContent({
     initialData,
     mode = "create",
     onSave,
@@ -24,20 +28,6 @@ export default function MarmitasEspeciaisForm({
         preco: initialData?.preco ?? "",
         ativo: initialData?.ativo ?? true
     });
-
-    useEffect(() => {
-        if (!initialData) return;
-
-        setFormData({
-            id: initialData.id || null,
-            nome: initialData.nome || "",
-            descricao: initialData.descricao || "",
-            preco: initialData.preco ?? "",
-            ativo: initialData.ativo ?? true
-        });
-
-        setIsEditable(mode === "create" || mode === "edit");
-    }, [initialData, mode]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;

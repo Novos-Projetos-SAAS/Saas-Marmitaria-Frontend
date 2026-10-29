@@ -1059,6 +1059,7 @@ import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 
 import { buscarStatusLoja } from '@/services/lojaService.js';
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
 
 const PedidoContext = createContext();
 
@@ -1072,7 +1073,6 @@ export function PedidoProvider({ children }) {
     const [sucessoPedido, setSucessoPedido] = useState(false);
     const [finalizando, setFinalizando] = useState(false);
     const [lojaAbertaPedido, setLojaAbertaPedido] = useState(null);
-    const [verificandoLojaPedido, setVerificandoLojaPedido] = useState(true);
     const fechamentoNotificadoRef = useRef(false);
     const pedidoEmAndamentoRef = useRef(false);
 
@@ -1114,13 +1114,13 @@ export function PedidoProvider({ children }) {
      * Consulta o status real da loja.
      * Falha de conexão não é tratada como loja fechada.
      */
-    const verificarLojaAgora = useCallback(async (options = {}) => {
-        const { silencioso = true, notificarFechamento = true } = options;
+    const consultarLojaAgora = useCallback(async (options = {}) => {
+        const { signal, initial = false, notificarFechamento = !initial } = options;
+        if (areaAdministrativa && initial) return null;
 
         try {
-            if (!silencioso) setVerificandoLojaPedido(true);
-
             const statusAtual = await buscarStatusLoja();
+            if (signal?.aborted) return null;
 
             if (typeof statusAtual === 'boolean') {
                 aplicarStatusLojaLocal(statusAtual, { notificarFechamento });
@@ -1129,10 +1129,13 @@ export function PedidoProvider({ children }) {
             return statusAtual;
         } catch {
             return null;
-        } finally {
-            if (!silencioso) setVerificandoLojaPedido(false);
         }
-    }, [aplicarStatusLojaLocal]);
+    }, [areaAdministrativa, aplicarStatusLojaLocal]);
+
+    const { loading: verificandoStatusLoja, refresh: recarregarStatusLoja } = useAsyncLoad(consultarLojaAgora);
+    const verificarLojaAgora = useCallback((options = {}) =>
+        recarregarStatusLoja({ silencioso: true, ...options }), [recarregarStatusLoja]);
+    const verificandoLojaPedido = !areaAdministrativa && verificandoStatusLoja;
 
     /**
      * Validação HTTP utilizada antes das ações críticas do pedido.
@@ -1156,12 +1159,7 @@ export function PedidoProvider({ children }) {
      * O polling de 60 segundos funciona somente como fallback.
      */
     useEffect(() => {
-        if (areaAdministrativa) {
-            setVerificandoLojaPedido(false);
-            return;
-        }
-
-        verificarLojaAgora({ silencioso: false, notificarFechamento: false });
+        if (areaAdministrativa) return;
 
         const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333').replace(/\/$/, '');
         const socket = io(`${apiUrl}/publico`, { withCredentials: true });

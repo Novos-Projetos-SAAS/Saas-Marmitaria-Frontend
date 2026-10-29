@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
+
+import { useState, useCallback } from 'react';
 import {
     buscarDadosEmpresa,
     atualizarDadosEmpresa
@@ -10,14 +12,13 @@ import Swal from 'sweetalert2';
 
 export const useDadosEmpresa = () => {
     const [dados, setDados] = useState(null);
-    const [loadingDados, setLoadingDados] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    const carregarDados = useCallback(async () => {
-        setLoadingDados(true);
+    const consultarDados = useCallback(async ({ signal } = {}) => {
 
         try {
             const response = await buscarDadosEmpresa();
+            if (signal?.aborted) return;
 
             const empresa =
                 response?.data?.data ??
@@ -27,6 +28,7 @@ export const useDadosEmpresa = () => {
 
             setDados(empresa);
         } catch (error) {
+            if (signal?.aborted) return;
             setDados(null);
 
             Swal.fire({
@@ -35,14 +37,10 @@ export const useDadosEmpresa = () => {
                 text: 'Não foi possível carregar as configurações da empresa.',
                 confirmButtonColor: '#a54b3c'
             });
-        } finally {
-            setLoadingDados(false);
         }
     }, []);
 
-    useEffect(() => {
-        carregarDados();
-    }, [carregarDados]);
+    const { loading: loadingDados, refresh: carregarDados } = useAsyncLoad(consultarDados);
 
     const salvarDados = async (payload) => {
         setSaving(true);

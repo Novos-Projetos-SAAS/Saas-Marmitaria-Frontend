@@ -226,7 +226,6 @@ export default function Montagem() {
 
     useEffect(() => {
         if (lojaAbertaPedido === false) {
-            setModalAberto(false);
             router.replace('/');
             return;
         }

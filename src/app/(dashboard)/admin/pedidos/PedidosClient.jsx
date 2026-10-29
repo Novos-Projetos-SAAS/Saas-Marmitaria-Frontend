@@ -593,6 +593,13 @@ export default function PedidosClient() {
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        {pedidoSelecionado.comprovante_disponivel === true && <Can perform="pagamentos.visualizar">
+                                            <button type="button" className={styles.btnComprovante}
+                                                title="Ver comprovante de pagamento" aria-label="Ver comprovante de pagamento"
+                                                disabled={receipt.opening !== null} onClick={() => receipt.open(pedidoSelecionado.id)}>
+                                                <ReceiptText size={18} />
+                                            </button>
+                                        </Can>}
                                         <button className={styles.btnImprimirModal} onClick={() => handleImprimirPedido(pedidoSelecionado)}>
                                             <Printer size={18} /> Imprimir
                                         </button>

@@ -517,8 +517,6 @@ export default function Carrinho() {
 
     useEffect(() => {
         if (lojaAbertaPedido === false) {
-            setIndisponibilidade(null);
-            setModalIndisponibilidadeAberto(false);
             router.replace('/');
         }
     }, [lojaAbertaPedido, router]);
@@ -1060,7 +1058,7 @@ export default function Carrinho() {
                 </button>
             </form>
 
-            {modalIndisponibilidadeAberto && indisponibilidade && (
+            {lojaAbertaPedido === true && modalIndisponibilidadeAberto && indisponibilidade && (
                 <div className={styles.modalIndisponibilidadeOverlay}>
                     <div className={styles.modalIndisponibilidade} role="dialog" aria-modal="true" aria-labelledby="titulo-indisponibilidade">
                         <div className={styles.modalIndisponibilidadeHeader}>

@@ -2,25 +2,24 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAsyncLoad } from '@/hooks/useAsyncLoad.js';
 
 import { alterarStatusLoja, buscarStatusLoja } from '@/services/lojaService.js';
 
 export function useLoja() {
     const [statusLoja, setStatusLoja] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [atualizando, setAtualizando] = useState(false);
 
     /**
      * Consulta o status atual diretamente no Backend.
      * Falha de conexão nunca é interpretada como loja fechada.
      */
-    const carregarStatus = useCallback(async (options = {}) => {
-        const { silencioso = false } = options;
+    const consultarStatus = useCallback(async (options = {}) => {
+        const { silencioso = false, signal } = options;
 
         try {
-            if (!silencioso) setLoading(true);
-
             const statusAtual = await buscarStatusLoja();
+            if (signal?.aborted) return null;
 
             if (typeof statusAtual !== 'boolean') {
                 return null;
@@ -30,22 +29,21 @@ export function useLoja() {
 
             return statusAtual;
         } catch (error) {
+            if (signal?.aborted) return null;
             if (!silencioso) {
                 toast.error(error?.response?.data?.message || 'Não foi possível confirmar o status da loja.');
             }
 
             return null;
-        } finally {
-            if (!silencioso) setLoading(false);
         }
     }, []);
+
+    const { loading, refresh: carregarStatus } = useAsyncLoad(consultarStatus);
 
     /**
      * Busca inicial e fallback de 60 segundos.
      */
     useEffect(() => {
-        carregarStatus();
-
         const intervalId = window.setInterval(() => {
             if (document.visibilityState === 'visible') {
                 carregarStatus({ silencioso: true });

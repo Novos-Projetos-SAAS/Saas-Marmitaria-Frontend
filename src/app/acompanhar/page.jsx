@@ -1,63 +1,16 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { usePedidos } from '@/hooks/usePedidos';
-import { Clock, ChefHat, Bike, CheckCircle2, Search, ArrowLeft, Package, Store, XCircle } from 'lucide-react';
+import { useCustomerTracking } from '@/hooks/useCustomerTracking.js';
+import { Clock, ChefHat, Bike, CheckCircle2, Search, ArrowLeft, Store, XCircle } from 'lucide-react';
 
 import TelefoneInput from '@/components/ui/inputMask/index.jsx';
 import styles from './page.module.css';
-import InputForm from '@/components/ui/inputForm/inputForm';
+import paymentStyles from '../pedido/sucesso/page.module.css';
 
 export default function AcompanharPedido() {
     const router = useRouter();
-    const [telefone, setTelefone] = useState('');
-    const [pedidos, setPedidos] = useState([]);
-    const [erro, setErro] = useState('');
-
-    const { buscarPedidoPorTelefoneUsuario, buscando } = usePedidos();
-
-    const fazerBusca = async (telefoneBusca) => {
-        setErro('');
-
-        const telefoneLimpo = String(telefoneBusca || '').replace(/\D/g, '');
-
-        if (!telefoneLimpo) {
-            setPedidos([]);
-            setErro('Digite seu número de telefone para consultar os pedidos.');
-            return;
-        }
-
-        if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
-            setPedidos([]);
-            setErro('Informe um telefone válido com DDD.');
-            return;
-        }
-
-        const response = await buscarPedidoPorTelefoneUsuario(telefoneLimpo);
-
-        if (response && response.status === 'success' && response.data.length > 0) {
-            setPedidos(response.data);
-        } else {
-            setPedidos([]);
-            setErro('Nenhum pedido encontrado para este telefone.');
-        }
-    };
-
-    useEffect(() => {
-        setTimeout(() => {
-            const telefoneSalvo = localStorage.getItem('marmitaria_telefone_cliente');
-            if (telefoneSalvo) {
-                setTelefone(telefoneSalvo);
-                fazerBusca(telefoneSalvo);
-            }
-        }, 0);
-    }, []);
-
-    const handleBusca = (e) => {
-        e.preventDefault();
-        fazerBusca(telefone);
-    };
+    const { telefone, setTelefone, pedidos, erro, buscando, buscar: handleBusca } = useCustomerTracking();
 
     const getStatusIndex = (statusAtual) => {
         if (!statusAtual) return -1;
@@ -118,7 +71,7 @@ export default function AcompanharPedido() {
 
             {erro && <p className={styles.erro}>{erro}</p>}
 
-            {buscando && pedidos.length === 0 && <div className={styles.loading}>Consultando a cozinha...</div>}
+            {buscando && pedidos.length === 0 && <div className={styles.loading}>Consultando pedidos...</div>}
 
             {pedidos.length > 0 && !buscando && (
                 <div className={styles.listaPedidos}>
@@ -129,15 +82,27 @@ export default function AcompanharPedido() {
                             <div className={styles.cardHeader}>
                                 <div>
                                     <h2>Pedido #{pedido.id}</h2>
-                                    <span>{formatarData(pedido.criado_em)} às {formatarHora(pedido.criado_em)}</span>
+                                    {pedido.criado_em && <span>{formatarData(pedido.criado_em)} às {formatarHora(pedido.criado_em)}</span>}
+                                    {pedido.somenteTitular && <span>Pedido deste navegador</span>}
                                 </div>
                                 <div className={`${styles.badgeStatus} ${getBadgeClass(pedido.status)}`}>
                                     {pedido.status}
                                 </div>
                             </div>
 
+                            {pedido.pagamentoTitular && (
+                                <div className={styles.itensResumo}>
+                                    <h3>{pedido.pagamentoTitular.title}</h3>
+                                    <p>{pedido.pagamentoTitular.message}</p>
+                                    {pedido.pagamentoTitular.receiptUrl && (
+                                        <a href={pedido.pagamentoTitular.receiptUrl} target="_blank" rel="noopener noreferrer"
+                                            referrerPolicy="no-referrer" className={paymentStyles.btnSecondary}>Ver comprovante</a>
+                                    )}
+                                </div>
+                            )}
+
                             {/* LINHA DO TEMPO / CANCELADO */}
-                            {pedido.status.toLowerCase() === 'cancelado' ? (
+                            {!pedido.somenteTitular && (pedido.status.toLowerCase() === 'cancelado' ? (
                                 <div className={styles.alertaCancelado}>
                                     <XCircle size={32} />
                                     <p>Este pedido foi cancelado.</p>
@@ -159,10 +124,10 @@ export default function AcompanharPedido() {
 
                                     <EtapaTimeline icone={<CheckCircle2 />} titulo="Entregue" ativo={getStatusIndex(pedido.status) >= 3} />
                                 </div>
-                            )}
+                            ))}
 
                             {/* RESUMO DOS ITENS */}
-                            <div className={styles.itensResumo}>
+                            {!pedido.somenteTitular && <div className={styles.itensResumo}>
                                 <h3>Resumo do Pedido</h3>
 
                                 {/* MARMITAS */}
@@ -212,7 +177,7 @@ export default function AcompanharPedido() {
                                         </span>
                                     </div>
                                 ))}
-                            </div>
+                            </div>}
 
                             {/* RODAPÉ COM TOTAL */}
                             <div className={styles.cardFooter}>
