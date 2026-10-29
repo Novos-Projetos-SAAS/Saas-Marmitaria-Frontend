@@ -672,6 +672,9 @@ test('report browser keeps size/special adjacency and exports financial PDF and 
     try {
         await page.goto(origin + '/admin/relatorios');
         await expect(page.getByRole('heading', { name: 'Painel de Relatórios' })).toBeVisible();
+        await expect(page.getByRole('row').filter({hasText:'Vendas por Tamanho de Marmita'})).toBeVisible();
+        await expect(page.getByRole('row').filter({hasText:'Vendas de Marmitas Especiais'})).toBeVisible();
+        await expect(page.getByRole('row').filter({hasText:'Pagamentos InfinitePay'})).toBeVisible();
         const rows = await page.getByRole('row').allTextContents();
         assert.equal(rows.findIndex(r => r.includes('Vendas de Marmitas Especiais')), rows.findIndex(r => r.includes('Vendas por Tamanho de Marmita')) + 1);
         for (const type of ['Excel','PDF']) {
