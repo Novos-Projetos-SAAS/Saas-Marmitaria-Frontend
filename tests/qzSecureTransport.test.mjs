@@ -73,18 +73,18 @@ function fixture(overrides = {}) {
     return { transport, api, qz, hooks, approved, requests, prints, messages, signedCall, sign, connections: () => connections };
 }
 
-test('signing mode defaults to legacy and invalid configuration is fail-closed', async () => {
+test('candidate printing defaults to disabled and secure-test is never a production mode', async () => {
     assert.equal(typeof implementation.resolveQzSigningMode, 'function');
-    assert.equal(implementation.resolveQzSigningMode(undefined), 'legacy');
-    assert.equal(implementation.resolveQzSigningMode('legacy'), 'legacy');
-    assert.equal(implementation.resolveQzSigningMode('secure-test'), 'secure-test');
-    for (const value of ['', 'secure', 'production', null]) assert.equal(implementation.resolveQzSigningMode(value), 'invalid');
+    for(const env of [undefined,'production','development','unknown'])for(const mode of [undefined,'legacy','secure-test','invalid',''])
+        assert.equal(implementation.resolveQzSigningMode(mode,env),'disabled',`${env}/${mode}`);
+    assert.equal(implementation.resolveQzSigningMode('secure-test','test'),'secure-test');
+    assert.equal(implementation.resolveQzSigningMode('legacy','test'),'disabled');
 });
 
 let serviceImport = 0;
-async function loadService(mode, f, action) {
+async function loadService(mode, f, action, environment='test') {
     const key = '__qzServiceFixture' + serviceImport++, previous = {};
-    const env = { NEXT_PUBLIC_QZ_SIGNING_MODE: mode, NEXT_PUBLIC_QZ_STATION_ID: stationId, NEXT_PUBLIC_QZ_CERTIFICATE: 'SYNTHETIC PUBLIC CERTIFICATE' };
+    const env = { NODE_ENV:environment, NEXT_PUBLIC_QZ_SIGNING_MODE: mode, NEXT_PUBLIC_QZ_STATION_ID: stationId, NEXT_PUBLIC_QZ_CERTIFICATE: 'SYNTHETIC PUBLIC CERTIFICATE' };
     for (const [name, value] of Object.entries(env)) {
         previous[name] = process.env[name];
         if (value === undefined) delete process.env[name]; else process.env[name] = value;
@@ -107,26 +107,28 @@ async function loadService(mode, f, action) {
     }
 }
 
-test('real qzService keeps legacy opt-out and blocks anonymous signing in secure or invalid modes', async () => {
+test('real qzService never uses legacy signing and only enables the isolated secure test transport', async () => {
     for (const mode of [undefined, 'legacy', 'secure-test', 'typo-secure']) {
         const f = fixture();
         await loadService(mode, f, async service => {
-            const legacy = mode === undefined || mode === 'legacy';
-            assert.equal(service.qzSigningSecureEnabled, !legacy);
-            if (legacy) {
-                f.api.post = async (path, body) => {
-                    assert.equal(path, '/qz/assinar'); assert.deepEqual(body, { request: 'LEGACY-HASH' });
-                    return { data: signature };
-                };
-                assert.equal(await f.sign('LEGACY-HASH'), signature);
-            } else {
+            assert.equal(service.qzPrintingEnabled,mode==='secure-test');
                 await assert.rejects(f.sign('a'.repeat(64)));
                 if (mode === 'secure-test') await service.imprimirCupom('UNTRUSTED BROWSER HTML', printer, { pedidoId: 7 });
                 else await assert.rejects(service.imprimirCupom('', printer, { pedidoId: 7 }));
                 assert.equal(f.requests.some(x => x.path === '/qz/assinar' && !x.body.intentId), false);
                 assert.equal(f.requests.filter(x => x.path === '/qz/documento').length, mode === 'secure-test' ? 1 : 0);
-            }
         });
+    }
+});
+
+test('production qzService cannot connect, sign or print despite complete public test configuration',async()=>{
+    for(const mode of [undefined,'legacy','secure-test']) {
+        const f=fixture();
+        await loadService(mode,f,async service=>{
+            assert.equal(service.qzPrintingEnabled,false);
+            await assert.rejects(service.conectarQZ());await assert.rejects(service.imprimirCupom('',printer,{pedidoId:7}));
+            assert.equal(f.connections(),0);assert.deepEqual(f.requests,[]);assert.deepEqual(f.prints,[]);
+        },'production');
     }
 });
 

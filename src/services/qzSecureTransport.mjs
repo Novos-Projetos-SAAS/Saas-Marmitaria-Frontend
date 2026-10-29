@@ -13,9 +13,8 @@ const canonical = value => JSON.stringify(value, function (_key, item) {
     return record(item) ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item;
 });
 
-export function resolveQzSigningMode(value) {
-    if (value === undefined || value === 'legacy') return 'legacy';
-    return value === 'secure-test' ? 'secure-test' : 'invalid';
+export function resolveQzSigningMode(value, environment = process.env.NODE_ENV) {
+    return environment === 'test' && value === 'secure-test' ? 'secure-test' : 'disabled';
 }
 
 // This transport is opt-in for a guarded test backend. The station identifier is

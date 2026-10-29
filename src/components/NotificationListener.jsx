@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { buscarDadosEmpresa } from '@/services/dadosEmpresaService.js';
-import { imprimirCupom, qzSigningSecureEnabled } from '@/services/qzService.js';
+import { imprimirCupom, qzPrintingEnabled } from '@/services/qzService.js';
 import CupomPedido from '@/components/CupomPedido/cupomPedido';
 import { operationallyAllowed, authorizePrintOrder } from '@/services/checkoutFlow.mjs';
 import { autorizarOperacaoPedido } from '@/services/pedidosService.js';
@@ -21,6 +21,7 @@ export default function NotificationListener() {
 
         // Adiciona o pedido em uma fila FIFO para impedir duas chamadas simultâneas ao QZ Tray.
         const enfileirarImpressao = pedido => {
+            if (!qzPrintingEnabled) return;
             if (!operationallyAllowed(pedido)) return;
             if (!pedido?.id || pedidosRecebidosRef.current.has(pedido.id)) return;
 
@@ -42,8 +43,7 @@ export default function NotificationListener() {
                 const htmlDoCupom = renderToString(<CupomPedido pedido={autorizado} />);
                 await imprimirCupom(htmlDoCupom, config.nome_impressora, { pedidoId: autorizado.id });
                 console.log(`🖨️ Pedido #${pedido.id} enviado para impressão automática.`);
-            }).catch(error => {
-                if (!qzSigningSecureEnabled) console.error(`Erro ao imprimir automaticamente o pedido #${pedido.id}:`, error);
+            }).catch(() => {
                 toast.error(`Pedido #${pedido.id} recebido, mas não foi possível imprimir automaticamente.`, { id: `print-error-${pedido.id}` });
             });
         };

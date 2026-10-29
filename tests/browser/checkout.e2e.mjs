@@ -555,15 +555,16 @@ test('admin browser blocks stale unpaid printing and preserves release across so
         await runtime.processPending({ limit: 5 });
         const fresh = await getOrder(payment.pedido_id);
         for (let i = 0; i < 3; i++) io.to('pedidos').emit('novo_pedido_recebido', fresh);
-        await expect.poll(() => configReads).toBe(1);
+        assert.equal(configReads, 0);
         await expect.poll(async () => (await fixture.db('outbox_eventos').where({ pedido_id: payment.pedido_id }).first()).status).toBe('CONCLUIDO');
         assert.equal(Number((await fixture.db('outbox_eventos').where({ pedido_id: payment.pedido_id }).count('* as n').first()).n), 1);
         await page.getByRole('button', { name: 'Pedidos do Dia', exact: true }).click();
         await page.getByPlaceholder('Buscar por Nome, Telefone ou #ID...').fill(String(payment.pedido_id));
         const row = page.getByRole('row').filter({ has: page.getByRole('cell', { name: '#' + payment.pedido_id, exact: true }) });
         await expect(row).toBeVisible(); await row.getByTitle('Imprimir Comanda').click();
-        await expect.poll(async () => page.evaluate(() => window.syntheticPrints)).toBe(1);
-        assert.equal(configReads, 2);
+        await expect(page.getByText('Impressão desativada nesta versão candidata.')).toBeVisible();
+        assert.equal(await page.evaluate(() => window.syntheticPrints), 0);
+        assert.equal(configReads, 0);
         await row.getByRole('button', { name: 'Detalhes', exact: true }).click();
         const [detailReceipt] = await Promise.all([admin.waitForEvent('page'),
             page.getByRole('button', { name: 'Ver comprovante de pagamento', exact: true }).last().click()]);
@@ -571,7 +572,7 @@ test('admin browser blocks stale unpaid printing and preserves release across so
         await detailReceipt.close();
         const detailHeader = page.getByRole('heading', { name: 'Pedido #' + payment.pedido_id, exact: true }).locator('..').locator('..');
         await detailHeader.getByRole('button').last().click();
-        assert.equal(await page.evaluate(() => window.syntheticPrints), 1);
+        assert.equal(await page.evaluate(() => window.syntheticPrints), 0);
         await page.setViewportSize({ width: 320, height: 760 });
         await page.getByRole('button', { name: 'Pagamentos InfinitePay', exact: true }).click();
         card = page.locator('article').filter({ hasText: 'Pedido #' + payment.pedido_id + ' ·' });
