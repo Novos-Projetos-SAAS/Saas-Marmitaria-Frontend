@@ -9,6 +9,9 @@ import {
 } from '@/services/permissoesService.js';
 
 import Swal from 'sweetalert2';
+import {
+    groupPermissionsByModule, getMissingFinancialPermissions, getNewSensitiveFinancialGrants
+} from '@/utils/financialPermissions.mjs';
 
 export function useUsuarioPermissoes(userId) {
 
@@ -16,6 +19,8 @@ export function useUsuarioPermissoes(userId) {
     const [permissoesSelecionadas, setPermissoesSelecionadas] = useState(new Set());
     const [parametrosIniciais, setParametrosIniciais] = useState(new Set());
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [missingFinancialPermissions, setMissingFinancialPermissions] = useState([]);
     const [acessoNegado, setAcessoNegado] = useState(false);
 
     const DEPENDENCIES = {
@@ -28,6 +33,8 @@ export function useUsuarioPermissoes(userId) {
     };
 
     const fetchPermissoes = useCallback(async () => {
+        setLoading(true);
+        setAcessoNegado(false);
         try {
             const [todas, doUsuario] = await Promise.all([
                 listarTodasPermissoes(),
@@ -40,17 +47,9 @@ export function useUsuarioPermissoes(userId) {
             // 🚀 PASSO 1: Extrai apenas o texto do nome (ex: ["usuarios.listar", "pedidos.visualizar"])
             const apenasNomesDoUsuario = permissoesDoUsuarioArray.map(p => p.nome);
 
-            const agrupamento = todasPermissoesArray.reduce((acc, perm) => {
-                const nomePermissao = perm.nome || ""; 
-                const [modulo] = nomePermissao.split('.');
-                const chaveModulo = modulo || "outros"; 
-
-                if (!acc[chaveModulo]) acc[modulo] = [];
-                acc[chaveModulo].push(perm);
-                return acc;
-            }, {});
-
-            setTodasPermissoes(agrupamento);
+            // Somente permissões existentes no catálogo do backend podem ser exibidas/salvas.
+            setTodasPermissoes(groupPermissionsByModule(todasPermissoesArray));
+            setMissingFinancialPermissions(getMissingFinancialPermissions(todasPermissoesArray));
             
             // 🚀 PASSO 2: Alimenta os Sets com as strings limpas
             setPermissoesSelecionadas(new Set(apenasNomesDoUsuario));
@@ -101,6 +100,8 @@ export function useUsuarioPermissoes(userId) {
     };
 
     const handleSave = async () => {
+        if (saving || loading || acessoNegado) return false;
+        setSaving(true);
         try {
             const permissionsArray = Array.from(permissoesSelecionadas);
             await atualizarPermissoesDoUsuario(userId, permissionsArray);
@@ -116,8 +117,12 @@ export function useUsuarioPermissoes(userId) {
             return true;
         } catch (error) {
             console.error("Erro ao salvar:", error);
-            Swal.fire("Erro", "Falha ao salvar as permissões.", "error");
+            Swal.fire("Erro", error?.response?.status === 403
+                ? "Sua conta não está autorizada a alterar essas permissões. A concessão de acessos financeiros exige um administrador."
+                : "Falha ao salvar as permissões.", "error");
             return false;
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -129,6 +134,9 @@ export function useUsuarioPermissoes(userId) {
         todasPermissoes,
         permissoesSelecionadas,
         loading,
+        saving,
+        missingFinancialPermissions,
+        newlyGrantedSensitive: getNewSensitiveFinancialGrants(parametrosIniciais, permissoesSelecionadas),
         fetchPermissoes,
         handleToggle,
         handleSave,
