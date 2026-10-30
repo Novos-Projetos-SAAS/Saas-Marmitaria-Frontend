@@ -287,3 +287,59 @@
         height: 48px;
     }
 }
+
+/* Destaque informativo para permissões financeiras; não indica ativação. */
+.financialNotice {
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    background: #fff7ed;
+    padding: 1rem;
+    color: #7c2d12;
+}
+.financialNotice p {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+.noticeHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.financialModule {
+    border-color: #fdba74;
+}
+.financialModule .moduleTitle {
+    background: #fff7ed;
+    color: #9a3412;
+}
+.sensitiveDescription {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #9a3412;
+}
+.permissionWarning {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #374151;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+.toggleRow:has(.switchInput:disabled) {
+    cursor: default;
+}
+.switchInput:disabled + .switchSlider {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.switchInput:focus-visible + .switchSlider {
+    outline: 3px solid #2563eb;
+    outline-offset: 3px;
+}
+.btnSave:disabled,
+.btnCancel:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
