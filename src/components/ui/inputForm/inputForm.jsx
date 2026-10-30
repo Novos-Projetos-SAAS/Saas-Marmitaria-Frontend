@@ -1,14 +1,27 @@
+
 "use client";
 
 import styles from "./inputForm.module.css";
 
-export default function InputForm({ 
-    label, 
-    name, 
-    type = "text", 
-    error, 
-    ...props 
+export default function InputForm({
+    label,
+    name,
+    type = "text",
+    error,
+    ...props
 }) {
+    const inputProps = { ...props };
+
+    // Campos com "value" devem permanecer controlados
+    // desde a primeira renderização, mesmo quando a API
+    // retorna null ou undefined.
+    if (
+        type !== "file" &&
+        Object.prototype.hasOwnProperty.call(inputProps, "value")
+    ) {
+        inputProps.value = inputProps.value ?? "";
+    }
+
     return (
         <div className={styles.inputGroup}>
             {label && (
@@ -16,17 +29,18 @@ export default function InputForm({
                     {label}
                 </label>
             )}
-            
+
             <input
                 id={name}
                 name={name}
                 type={type}
-                // Se houver erro, adicionamos uma classe extra para deixar a borda vermelha
                 className={`${styles.input} ${error ? styles.inputError : ""}`}
-                {...props}
+                {...inputProps}
             />
-            
-            {error && <span className={styles.errorText}>{error}</span>}
+
+            {error && (
+                <span className={styles.errorText}>{error}</span>
+            )}
         </div>
     );
 }

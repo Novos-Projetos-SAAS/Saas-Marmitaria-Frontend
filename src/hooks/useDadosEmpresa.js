@@ -21,10 +21,9 @@ export const useDadosEmpresa = () => {
             if (signal?.aborted) return;
 
             const empresa =
-                response?.data?.data ??
-                response?.data ??
-                response ??
-                null;
+                response?.status === "success"
+                    ? response.data ?? null
+                    : null;
 
             setDados(empresa);
         } catch (error) {
