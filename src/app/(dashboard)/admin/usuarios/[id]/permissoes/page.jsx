@@ -9,7 +9,7 @@ export default async function Permissoes({ params }) {
     const userId = resolvedParams.id;
 
     return (
-        <Can permission="permissoes.visualizar" fallback={<AccessDenied />}>
+        <Can perform="permissoes.visualizar" fallback={<AccessDenied />}>
             <UsuarioPermissoesClient userId={userId} />
         </Can>
     );
