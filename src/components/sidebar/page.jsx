@@ -23,7 +23,8 @@ import {
     X,
     ChevronDown,
     ChevronUp,
-    Star
+    Star,
+    CreditCard
 } from 'lucide-react';
 
 import styles from './page.module.css';
@@ -49,7 +50,8 @@ export default function Sidebar({ menuAberto, fecharMenu }) {
         { label: 'Categorias Produtos', href: '/admin/categorias-produtos', icon: Tags, permissao: 'categorias_produtos.listar' },
         { label: 'Usuários', href: '/admin/usuarios', icon: Users, permissao: 'usuarios.listar' },
         { label: 'Relatórios', href: '/admin/relatorios', icon: PieChart, permissao: 'relatorios.visualizar' },
-        { label: 'Configuração Loja', href: '/admin/configuracoes-loja', icon: Settings, permissao: 'loja.configurar' }
+        { label: 'Pagamentos', href: '/admin/pagamentos', icon: CreditCard, permissao: ['pagamentos.visualizar', 'pagamentos.conciliar'] },
+        { label: 'Configuração Loja', href: '/admin/configuracoes-loja', icon: Settings, permissao: ['loja.configurar', 'pagamentos.configurar', 'pagamentos.ativar'] }
     ];
 
     useEffect(() => {

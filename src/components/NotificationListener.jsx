@@ -17,6 +17,10 @@ export default function NotificationListener() {
     useEffect(() => {
         const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333', { withCredentials: true });
 
+        socket.on('connect', () => {
+            window.dispatchEvent(new CustomEvent('marmitaria:pedidos-atualizados'));
+        });
+
         // Adiciona o pedido em uma fila FIFO para impedir duas chamadas simultâneas ao QZ Tray.
         const enfileirarImpressao = pedido => {
             if (!pedido?.id || pedidosRecebidosRef.current.has(pedido.id)) return;

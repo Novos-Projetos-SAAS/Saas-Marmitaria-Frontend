@@ -416,7 +416,7 @@ export default function FormPedidoPresencial({ voltarParaLista }) {
                                 <option value="" disabled>
                                     {loadingMetodosPagamento ? 'Carregando opções...' : 'Selecione...'}
                                 </option>
-                                {metodosPagamento && metodosPagamento.map(metodo => (
+                                {metodosPagamento && metodosPagamento.filter(metodo => metodo.codigo !== 'INFINITEPAY').map(metodo => (
                                     <option key={metodo.id} value={metodo.id}>
                                         {metodo.nome}
                                     </option>

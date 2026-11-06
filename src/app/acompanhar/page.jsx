@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { usePedidos } from '@/hooks/usePedidos';
+import Link from 'next/link';
+import { useSavedPaymentOrders } from '@/hooks/usePaymentTracking.js';
 import { Clock, ChefHat, Bike, CheckCircle2, Search, ArrowLeft, Package, Store, XCircle } from 'lucide-react';
 
 import TelefoneInput from '@/components/ui/inputMask/index.jsx';
@@ -11,6 +13,7 @@ import InputForm from '@/components/ui/inputForm/inputForm';
 
 export default function AcompanharPedido() {
     const router = useRouter();
+    const onlineOrders = useSavedPaymentOrders();
     const [telefone, setTelefone] = useState('');
     const [pedidos, setPedidos] = useState([]);
     const [erro, setErro] = useState('');
@@ -101,6 +104,12 @@ export default function AcompanharPedido() {
                 </button>
                 <h1>Meus Pedidos</h1>
             </header>
+
+            {onlineOrders.length > 0 && <section className={styles.onlineOrders} aria-labelledby="online-orders-heading">
+                <h2 id="online-orders-heading">Pedidos InfinitePay deste navegador</h2>
+                <p>Consulte o pagamento e acompanhe a liberação para a cozinha.</p>
+                <div>{onlineOrders.map(id => <Link key={id} href={`/pedido/sucesso?pedido=${encodeURIComponent(id)}`}>Consultar pedido #{id}</Link>)}</div>
+            </section>}
 
             <form onSubmit={handleBusca} className={styles.buscaForm}>
                 <TelefoneInput

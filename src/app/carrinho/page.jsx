@@ -446,13 +446,15 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { AlertTriangle, PackagePlus, RefreshCw, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { useMetodosPagamento } from '@/hooks/useMetodosPagamento.js';
 import { usePedidos } from '@/hooks/usePedidos.js';
+import { useCheckout } from '@/hooks/useCheckout.js';
 import { usePedido } from '@/context/PedidoContext.js';
 import TelefoneInput from '@/components/ui/inputMask/index.jsx';
 
@@ -486,7 +488,11 @@ export default function Carrinho() {
     } = usePedido();
 
     const { metodosPagamento, loadingMetodosPagamento } = useMetodosPagamento();
-    const { finalizarPedidoNoBanco, enviando } = usePedidos();
+    const { finalizarPedidoNoBanco, enviando: enviandoTradicional } = usePedidos();
+    const { checkout, enviando: enviandoOnline, error: checkoutError } = useCheckout();
+    const [recoveredCheckout, setRecoveredCheckout] = useState(null);
+    const enviando = enviandoTradicional || enviandoOnline;
+    const submissionLock = useRef(false);
 
     const [form, setForm] = useState({
         nome: '',
@@ -512,12 +518,11 @@ export default function Carrinho() {
     const lojaBloqueada = lojaAbertaPedido !== true;
     const marmitasPersonalizadas = carrinho.filter((item) => item.tipo !== 'ESPECIAL');
     const marmitasEspeciais = carrinho.filter((item) => item.tipo === 'ESPECIAL');
+    const isInfinitepay = metodosPagamento.find(metodo => String(metodo.id) === String(form.metodo_pagamento_id))?.codigo === 'INFINITEPAY';
     const isPagamentoDinheiro = metodosPagamento.find((metodo) => String(metodo.id) === String(form.metodo_pagamento_id))?.nome.toLowerCase().includes('dinheiro');
 
     useEffect(() => {
         if (lojaAbertaPedido === false) {
-            setIndisponibilidade(null);
-            setModalIndisponibilidadeAberto(false);
             router.replace('/');
         }
     }, [lojaAbertaPedido, router]);
@@ -709,7 +714,9 @@ export default function Carrinho() {
     const finalizarPedido = async (event) => {
         event.preventDefault();
 
-        if (enviando || pedidoBloqueado) return;
+        if (submissionLock.current || enviando || pedidoBloqueado) return;
+        submissionLock.current = true;
+        try {
 
         const lojaValida = await validarLojaParaAcao();
         if (!lojaValida) {
@@ -783,7 +790,7 @@ export default function Carrinho() {
             }))
         };
 
-        const resposta = await finalizarPedidoNoBanco(payload);
+        const resposta = await (isInfinitepay ? checkout(payload) : finalizarPedidoNoBanco(payload));
 
         if (!resposta) return;
 
@@ -802,11 +809,18 @@ export default function Carrinho() {
             return;
         }
 
+        if (resposta.preserveCart) {
+            setRecoveredCheckout({ destination: resposta.destination, pedidoId: resposta.data.pedido_id });
+            return;
+        }
         setFinalizando(true);
         limparCarrinho();
         setSucessoPedido(true);
         localStorage.setItem('marmitaria_telefone_cliente', telefoneLimpo);
-        router.push('/pedido/sucesso');
+        if (isInfinitepay && resposta.destination.startsWith('/')) router.push(resposta.destination);
+        else if (isInfinitepay) window.location.assign(resposta.destination);
+        else router.push('/pedido/sucesso?tradicional=1');
+        } finally { submissionLock.current = false; }
     };
 
     if (carrinho.length === 0) {
@@ -931,6 +945,12 @@ export default function Carrinho() {
             </section>
 
             <form className={styles.form} onSubmit={finalizarPedido}>
+                {checkoutError && <p role="alert" className={styles.alertaIndisponibilidade}>{checkoutError}</p>}
+                {recoveredCheckout && <div className={styles.checkoutRecovery} role="status">
+                    <p>Recuperamos uma tentativa anterior: pedido #{recoveredCheckout.pedidoId}. Seu carrinho atual foi mantido. Consulte esse pedido antes de confirmar uma nova compra.</p>
+                    <Link href={`/pedido/sucesso?pedido=${encodeURIComponent(recoveredCheckout.pedidoId)}`}>Consultar pedido anterior</Link>
+                    {!recoveredCheckout.destination.startsWith('/') && <a href={recoveredCheckout.destination} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Abrir pagamento anterior em nova aba</a>}
+                </div>}
                 <h2 className={styles.secaoTitulo}>Entrega e Pagamento</h2>
 
                 <div className={styles.inputGroup}>

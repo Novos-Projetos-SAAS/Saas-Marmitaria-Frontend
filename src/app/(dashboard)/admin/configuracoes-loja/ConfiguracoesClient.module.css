@@ -244,3 +244,5 @@ input:checked + .slider:before {
     .btnZerar { width: 100%; }
     .toggleWrapper { align-items: flex-start; }
 }
+.tabBtn { min-height: 48px; touch-action: manipulation; }
+.tabBtn:focus-visible { outline: 3px solid #c2410c; outline-offset: 3px; }

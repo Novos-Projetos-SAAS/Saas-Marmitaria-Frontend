@@ -8,7 +8,7 @@ export default function Can({ perform, fallback = null, children }) {
 
   if (!isReady) return null;
 
-  if (!hasPermission(perform)) {
+  if (!(Array.isArray(perform) ? perform.some(hasPermission) : hasPermission(perform))) {
     return fallback;
   }
 

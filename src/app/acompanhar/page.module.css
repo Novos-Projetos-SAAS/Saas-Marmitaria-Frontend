@@ -505,3 +505,10 @@
         font-size: 0.56rem;
     }
 }
+.onlineOrders { background: #fff; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px; margin-bottom: 20px; }
+.onlineOrders h2 { margin: 0 0 8px; font-size: 1.1rem; color: #18181b; text-wrap: balance; }
+.onlineOrders p { color: #52525b; line-height: 1.5; }
+.onlineOrders > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.onlineOrders a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; box-sizing: border-box; padding: 10px 14px; border: 1px solid #a1a1aa; border-radius: 6px; color: #9a3412; text-decoration: none; font-weight: 600; touch-action: manipulation; }
+.onlineOrders a:hover { background: #fff7ed; border-color: #c2410c; }
+.onlineOrders a:focus-visible { outline: 3px solid #c2410c; outline-offset: 3px; }
