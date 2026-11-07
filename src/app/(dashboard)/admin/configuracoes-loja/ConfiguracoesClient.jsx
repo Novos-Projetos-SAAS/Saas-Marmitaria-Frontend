@@ -11,8 +11,16 @@ import InfinitepayConfiguration from '@/components/InfinitepayConfiguration/Infi
 import styles from './ConfiguracoesClient.module.css';
 
 export default function ConfiguracoesClient() {
-    const { hasPermission } = useAuthContext();
-    const [abaAtiva, setAbaAtiva] = useState(() => hasPermission('loja.configurar') ? 'operacional' : 'infinitepay');
+    const { hasPermission, isReady } = useAuthContext();
+    const abasPermitidas = [
+        hasPermission('loja.configurar') && 'operacional',
+        hasPermission('empresa.configurar') && 'empresa',
+        (hasPermission('pagamentos.configurar') || hasPermission('pagamentos.ativar')) && 'infinitepay'
+    ].filter(Boolean);
+    const [abaSelecionada, setAbaAtiva] = useState(() => abasPermitidas[0]);
+    const abaAtiva = abasPermitidas.includes(abaSelecionada) ? abaSelecionada : abasPermitidas[0];
+
+    if (!isReady) return null;
     return <div className={styles.wrapper}>
         <div className={styles.tabs}>
             <Can perform="loja.configurar">

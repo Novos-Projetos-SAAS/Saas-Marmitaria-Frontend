@@ -51,7 +51,7 @@ export default function Sidebar({ menuAberto, fecharMenu }) {
         { label: 'Usuários', href: '/admin/usuarios', icon: Users, permissao: 'usuarios.listar' },
         { label: 'Relatórios', href: '/admin/relatorios', icon: PieChart, permissao: 'relatorios.visualizar' },
         { label: 'Pagamentos', href: '/admin/pagamentos', icon: CreditCard, permissao: ['pagamentos.visualizar', 'pagamentos.conciliar'] },
-        { label: 'Configuração Loja', href: '/admin/configuracoes-loja', icon: Settings, permissao: ['loja.configurar', 'pagamentos.configurar', 'pagamentos.ativar'] }
+        { label: 'Configuração Loja', href: '/admin/configuracoes-loja', icon: Settings, permissao: ['loja.configurar', 'empresa.configurar', 'pagamentos.configurar', 'pagamentos.ativar'] }
     ];
 
     useEffect(() => {
