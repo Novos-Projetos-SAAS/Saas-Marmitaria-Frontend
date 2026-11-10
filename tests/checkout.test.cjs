@@ -8,7 +8,7 @@ const swc = require('next/dist/build/swc');
 const compiled = {};
 before(async () => {
     await swc.loadBindings();
-    for (const file of ['hooks/useCheckout.js', 'services/infinitepayService.js', 'services/pedidosService.js']) {
+    for (const file of ['hooks/useFinancialOrders.js', 'hooks/useCheckout.js', 'services/infinitepayService.js', 'services/pedidosService.js']) {
         const source = readFileSync('src/' + file, 'utf8');
         compiled[file] = (await swc.transform(source, { filename: file, module: { type: 'commonjs' } })).code;
     }
@@ -140,4 +140,42 @@ test('conflito de disponibilidade preserva o tratamento do carrinho', async () =
     assert.equal(await app.checkout(PAYLOAD), conflict);
     assert.equal(app.saved().length, 0);
     assert.equal(app.notices.length, 0);
+});
+
+test('histórico agrupa por confirmação em São Paulo e mantém total completo da API', () => {
+    const loaded = { exports: {} };
+    runInNewContext(compiled['hooks/useFinancialOrders.js'], {
+        module: loaded, exports: loaded.exports, require: () => ({}), Intl, Date, Map, Set,
+    });
+    const { groupPayments } = loaded.exports;
+    const rows = [
+        { pagamento_id: 1, status_financeiro: 'PAGA', pago_em: '2026-11-11T02:00:00Z', criado_em: '2026-11-08T12:00:00Z', valor_centavos: 2400, total_dia_centavos: 7200 },
+        { pagamento_id: 2, status_financeiro: 'AGUARDANDO', pagamento_criado_em: '2026-11-11T03:00:00Z', valor_centavos: 1000, total_dia_centavos: 0 },
+    ];
+    const groups = groupPayments([...rows, rows[0]]);
+    assert.deepEqual(Array.from(groups, group => group.key), ['2026-11-11', '2026-11-10']);
+    assert.equal(groups[1].totalCents, 7200);
+    assert.equal(groups[1].completeTotal, true);
+    assert.equal(groups[1].orders.length, 1);
+    assert.equal(groups[1].orders[0].time, '23:00');
+});
+
+test('histórico distingue estorno, pendência, método ausente e data não informada', () => {
+    const loaded = { exports: {} };
+    runInNewContext(compiled['hooks/useFinancialOrders.js'], {
+        module: loaded, exports: loaded.exports, require: () => ({}), Intl, Date, Map, Set,
+    });
+    const groups = loaded.exports.groupPayments([
+        { pagamento_id: 1, status_financeiro: 'ESTORNADA', pago_em: '2026-11-10T12:00:00Z', valor_centavos: 2400, capture_method: 'credit_card' },
+        { pagamento_id: 2, status_financeiro: 'PAGA', criado_em: '2026-11-09T12:00:00Z' },
+    ]);
+    assert.equal(groups[0].totalCents, 0);
+    assert.equal(groups[0].completeTotal, false);
+    assert.equal(groups[0].orders[0].refunded, true);
+    assert.equal(groups[0].orders[0].paid, false);
+    assert.equal(groups[0].orders[0].methodIcon, 'card');
+    assert.equal(groups[1].key, 'sem-data');
+    assert.equal(groups[1].orders[0].time, 'Horário não informado');
+    assert.equal(groups[1].orders[0].amountCents, null);
+    assert.equal(groups[1].orders[0].methodIcon, 'unknown');
 });

@@ -69,8 +69,10 @@ export function providerUrl(value, kind = 'checkout') {
     } catch { return null; }
 }
 
-export async function readFinancialOrders(page = 1) {
-    return (await api.get('/pagamentos/admin', { params: { page, limit: 20 } })).data;
+export async function readFinancialOrders(page = 1, period = {}) {
+    return (await api.get('/pagamentos/admin', { params: {
+        page, limit: 20, data_inicio: period.data_inicio || undefined, data_fim: period.data_fim || undefined,
+    } })).data;
 }
 
 export async function reconcilePayment(id, identifiers, csrf) {
