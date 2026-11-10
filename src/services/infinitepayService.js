@@ -51,10 +51,6 @@ async function publicRequest(path, { token, body, signal } = {}) {
     return result.data;
 }
 
-export function createCheckout(payload, token) {
-    return publicRequest('/pagamentos/checkout', { body: { ...payload, client_request_id: token } });
-}
-
 export function readPayment(payment, signal) {
     return publicRequest(`/pagamentos/pedidos/${Number(payment.pedido_id)}`, { token: payment.token, signal });
 }
