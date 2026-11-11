@@ -45,6 +45,8 @@ export default function TelefoneInput({
             className={className}
             placeholder={placeholder}
             type='tel'
+            name={name}
+            autoComplete='tel'
             required={required}
         />
     )
