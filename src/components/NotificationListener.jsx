@@ -15,8 +15,9 @@ export default function NotificationListener() {
     const pedidosRecebidosRef = useRef(new Set());
 
     useEffect(() => {
-        const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333', { withCredentials: true });
-
+        const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333', {
+            withCredentials: true
+        });
         socket.on('connect', () => {
             window.dispatchEvent(new CustomEvent('marmitaria:pedidos-atualizados'));
         });
