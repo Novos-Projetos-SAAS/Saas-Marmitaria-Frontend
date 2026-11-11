@@ -9,9 +9,13 @@ export function usePaymentTracking() {
     useEffect(() => {
         let stopped = false, busy = false, timer, attempts = 0;
         const url = new URL(window.location.href);
-        const identifiers = { order_nsu: url.searchParams.get('order_nsu'),
+        const identifiers = {
+            order_nsu: url.searchParams.get('order_nsu'),
             transaction_nsu: url.searchParams.get('transaction_nsu'),
-            slug: url.searchParams.get('slug') || url.searchParams.get('invoice_slug') };
+            slug: url.searchParams.get('slug') ||
+                url.searchParams.get('invoice_slug'),
+            receipt_url: url.searchParams.get('receipt_url')
+        };
         const hasReturn = Boolean(identifiers.order_nsu || identifiers.transaction_nsu || identifiers.slug);
         if (hasReturn) window.history.replaceState(null, '', url.pathname);
         if (url.searchParams.get('tradicional') === '1') {
@@ -25,7 +29,7 @@ export function usePaymentTracking() {
         const payment = identifiers.order_nsu
             ? payments.find(item => item.order_nsu === identifiers.order_nsu)
             : requestedId ? payments.find(item => String(item.pedido_id) === requestedId)
-            : payments.filter(item => item.pedido_id).at(-1);
+                : payments.filter(item => item.pedido_id).at(-1);
         if (payment?.pedido_id) window.history.replaceState(null, '', `${url.pathname}?pedido=${encodeURIComponent(payment.pedido_id)}`);
         const controller = new AbortController();
         let triedConfirmation = false;
@@ -33,8 +37,10 @@ export function usePaymentTracking() {
             if (stopped || busy || document.hidden) return;
             clearTimeout(timer);
             if (!payment?.pedido_id) {
-                setState({ loading: false, order: null, online: hasReturn || Boolean(requestedId), error: hasReturn || requestedId
-                    ? 'O acesso a este pagamento não está salvo neste navegador. Entre em contato com a marmitaria para consultar seu pedido.' : '' });
+                setState({
+                    loading: false, order: null, online: hasReturn || Boolean(requestedId), error: hasReturn || requestedId
+                        ? 'O acesso a este pagamento não está salvo neste navegador. Entre em contato com a marmitaria para consultar seu pedido.' : ''
+                });
                 return;
             }
             busy = true;
@@ -43,7 +49,7 @@ export function usePaymentTracking() {
                 // Callback identifiers only request a backend check; they never establish payment.
                 if (!triedConfirmation) {
                     triedConfirmation = true;
-                    await confirmPayment(payment, Object.fromEntries(Object.entries(identifiers).filter(([, value]) => value))).catch(() => {});
+                    await confirmPayment(payment, Object.fromEntries(Object.entries(identifiers).filter(([, value]) => value))).catch(() => { });
                 }
                 const order = await readPayment(payment, controller.signal);
                 if (!stopped) setState({ loading: false, online: true, order, error: '' });
@@ -51,8 +57,10 @@ export function usePaymentTracking() {
                     timer = setTimeout(load, 5000);
                 }
             } catch {
-                if (!stopped) setState(previous => ({ ...previous, loading: false, online: true,
-                    error: 'Não foi possível consultar o pagamento. Atualize a verificação ou entre em contato com a marmitaria.' }));
+                if (!stopped) setState(previous => ({
+                    ...previous, loading: false, online: true,
+                    error: 'Não foi possível consultar o pagamento. Atualize a verificação ou entre em contato com a marmitaria.'
+                }));
             } finally { busy = false; }
         }
         reload.current = () => { triedConfirmation = false; attempts = 0; void load(true); };

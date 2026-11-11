@@ -1,3 +1,8 @@
+
+/* ==========================================
+   MEUS PEDIDOS — MARMITARIA
+   ========================================== */
+
 :global(body) {
     margin: 0;
     background: #f7f5f4;
@@ -10,7 +15,7 @@
     min-height: 100dvh;
     margin: 0 auto;
     padding: 0 14px 40px;
-    background: #ffffff;
+    background: #fff;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     overflow-x: hidden;
@@ -19,6 +24,10 @@
 .container * {
     box-sizing: border-box;
 }
+
+/* ==========================================
+   CABEÇALHO DA PÁGINA
+   ========================================== */
 
 .header {
     position: sticky;
@@ -30,7 +39,7 @@
     padding: 18px 2px 16px;
     margin-bottom: 18px;
     background: rgba(255, 255, 255, 0.97);
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid #eee;
     backdrop-filter: blur(8px);
 }
 
@@ -40,7 +49,7 @@
     padding: 0;
     border: 1px solid #e7e3e1;
     border-radius: 50%;
-    background: #ffffff;
+    background: #fff;
     color: #a54b3c;
     cursor: pointer;
     display: flex;
@@ -62,17 +71,20 @@
 .header h1 {
     min-width: 0;
     margin: 0;
-    color: #444444;
+    color: #444;
     font-size: 1.35rem;
     font-weight: 650;
     letter-spacing: -0.02em;
 }
 
-/* BUSCA */
+/* ==========================================
+   BUSCA POR TELEFONE
+   ========================================== */
+
 .buscaForm {
+    display: flex;
     width: 100%;
     min-width: 0;
-    display: flex;
     gap: 8px;
     padding: 6px;
     margin-bottom: 20px;
@@ -89,9 +101,9 @@
     padding: 0 14px;
     border: none;
     border-radius: 10px;
-    background: #ffffff;
-    color: #444444;
-    font-family: inherit;
+    background: #fff;
+    color: #444;
+    font: inherit;
     font-size: 0.95rem;
     outline: none;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -106,18 +118,18 @@
 }
 
 .btnBuscar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     width: 48px;
     height: 48px;
     padding: 0;
     border: none;
     border-radius: 10px;
     background: #a54b3c;
-    color: #ffffff;
+    color: #fff;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
     transition: all 0.2s ease;
 }
 
@@ -139,16 +151,13 @@
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
-/* MENSAGENS */
+/* ==========================================
+   MENSAGENS
+   ========================================== */
+
 .erro {
     width: 100%;
     padding: 13px 14px;
@@ -170,12 +179,15 @@
     text-align: center;
 }
 
-/* LISTA */
+/* ==========================================
+   LISTA E CARDS DOS PEDIDOS
+   ========================================== */
+
 .listaPedidos {
-    width: 100%;
-    min-width: 0;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-width: 0;
     gap: 18px;
 }
 
@@ -186,18 +198,21 @@
     padding: 18px;
     border: 1px solid #ebe7e5;
     border-radius: 18px;
-    background: #ffffff;
+    background: #fff;
     box-shadow: 0 4px 18px rgba(56, 38, 34, 0.05);
     overflow: hidden;
 }
 
-/* CABEÇALHO DO PEDIDO */
+/* ==========================================
+   CABEÇALHO DO PEDIDO
+   ========================================== */
+
 .cardHeader {
-    width: 100%;
-    min-width: 0;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    width: 100%;
+    min-width: 0;
     gap: 12px;
     padding-bottom: 15px;
     margin-bottom: 22px;
@@ -211,28 +226,56 @@
 
 .cardHeader h2 {
     margin: 0 0 4px;
-    color: #444444;
+    color: #444;
     font-size: 1.08rem;
     font-weight: 700;
 }
 
-.cardHeader span {
+.cardHeader > div:first-child > span {
     color: #8b8582;
     font-size: 0.8rem;
 }
 
+/* Cozinha e status alinhados */
+.cardAcoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    width: auto;
+    max-width: none;
+    min-width: max-content;
+    gap: 8px;
+}
+
+.cardAcoes > span:not(.badgeStatus) {
+    color: #8b8582;
+    font-size: 0.73rem;
+    white-space: nowrap;
+}
+
+/* ==========================================
+   STATUS DA COZINHA
+   ========================================== */
+
 .badgeStatus {
-    max-width: 45%;
-    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: max-content;
+    max-width: none;
+    padding: 7px 11px;
     border-radius: 999px;
-    font-size: 0.66rem;
+    font-size: 0.68rem;
     font-weight: 700;
     line-height: 1.2;
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    flex-shrink: 0;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
 .badgePendente {
@@ -267,26 +310,149 @@
 
 .badgeDefault {
     background: #f1f1f1;
-    color: #666666;
+    color: #666;
 }
 
-/* TIMELINE */
-.timeline {
+/* ==========================================
+   FAIXA DE PAGAMENTO INFINITEPAY
+   ========================================== */
+
+.pagamentoInfo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
     width: 100%;
+    min-height: 56px;
+    gap: 8px;
+    padding: 8px 8px 8px 12px;
+    margin-bottom: 22px;
+    border-radius: 13px;
+}
+
+/* Texto e ícone financeiro */
+.pagamentoDescricao {
+    display: inline-flex;
+    align-items: center;
     min-width: 0;
+    gap: 7px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.pagamentoDescricao svg {
+    flex-shrink: 0;
+}
+
+/* Aguardando pagamento */
+.pagamentoPendente {
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+/* Pagamento confirmado */
+.pagamentoPago {
+    background: #eef9f0;
+    color: #277a45;
+}
+
+/* Pagamento não concluído */
+.pagamentoFalhou {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+/* ==========================================
+   BOTÃO CONTINUAR PAGAMENTO
+   ========================================== */
+
+.btnContinuar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 10px;
+    background: #a54b3c;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btnContinuar:hover:not(:disabled) {
+    background: #8f4033;
+}
+
+/* ==========================================
+   BOTÃO COMPROVANTE — PRETO E BRANCO
+   ========================================== */
+
+.btnComprovanteInline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #111111;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btnComprovanteInline:hover:not(:disabled) {
+    background: #333333;
+}
+
+.btnContinuar:disabled,
+.btnComprovanteInline:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.btnContinuar:focus-visible,
+.btnComprovanteInline:focus-visible {
+    outline: 3px solid #a54b3c;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   LINHA DO TEMPO
+   ========================================== */
+
+.timeline {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    width: 100%;
+    min-width: 0;
     margin-bottom: 26px;
 }
 
 .etapa {
-    flex: 1;
-    min-width: 0;
+    position: relative;
     z-index: 2;
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
+    min-width: 0;
     gap: 7px;
     color: #c4bfbc;
 }
@@ -303,15 +469,15 @@
 }
 
 .iconeWrap {
-    width: 38px;
-    height: 38px;
-    border: 2px solid #ded9d6;
-    border-radius: 50%;
-    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border: 2px solid #ded9d6;
+    border-radius: 50%;
+    background: #fff;
     transition: all 0.25s ease;
 }
 
@@ -327,7 +493,7 @@
 .etapaAtiva .iconeWrap {
     border-color: #a54b3c;
     background: #a54b3c;
-    color: #ffffff;
+    color: #fff;
     box-shadow: 0 3px 8px rgba(165, 75, 60, 0.18);
 }
 
@@ -344,21 +510,24 @@
     background: #a54b3c;
 }
 
-/* CANCELADO */
+/* ==========================================
+   PEDIDO CANCELADO
+   ========================================== */
+
 .alertaCancelado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     min-width: 0;
+    gap: 8px;
     padding: 22px 15px;
     margin-bottom: 24px;
     border: 1px solid #f7cccc;
     border-radius: 14px;
     background: #fff6f6;
     color: #b33d3d;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     font-weight: 600;
 }
 
@@ -368,7 +537,10 @@
     overflow-wrap: anywhere;
 }
 
-/* ITENS */
+/* ==========================================
+   RESUMO DO PEDIDO
+   ========================================== */
+
 .itensResumo {
     width: 100%;
     min-width: 0;
@@ -387,13 +559,13 @@
 }
 
 .itemMarmita {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    padding: 11px 0;
-    display: flex;
-    flex-direction: column;
     gap: 3px;
+    padding: 11px 0;
     border-bottom: 1px solid #f5f3f2;
 }
 
@@ -426,7 +598,6 @@
     word-break: break-word;
 }
 
-/* OBSERVAÇÃO */
 .itemObservacao {
     width: 100%;
     min-width: 0;
@@ -438,25 +609,27 @@
     background: #fff8f6;
     color: #a54b3c !important;
     font-size: 0.78rem !important;
-    font-style: normal;
     line-height: 1.45 !important;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
-/* TOTAL */
+/* ==========================================
+   TOTAL DO PEDIDO
+   ========================================== */
+
 .cardFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
     min-width: 0;
+    gap: 10px;
     margin-top: 18px;
     padding: 14px 16px;
     border-radius: 12px;
     background: #f8f4f3;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
     color: #494443;
 }
 
@@ -471,6 +644,10 @@
     font-weight: 750;
 }
 
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
 @media (max-width: 380px) {
     .container {
         padding-left: 10px;
@@ -481,10 +658,42 @@
         padding: 14px;
     }
 
+    .cardHeader {
+        gap: 6px;
+    }
+
+    .cardHeader h2 {
+        font-size: 1rem;
+    }
+
+    .cardAcoes {
+        gap: 5px;
+    }
+
+    .cardAcoes > span:not(.badgeStatus) {
+        font-size: 0.65rem;
+    }
+
     .badgeStatus {
-        max-width: 42%;
-        padding: 5px 8px;
-        font-size: 0.6rem;
+        padding: 6px 8px;
+        font-size: 0.61rem;
+    }
+
+    .pagamentoInfo {
+        gap: 5px;
+        padding: 7px;
+    }
+
+    .pagamentoDescricao {
+        gap: 5px;
+        font-size: 0.68rem;
+    }
+
+    .btnContinuar,
+    .btnComprovanteInline {
+        min-height: 38px;
+        padding: 8px;
+        font-size: 0.68rem;
     }
 
     .iconeWrap {
@@ -505,10 +714,36 @@
         font-size: 0.56rem;
     }
 }
-.onlineOrders { background: #fff; padding: 20px; border: 1px solid #e4e4e7; border-radius: 8px; margin-bottom: 20px; }
-.onlineOrders h2 { margin: 0 0 8px; font-size: 1.1rem; color: #18181b; text-wrap: balance; }
-.onlineOrders p { color: #52525b; line-height: 1.5; }
-.onlineOrders > div { display: flex; flex-wrap: wrap; gap: 10px; }
-.onlineOrders a { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; box-sizing: border-box; padding: 10px 14px; border: 1px solid #a1a1aa; border-radius: 6px; color: #9a3412; text-decoration: none; font-weight: 600; touch-action: manipulation; }
-.onlineOrders a:hover { background: #fff7ed; border-color: #c2410c; }
-.onlineOrders a:focus-visible { outline: 3px solid #c2410c; outline-offset: 3px; }
+
+@media (max-width: 340px) {
+    .pagamentoInfo {
+        grid-template-columns: 1fr;
+    }
+
+    .btnContinuar,
+    .btnComprovanteInline {
+        width: 100%;
+    }
+}
+
+.btnComprovanteInline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.btnComprovanteInline:hover {
+    background: #333;
+    color: #fff;
+}
