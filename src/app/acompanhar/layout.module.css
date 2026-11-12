@@ -1,0 +1,19 @@
+
+.shell {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 100dvh;
+    background: #f3f3f3;
+}
+
+.shell > * {
+    flex: 1 1 460px;
+    min-width: 0;
+}
+
+@media (min-width: 600px) {
+    .shell > * {
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+    }
+}

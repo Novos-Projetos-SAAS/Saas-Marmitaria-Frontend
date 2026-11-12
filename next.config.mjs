@@ -2,7 +2,7 @@
 const nextConfig = {
     /* config options here */
 
-    allowedDevOrigins: ['shopping-silence-strongly-wichita.trycloudflare.com'],
+    allowedDevOrigins: ['neon-possibly-bible-player.trycloudflare.com'],
 
 
 };

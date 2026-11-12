@@ -323,6 +323,8 @@
 
 'use client'
 
+
+import api from '@/services/api.js';
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { renderToString } from 'react-dom/server';
@@ -336,7 +338,7 @@ import Pagination from "@/components/ui/pagination";
 import CupomPedido from "@/components/CupomPedido/cupomPedido";
 import Can from "@/components/ui/can";
 
-import { RefreshCw, Eye, Plus, List, X, Search, Filter, Printer } from "lucide-react";
+import { RefreshCw, Eye, Plus, List, X, Search, Filter, Printer, ReceiptText } from "lucide-react";
 import styles from "./PedidosClient.module.css";
 
 const STATUS_OPCOES = ['Pendente', 'Em Preparo', 'Pronto para Retirada', 'Saiu para Entrega', 'Entregue', 'Cancelado'];
@@ -406,6 +408,26 @@ export default function PedidosClient() {
 
         return opcoes;
     }
+
+
+    const abrirComprovante = async (pedidoId) => {
+        const janela = window.open('about:blank', '_blank');
+        if (janela) janela.opener = null;
+
+        try {
+            const response = await api.get(`/pagamentos/admin/pedidos/${pedidoId}/comprovante`);
+            const url = response.data?.data?.receipt_url;
+
+            if (!url) throw new Error('Comprovante indisponível');
+
+            if (janela) janela.location.replace(url);
+            else window.location.assign(url);
+        } catch {
+            janela?.close();
+            toast.error('Não foi possível abrir o comprovante deste pedido.');
+        }
+    };
+
 
     return (
         <>
@@ -515,18 +537,52 @@ export default function PedidosClient() {
                                                             </select>
                                                         </Can>
                                                     </td>
-                                                    <td data-label="Ações" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
-                                                        <button className={styles.btnVer} onClick={() => setPedidoSelecionado(pedido)} title="Ver Detalhes">
-                                                            <Eye size={18} /> <span>Detalhes</span>
-                                                        </button>
+
+                                                    <td
+                                                        data-label="Ações"
+                                                        style={{
+                                                            display: 'flex',
+                                                            gap: '8px',
+                                                            alignItems: 'center',
+                                                            flexWrap: 'nowrap',
+                                                            whiteSpace: 'nowrap'
+                                                        }}
+                                                    >
                                                         <button
+                                                            type="button"
+                                                            className={styles.btnVer}
+                                                            onClick={() => setPedidoSelecionado(pedido)}
+                                                            title="Ver detalhes"
+                                                        >
+                                                            <Eye size={18} />
+                                                            <span>Detalhes</span>
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
                                                             onClick={() => handleImprimirPedido(pedido)}
-                                                            title="Imprimir Comanda"
+                                                            title="Imprimir comanda"
+                                                            aria-label={`Imprimir pedido #${pedido.id}`}
                                                             className={styles.btnImprimirGrid}
                                                         >
                                                             <Printer size={18} />
                                                         </button>
+
+                                                        {pedido.comprovante_disponivel && (
+                                                            <Can perform={['pagamentos.visualizar', 'pagamentos.conciliar']}>
+                                                                <button
+                                                                    type="button"
+                                                                    className={styles.btnImprimirGrid}
+                                                                    onClick={() => abrirComprovante(pedido.id)}
+                                                                    title="Ver comprovante"
+                                                                    aria-label={`Ver comprovante do pedido #${pedido.id}`}
+                                                                >
+                                                                    <ReceiptText size={18} />
+                                                                </button>
+                                                            </Can>
+                                                        )}
                                                     </td>
+
                                                 </tr>
                                             ))
                                         )}
@@ -553,7 +609,7 @@ export default function PedidosClient() {
                         <div className={styles.modalOverlay} onClick={() => setPedidoSelecionado(null)}>
                             <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                                 <div className={styles.modalHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    
+
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                         <h2 style={{ margin: 0 }}>Pedido #{pedidoSelecionado.id}</h2>
                                         <span style={{ fontSize: '0.95rem', color: '#52525b' }}>
@@ -655,5 +711,6 @@ export default function PedidosClient() {
             {/* O Cupom continuará sendo renderizado invisível caso seja necessário acionar o print nativo do navegador */}
             <CupomPedido pedido={pedidoParaImprimir} />
         </>
+
     );
 }

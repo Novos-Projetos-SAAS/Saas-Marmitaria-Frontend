@@ -66,3 +66,63 @@
 @media (max-width: 360px) { .container { padding-inline: 14px; } .section { padding: 16px; } .tracking { padding: 12px; } .item { gap: 12px; } .thumbnail { flex-basis: 56px; width: 56px; height: 56px; } }
 @media (min-width: 600px) { .container { padding-inline: 32px; } .tracking { padding: 20px; } .timeline { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; } .timeline li { flex-direction: column; text-align: center; gap: 8px; align-items: center; } .timeline li:not(:last-child)::after { left: calc(50% + 25px); width: calc(100% - 38px); top: 18px; bottom: auto; height: 2px; } }
 @media (min-width: 900px) { .columns { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } .section { padding: 24px; } }
+
+
+/* Mesmo container da página inicial */
+.container {
+    width: 100%;
+    max-width: 460px;
+    min-height: 100dvh;
+    padding-inline: 16px;
+    margin: 0 auto;
+    background: #fff;
+}
+
+/* Mantém o layout mobile mesmo
+   quando a janela do navegador é larga */
+@media (min-width: 600px) {
+    .container {
+        padding-inline: 16px;
+    }
+
+    .tracking {
+        padding: 16px;
+    }
+
+    .timeline {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .timeline li {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .timeline li:not(:last-child)::after {
+        left: 18px;
+        top: 44px;
+        bottom: -6px;
+        width: 2px;
+        height: auto;
+    }
+}
+
+/* Impede duas colunas dentro dos 460px */
+@media (min-width: 900px) {
+    .columns {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 360px) {
+    .container {
+        padding-inline: 14px;
+    }
+}
