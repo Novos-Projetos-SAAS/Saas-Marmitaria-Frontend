@@ -23,6 +23,25 @@ export default function InfinitepayConfiguration() {
                         onChange={event => toggle(event.target.checked)} />
                     <span>Habilitar pagamentos online</span>
                 </label>}
+                {configuration && <>
+                    <label className={styles.toggle}>
+                        <input type="checkbox" name="pix_habilitado" form="infinitepay-configuration-form"
+                            checked={form.pix_habilitado} disabled={!canConfigure || loading || busy}
+                            aria-describedby="infinitepay-methods-hint"
+                            onChange={event => update('pix_habilitado', event.target.checked)} />
+                        <span>Receber Pix pela InfinitePay</span>
+                    </label>
+                    <label className={styles.toggle}>
+                        <input type="checkbox" name="credito_habilitado" form="infinitepay-configuration-form"
+                            checked={form.credito_habilitado} disabled={!canConfigure || loading || busy}
+                            aria-describedby="infinitepay-methods-hint"
+                            onChange={event => update('credito_habilitado', event.target.checked)} />
+                        <span>Receber cartão de crédito pela InfinitePay</span>
+                    </label>
+                    <p className={styles.helper} id="infinitepay-methods-hint">Os métodos habilitados exigem confirmação do pagamento antes de liberar o pedido para a cozinha. Os métodos desabilitados seguem o fluxo tradicional da Marmitaria.</p>
+                    {!configuration.ativo && <p className={styles.helper}>A integração está desativada. As preferências salvas serão aplicadas quando ela for reativada.</p>}
+                    <p className={styles.helper}>No checkout da InfinitePay, o cartão de crédito permanece disponível mesmo quando Pix foi selecionado.</p>
+                </>}
                 <button className={styles.secondary} type="button" onClick={refresh} disabled={loading || busy}>
                     <RefreshCw size={16} aria-hidden="true" /> Atualizar status
                 </button>
@@ -32,7 +51,7 @@ export default function InfinitepayConfiguration() {
         {notice && <p className={styles.success} role="status">{notice}</p>}
         {configuration && canConfigure && <section className={styles.panel} aria-labelledby="infinitepay-settings">
             <header className={styles.header}><h2 id="infinitepay-settings">Configuração da InfinitePay</h2></header>
-            <form className={styles.form} onSubmit={save}>
+            <form id="infinitepay-configuration-form" className={styles.form} onSubmit={save}>
                 <label>InfiniteTag<input name="handle" autoComplete="off" spellCheck={false} value={form.handle} required maxLength={150}
                     disabled={busy || loading} onChange={event => update('handle', event.target.value)} /></label>
                 <label>Nova API Key<input name="infinitepay_api_key" type="password" autoComplete="new-password" spellCheck={false}

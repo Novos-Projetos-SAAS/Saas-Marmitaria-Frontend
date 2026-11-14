@@ -8,10 +8,157 @@ const swc = require('next/dist/build/swc');
 const compiled = {};
 before(async () => {
     await swc.loadBindings();
-    for (const file of ['hooks/useFinancialOrders.js', 'hooks/useCheckout.js', 'services/infinitepayService.js', 'services/pedidosService.js']) {
+    for (const file of ['hooks/useFinancialOrders.js', 'hooks/useCheckout.js', 'hooks/useInfinitepayConfiguration.js', 'services/infinitepayService.js', 'services/pedidosService.js',
+        'components/InfinitepayConfiguration/InfinitepayConfiguration.jsx', 'components/ui/can/index.jsx',
+        'app/(dashboard)/admin/configuracoes-loja/page.jsx', 'app/(dashboard)/admin/configuracoes-loja/ConfiguracoesClient.jsx', 'components/sidebar/page.jsx']) {
         const source = readFileSync('src/' + file, 'utf8');
-        compiled[file] = (await swc.transform(source, { filename: file, module: { type: 'commonjs' } })).code;
+        compiled[file] = (await swc.transform(source, { filename: file, module: { type: 'commonjs' },
+            jsc: { parser: { syntax: 'ecmascript', jsx: file.endsWith('.jsx') }, transform: { react: { runtime: 'automatic' } } } })).code;
     }
+});
+
+function configurationHook(service) {
+    const state = [], refs = [];
+    let stateIndex, refIndex, mounted = false;
+    const effects = [];
+    const loaded = { exports: {} };
+    const react = {
+        useState(initial) {
+            const index = stateIndex++;
+            if (!(index in state)) state[index] = initial;
+            return [state[index], value => { state[index] = typeof value === 'function' ? value(state[index]) : value; }];
+        },
+        useRef(initial) { const index = refIndex++; return refs[index] ||= { current: initial }; },
+        useCallback: callback => callback,
+        useEffect: callback => { if (!mounted) effects.push(callback); },
+    };
+    runInNewContext(compiled['hooks/useInfinitepayConfiguration.js'], {
+        module: loaded, exports: loaded.exports,
+        require: id => id === 'react' ? react : service,
+    });
+    const render = () => {
+        stateIndex = refIndex = 0;
+        const hook = loaded.exports.useInfinitepayConfiguration();
+        mounted = true;
+        return hook;
+    };
+    render();
+    effects.forEach(effect => effect());
+    return render;
+}
+
+const CONFIG = { handle: 'loja', ativo: true, assured_installments: 1, has_api_key: true,
+    pix_habilitado: false, credito_habilitado: true };
+const settle = () => new Promise(resolve => setImmediate(resolve));
+
+test('configuração carrega preferências e salva booleanos pelo serviço existente', async () => {
+    const requests = [];
+    let persisted = { ...CONFIG };
+    const service = {
+        readConfiguration: async () => ({ data: persisted, csrf_token: 'csrf-test' }),
+        saveConfiguration: async (input, csrf) => {
+            requests.push({ input, csrf }); persisted = { ...persisted, ...input }; return { data: persisted };
+        },
+    };
+    const render = configurationHook(service);
+    await settle();
+    assert.equal(render().form.pix_habilitado, false);
+    assert.equal(render().form.credito_habilitado, true);
+    render().setForm(previous => ({ ...previous, pix_habilitado: true, credito_habilitado: false }));
+    await render().save({ preventDefault() {} });
+    assert.equal(requests[0].input.pix_habilitado, true);
+    assert.equal(requests[0].input.credito_habilitado, false);
+    assert.equal(requests[0].csrf, 'csrf-test');
+    assert.equal(render().notice, 'Configuração salva.');
+    const remount = configurationHook(service);
+    await settle();
+    assert.equal(remount().form.credito_habilitado, false);
+});
+
+test('erro ao salvar preserva preferências e cliques concorrentes não duplicam requisição', async () => {
+    let reject, calls = 0;
+    const render = configurationHook({
+        readConfiguration: async () => ({ data: { ...CONFIG } }),
+        saveConfiguration: () => { calls++; return new Promise((resolve, fail) => { reject = fail; }); },
+    });
+    await settle();
+    render().setForm(previous => ({ ...previous, pix_habilitado: true, credito_habilitado: false }));
+    const first = render().save({ preventDefault() {} });
+    await render().save({ preventDefault() {} });
+    assert.equal(calls, 1);
+    reject(new Error('Falha simulada'));
+    await first;
+    assert.equal(render().form.pix_habilitado, true);
+    assert.equal(render().form.credito_habilitado, false);
+    assert.ok(render().error);
+    assert.equal(render().configuration.pix_habilitado, false);
+});
+
+test('alternar integração preserva edições pendentes dos métodos', async () => {
+    const render = configurationHook({
+        readConfiguration: async () => ({ data: { ...CONFIG } }),
+        setActivation: async ativo => ({ data: { ...CONFIG, ativo } }),
+    });
+    await settle();
+    render().setForm(previous => ({ ...previous, pix_habilitado: true, credito_habilitado: false }));
+    await render().toggle(false);
+    assert.equal(render().configuration.ativo, false);
+    assert.equal(render().form.pix_habilitado, true);
+    assert.equal(render().form.credito_habilitado, false);
+});
+
+function configurationMarkup(permissions, configuration = CONFIG) {
+    const React = require('react');
+    const { renderToStaticMarkup } = require('react-dom/server');
+    const mocks = {
+        react: React, 'react/jsx-runtime': require('react/jsx-runtime'), 'lucide-react': require('lucide-react'),
+        '@/context/AuthContext.js': { useAuthContext: () => ({ isReady: true, hasPermission: name => permissions.includes(name) }) },
+        '@/hooks/useInfinitepayConfiguration.js': { useInfinitepayConfiguration: () => ({ configuration, form: configuration,
+            loading: false, busy: false, apiKey: '', error: '', notice: '' }) },
+        'next/navigation': { usePathname: () => '/admin/configuracoes-loja' },
+        '@/hooks/useLoja.js': {}, '@/hooks/useCardapio.js': {},
+        '@/components/forms/empresa/empresaForm.jsx': { default: () => null, __esModule: true },
+        '@/components/ui/accessDenied/index.jsx': { default: () => React.createElement('p', null, 'Sem acesso'), __esModule: true },
+        '../ui/itemSidebar/index.jsx': { default: ({ href, children, label, nome }) => React.createElement('a', { href }, children || label || nome), __esModule: true },
+    };
+    function load(file) {
+        const loaded = { exports: {} };
+        runInNewContext(compiled[file], { module: loaded, exports: loaded.exports, require: id => {
+            if (id.endsWith('.module.css')) return { __esModule: true, default: new Proxy({}, { get: (_, key) => key }) };
+            assert.ok(id in mocks, 'Unknown UI test import: ' + id);
+            return mocks[id];
+        } });
+        return loaded.exports;
+    }
+    const can = load('components/ui/can/index.jsx');
+    mocks['@/components/ui/can/index.jsx'] = mocks['../ui/can/index.jsx'] = can;
+    mocks['@/components/InfinitepayConfiguration/InfinitepayConfiguration.jsx'] = load('components/InfinitepayConfiguration/InfinitepayConfiguration.jsx');
+    mocks['./ConfiguracoesClient.jsx'] = load('app/(dashboard)/admin/configuracoes-loja/ConfiguracoesClient.jsx');
+    return {
+        page: renderToStaticMarkup(React.createElement(load('app/(dashboard)/admin/configuracoes-loja/page.jsx').default)),
+        sidebar: renderToStaticMarkup(React.createElement(load('components/sidebar/page.jsx').default, { menuAberto: true })),
+    };
+}
+
+test('visualização acessa página, aba e menu com checkboxes somente leitura', () => {
+    const markup = configurationMarkup(['pagamentos.visualizar'], { ...CONFIG, ativo: false });
+    assert.match(markup.page, /Receber Pix pela InfinitePay/);
+    assert.match(markup.page, /Receber cartão de crédito pela InfinitePay/);
+    assert.match(markup.page, /preferências salvas serão aplicadas/);
+    assert.equal((markup.page.match(/type="checkbox"[^>]*disabled=""/g) || []).length, 2);
+    assert.doesNotMatch(markup.page, /Salvar configuração/);
+    assert.doesNotMatch(markup.page, /Habilitar pagamentos online/);
+    assert.match(markup.sidebar, /href="\/admin\/configuracoes-loja"/);
+});
+
+test('permissão configurar edita métodos sem permitir ativação global', () => {
+    const { page } = configurationMarkup(['pagamentos.configurar']);
+    assert.equal((page.match(/type="checkbox"/g) || []).length, 2);
+    assert.doesNotMatch(page, /type="checkbox"[^>]*disabled=""/);
+    assert.match(page, /Salvar configuração/);
+    assert.doesNotMatch(page, /Habilitar pagamentos online/);
+    assert.match(page, /id="infinitepay-configuration-form"/);
+    assert.match(page, /form="infinitepay-configuration-form"/);
 });
 
 function mockCheckout(respond, entries = new Map()) {

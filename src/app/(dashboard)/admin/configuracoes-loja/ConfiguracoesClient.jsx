@@ -15,7 +15,7 @@ export default function ConfiguracoesClient() {
     const abasPermitidas = [
         hasPermission('loja.configurar') && 'operacional',
         hasPermission('empresa.configurar') && 'empresa',
-        (hasPermission('pagamentos.configurar') || hasPermission('pagamentos.ativar')) && 'infinitepay'
+        (hasPermission('pagamentos.configurar') || hasPermission('pagamentos.ativar') || hasPermission('pagamentos.visualizar')) && 'infinitepay'
     ].filter(Boolean);
     const [abaSelecionada, setAbaAtiva] = useState(() => abasPermitidas[0]);
     const abaAtiva = abasPermitidas.includes(abaSelecionada) ? abaSelecionada : abasPermitidas[0];
@@ -33,7 +33,7 @@ export default function ConfiguracoesClient() {
                     <Building2 size={18} aria-hidden="true" /> Dados da Empresa
                 </button>
             </Can>
-            <Can perform={['pagamentos.configurar', 'pagamentos.ativar']}>
+            <Can perform={['pagamentos.configurar', 'pagamentos.ativar', 'pagamentos.visualizar']}>
                 <button type="button" className={`${styles.tabBtn} ${abaAtiva === 'infinitepay' ? styles.tabAtiva : ''}`} onClick={() => setAbaAtiva('infinitepay')}>
                     <CreditCard size={18} aria-hidden="true" /> InfinitePay
                 </button>

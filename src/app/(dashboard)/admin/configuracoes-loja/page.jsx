@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function ConfiguracoesPage() {
     return (
-        <Can perform={['loja.configurar', 'empresa.configurar', 'pagamentos.configurar', 'pagamentos.ativar']} fallback={<AccessDenied />}>
+        <Can perform={['loja.configurar', 'empresa.configurar', 'pagamentos.configurar', 'pagamentos.ativar', 'pagamentos.visualizar']} fallback={<AccessDenied />}>
             <div className={styles.container}>
                 <h1 className={styles.pageTitle}>Configurações da Loja</h1>
                 <ConfiguracoesClient />
